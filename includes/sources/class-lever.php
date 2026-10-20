@@ -41,11 +41,21 @@ final class Lever extends Board {
 				array(
 					'appointment' => self::appointment( (string) ( $cat['commitment'] ?? '' ) ),
 					'posted_date' => self::date( $job['createdAt'] ?? null ),
+					'pay_text'    => self::range_text( (array) ( $job['salaryRange'] ?? array() ) ),
 					'url'         => esc_url_raw( (string) ( $job['hostedUrl'] ?? '' ) ),
 					'apply_url'   => esc_url_raw( (string) ( $job['applyUrl'] ?? '' ) ),
 				)
 			);
 		}
 		return $rows;
+	}
+
+	/** {min, max, interval: "per-hour-wage"} => "$23.05 - $28.05 per hour". */
+	private static function range_text( array $range ): string {
+		if ( empty( $range['min'] ) ) {
+			return '';
+		}
+		$per = preg_match( '/hour|day|year|month/', (string) ( $range['interval'] ?? '' ), $m ) ? ' per ' . $m[0] : '';
+		return '$' . $range['min'] . ( ! empty( $range['max'] ) && $range['max'] > $range['min'] ? ' - $' . $range['max'] : '' ) . $per;
 	}
 }

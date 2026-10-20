@@ -40,6 +40,7 @@ final class Breezy extends Board {
 				array(
 					'appointment' => self::appointment( (string) ( $job['type']['name'] ?? '' ) ),
 					'posted_date' => self::date( $job['published_date'] ?? '' ),
+					'pay_text'    => self::clean( (string) ( $job['salary'] ?? '' ) ),
 					'url'         => esc_url_raw( (string) ( $job['url'] ?? '' ) ),
 					'apply_url'   => esc_url_raw( (string) ( $job['url'] ?? '' ) ),
 				)

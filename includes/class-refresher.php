@@ -111,13 +111,7 @@ final class Refresher {
 		foreach ( $rows as $row ) {
 			$existing = $index[ $row['source_id'] ] ?? null;
 			$details  = ! empty( $existing['details'] ) ? (array) json_decode( $existing['details'], true ) : array();
-			$county   = $places->resolve( $row['employer'], $row['location'] );
-			$row     += array(
-				'county_code'   => $county['code'],
-				'county_method' => $county['method'],
-				'subject'       => Classifier::subject( $row['title'], $row['position_type'], $details['licenses'] ?? array() ),
-				'grade_band'    => Classifier::grade_band( $row['title'], $row['location'] ),
-			);
+			$row     += Classifier::derive( $row, $details, $places );
 			++$counts[ Store::upsert( $row, $existing, $started, $touch ) ];
 		}
 		Store::touch( $touch, $started );

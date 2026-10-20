@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Store {
 
-	private const DB_VERSION        = '1';
+	private const DB_VERSION        = '2';
 	private const OPTION_DB_VERSION = 'mmi_teach_db_version';
 
 	public static function table(): string {
@@ -45,6 +45,13 @@ final class Store {
 				county_method varchar(16) NOT NULL DEFAULT '',
 				subject varchar(48) NOT NULL DEFAULT '',
 				grade_band varchar(32) NOT NULL DEFAULT '',
+				sub_kind varchar(12) NOT NULL DEFAULT '',
+				pay_text varchar(255) NOT NULL DEFAULT '',
+				pay_min decimal(10,2) DEFAULT NULL,
+				pay_max decimal(10,2) DEFAULT NULL,
+				pay_unit varchar(12) NOT NULL DEFAULT '',
+				pay_basis varchar(12) NOT NULL DEFAULT '',
+				pay_day decimal(8,2) DEFAULT NULL,
 				details longtext NULL,
 				details_at datetime DEFAULT NULL,
 				row_hash char(40) NOT NULL DEFAULT '',
@@ -125,7 +132,8 @@ final class Store {
 	public static function index( string $source ): array {
 		global $wpdb;
 		$table = self::table();
-		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT source_id, id, row_hash, details, county_code, county_method, subject, grade_band, removed_at FROM {$table} WHERE source = %s", $source ), ARRAY_A );
+		$cols  = implode( ', ', self::derived_columns() );
+		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT source_id, id, row_hash, details, removed_at, {$cols} FROM {$table} WHERE source = %s", $source ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- column list is a constant.
 		return array_column( $rows, null, 'source_id' );
 	}
 
@@ -211,22 +219,15 @@ final class Store {
 	public static function reclassify_open(): int {
 		global $wpdb;
 		$table   = self::table();
-		$rows    = $wpdb->get_results( "SELECT id, title, employer, location, position_type, details, county_code, county_method, subject, grade_band FROM {$table} WHERE removed_at IS NULL", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$cols    = implode( ', ', self::derived_columns() );
+		$rows    = $wpdb->get_results( "SELECT id, title, employer, location, position_type, pay_text, details, {$cols} FROM {$table} WHERE removed_at IS NULL", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$places  = Places::instance();
 		$changed = 0;
 		foreach ( $rows as $row ) {
-			$details  = $row['details'] ? (array) json_decode( $row['details'], true ) : array();
-			$county   = $places->resolve( $row['employer'], $row['location'] );
-			$subject  = Classifier::subject( $row['title'], $row['position_type'], $details['licenses'] ?? array() );
-			$band     = Classifier::grade_band( $row['title'], $row['location'] );
-			$next     = array(
-				'county_code'   => $county['code'],
-				'county_method' => $county['method'],
-				'subject'       => $subject,
-				'grade_band'    => $band,
-			);
-			$current  = array_intersect_key( $row, $next );
-			if ( $current != $next ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- string-vs-string compare of DB values.
+			$details = $row['details'] ? (array) json_decode( $row['details'], true ) : array();
+			$next    = Classifier::derive( $row, $details, $places );
+			$current = array_intersect_key( $row, $next );
+			if ( $current != $next ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- DB strings ("185.00") vs derived numbers.
 				$wpdb->update( $table, $next, array( 'id' => (int) $row['id'] ) );
 				++$changed;
 			}
@@ -236,11 +237,11 @@ final class Store {
 
 	/** Columns a source supplies; a change in any of them means the posting changed. */
 	private static function source_columns(): array {
-		return array( 'title', 'employer', 'location', 'position_type', 'appointment', 'posted_date', 'updated_date', 'start_text', 'close_text', 'close_date', 'url', 'apply_url' );
+		return array( 'title', 'employer', 'location', 'position_type', 'appointment', 'posted_date', 'updated_date', 'start_text', 'close_text', 'close_date', 'url', 'apply_url', 'pay_text' );
 	}
 
 	/** Columns this plugin works out from the source columns. */
 	private static function derived_columns(): array {
-		return array( 'county_code', 'county_method', 'subject', 'grade_band' );
+		return array( 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day' );
 	}
 }

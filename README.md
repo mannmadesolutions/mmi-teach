@@ -12,6 +12,12 @@ Racine counties, Wisconsin** and shows them on one filterable dashboard.
 - Filters for county, subject, grade level, full or part time, posting date, keyword, and
   substitute postings (hidden by default). The filters live in the URL, so a filtered view can be
   bookmarked or shared.
+- Pay: every posting's pay text is parsed into an amount, a unit (hour, day, year, stipend) and a
+  daily equivalent (hourly × 7, annual ÷ 180) for sorting and filtering. "Salary schedule" and
+  "depends on experience" postings are labeled as such; the posted wording is kept in the row details.
+- Substitute jobs: postings are tagged daily/on-call, building or long-term sub. The **Substitute
+  jobs** button and the Job type filter switch between teaching and substitute postings, and a tile
+  shows the median sub pay per day.
 - CSV download of the current view.
 
 ## Where the data comes from
@@ -47,7 +53,7 @@ wp plugin activate mmi-teach            # creates the table and the dashboard pa
 wp mmi-teach refresh                    # read every source; --details=<n> caps detail-page reads (default 200)
 wp mmi-teach status                     # counts per county, source health
 wp mmi-teach unplaced                   # employers not placed in any county
-wp mmi-teach reclassify                 # re-run county/subject matching after editing data/*.json
+wp mmi-teach reclassify                 # re-run county, subject, sub-kind and pay parsing after editing data/*.json or rules
 wp mmi-teach build-places               # rebuild data/places.json from NCES (when a new year is published)
 ```
 

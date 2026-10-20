@@ -11,8 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Classifier {
 
-	public const SUBSTITUTE = 'Substitute';
-	public const OTHER      = 'Other / General';
+	public const OTHER = 'Other / General';
+
+	/** Substitute posting kinds; '' means a regular (contracted) teaching job. */
+	public const SUB_KINDS = array(
+		'daily'     => 'Daily / on-call sub',
+		'building'  => 'Building sub',
+		'long_term' => 'Long-term sub',
+	);
 
 	/**
 	 * Subject => title/license patterns, checked in order; the first match wins, so the more
@@ -69,9 +75,6 @@ final class Classifier {
 	);
 
 	public static function subject( string $title, string $position_type, array $licenses = array() ): string {
-		if ( stripos( $position_type, 'substitute' ) !== false || preg_match( '/\bsub(stitute)?\b/i', $title ) ) {
-			return self::SUBSTITUTE;
-		}
 		$found = self::first_match( self::SUBJECTS, $title );
 		if ( $found ) {
 			return $found;
@@ -93,7 +96,53 @@ final class Classifier {
 
 	/** Every subject label in display order, for the dashboard's filter list. */
 	public static function subjects(): array {
-		return array_merge( array_keys( self::SUBJECTS ), array( self::OTHER, self::SUBSTITUTE ) );
+		return array_merge( array_keys( self::SUBJECTS ), array( self::OTHER ) );
+	}
+
+	/**
+	 * Which kind of substitute job this is, or '' for a regular teaching job. Long-term subs are
+	 * often posted as type "Teacher" with the term in the title, so the title counts too.
+	 */
+	public static function sub_kind( string $title, string $position_type ): string {
+		$is_sub = stripos( $position_type, 'substitute' ) !== false || preg_match( '/\bsub(stitute)?s?\b|guest teacher/i', $title );
+		if ( ! $is_sub ) {
+			return '';
+		}
+		if ( preg_match( '/long[- ]?term|\bLTS\b|\bLT\b|maternity|parental|\bleave\b|semester|year[- ]long|\b(through|until|thru)\b/i', $title ) ) {
+			return 'long_term';
+		}
+		if ( preg_match( '/building|permanent|dedicated|site[- ]based|full[- ]time sub/i', $title ) ) {
+			return 'building';
+		}
+		return 'daily';
+	}
+
+	/**
+	 * Every column this plugin works out for a posting: county, subject, grade band, substitute
+	 * kind and normalized pay. Pay comes from the board's own pay field, else the detail page.
+	 *
+	 * @param array $row     Posting with at least title, employer, location, position_type, pay_text.
+	 * @param array $details Decoded detail-page data (may be empty).
+	 */
+	public static function derive( array $row, array $details, Places $places ): array {
+		$county = $places->resolve( $row['employer'], $row['location'] );
+		$pay    = Pay::parse( (string) ( ( $row['pay_text'] ?? '' ) ?: ( $details['salary'] ?? '' ) ) );
+		$kind   = self::sub_kind( $row['title'], $row['position_type'] );
+		if ( 'daily' === $kind && 'year' === $pay['unit'] ) {
+			$kind = 'building'; // A salaried "district substitute" is a full-time, every-day sub.
+		}
+		return array(
+			'county_code'   => $county['code'],
+			'county_method' => $county['method'],
+			'subject'       => self::subject( $row['title'], $row['position_type'], $details['licenses'] ?? array() ),
+			'grade_band'    => self::grade_band( $row['title'], $row['location'] ),
+			'sub_kind'      => $kind,
+			'pay_min'       => $pay['min'],
+			'pay_max'       => $pay['max'],
+			'pay_unit'      => $pay['unit'],
+			'pay_basis'     => $pay['basis'],
+			'pay_day'       => $pay['day'],
+		);
 	}
 
 	private static function first_match( array $patterns, string $text ): string {

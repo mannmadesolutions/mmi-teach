@@ -147,6 +147,7 @@ button.mt-kpi:hover { background: var(--mt-accent-wash); }
 .mt-kpi-label { font-size: 0.8rem; color: var(--mt-ink-2); }
 .mt-kpi-value { font-size: 1.75rem; font-weight: 600; line-height: 1.1; }
 .mt-kpi-hero .mt-kpi-value { font-size: 3rem; }
+.mt-kpi-note { font-size: 0.75rem; color: var(--mt-muted); }
 
 /* Filters: one row above the charts, wrapping on narrow screens */
 .mt-filters {
@@ -272,6 +273,8 @@ th[aria-sort="descending"] .mt-sort::after { content: "↓"; opacity: 1; }
 	font-weight: 600;
 	vertical-align: 1px;
 }
+.mt-badge-sub { background: transparent; border: 1px solid var(--mt-border); color: var(--mt-ink-2); font-weight: 500; }
+.mt-minday { width: 7.5em; }
 .mt-soon { color: var(--mt-critical); font-weight: 600; }
 .mt-detail-row td { background: var(--mt-accent-wash); padding: 0 12px 16px; }
 .mt-detail { display: grid; gap: 10px; max-width: 980px; }

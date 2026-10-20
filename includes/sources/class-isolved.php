@@ -45,11 +45,27 @@ final class Isolved extends Board {
 					'appointment' => self::appointment( (string) ( $job['employmentType'] ?? '' ) ),
 					'posted_date' => self::date( $job['startDateRef'] ?? '' ),
 					'close_text'  => '1' === (string) ( $job['untilFilled'] ?? '' ) ? 'Until filled' : '',
+					'pay_text'    => self::pay_text( $job ),
 					'url'         => esc_url_raw( (string) ( $job['jobUrl'] ?? '' ) ),
 					'apply_url'   => esc_url_raw( (string) ( $job['jobUrl'] ?? '' ) ),
 				)
 			);
 		}
 		return $rows;
+	}
+
+	/** minSalary/maxSalary or payRate, with "per hour"/"per year" from payType. */
+	private static function pay_text( array $job ): string {
+		$per = array(
+			'hourly' => ' per hour',
+			'salary' => ' per year',
+		)[ strtolower( (string) ( $job['payType'] ?? '' ) ) ] ?? '';
+		if ( ! empty( $job['minSalary'] ) ) {
+			return '$' . $job['minSalary'] . ( ! empty( $job['maxSalary'] ) ? ' - $' . $job['maxSalary'] : '' ) . $per;
+		}
+		if ( ! empty( $job['payRate'] ) && 'None' !== $job['payRate'] ) {
+			return '$' . $job['payRate'] . $per;
+		}
+		return self::clean( (string) ( $job['payDetails'] ?? '' ) );
 	}
 }

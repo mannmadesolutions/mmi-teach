@@ -19,10 +19,12 @@
 		{ key: 'school', label: 'School / building' },
 		{ key: 'county', label: 'County' },
 		{ key: 'appt', label: 'Type' },
+		{ key: 'payDay', label: 'Pay', num: true, nullsLast: true },
 		{ key: 'start', label: 'Starts' },
 		{ key: 'closeSort', label: 'Closes' },
 	];
-	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', subs: '0', sort: 'posted', dir: 'desc' };
+	// kind: jobs = regular teaching jobs, subs = every substitute kind, all, or one sub kind.
+	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
 
 	let data = null;
 	let state = readHash();
@@ -59,8 +61,10 @@
 			v.closeTime = v.closeDate ? parseDate( v.closeDate ).getTime() : 0;
 			// Dated closings sort first by date; "until filled" after them.
 			v.closeSort = v.closeTime || Number.MAX_SAFE_INTEGER;
-			v.isSub = v.subject === 'Substitute';
-			v.haystack = [ v.title, v.subject, v.employer, v.school, v.county, v.band, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
+			v.isSub = !! v.subKind;
+			v.subKindLabel = v.isSub ? s.subKinds[ v.subKind ] : '';
+			v.payDay = v.payDay === null || v.payDay === undefined ? null : Number( v.payDay );
+			v.haystack = [ v.title, v.subject, v.employer, v.school, v.county, v.band, v.payText, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
 		} );
 		return s;
 	}
@@ -70,8 +74,11 @@
 		const q = state.q.trim().toLowerCase();
 		const words = q ? q.split( /\s+/ ) : [];
 		const postedSince = state.posted ? today.getTime() - ( Number( state.posted ) - 1 ) * DAY : 0;
+		const minDay = Number( state.minday ) || 0;
 		return data.vacancies.filter( ( v ) =>
-			( state.subs === '1' || v.isSub === false || state.subject === 'Substitute' ) &&
+			( skip === 'kind' || kindMatch( v ) ) &&
+			( ! state.pay || payMatch( v ) ) &&
+			( ! minDay || ( v.payDay !== null && v.payDay >= minDay ) ) &&
 			( skip === 'county' || ! state.county || v.county === state.county ) &&
 			( skip === 'subject' || ! state.subject || v.subject === state.subject ) &&
 			( skip === 'employer' || ! state.employer || v.employer === state.employer ) &&
@@ -82,6 +89,29 @@
 		);
 	}
 
+	function kindMatch( v ) {
+		switch ( state.kind ) {
+			case 'all':
+				return true;
+			case 'jobs':
+				return ! v.isSub;
+			case 'subs':
+				return v.isSub;
+			default:
+				return v.subKind === state.kind;
+		}
+	}
+
+	function payMatch( v ) {
+		if ( state.pay === 'listed' ) {
+			return v.payBasis === 'posted';
+		}
+		if ( state.pay === 'daily' ) {
+			return v.payUnit === 'day' || v.payUnit === 'hour';
+		}
+		return state.pay === 'salary' ? v.payUnit === 'year' : true;
+	}
+
 	function sorted( rows ) {
 		const col = COLUMNS.find( ( c ) => c.key === state.sort ) || COLUMNS[ 1 ];
 		const key = col.date ? 'postedTime' : col.key;
@@ -89,6 +119,10 @@
 		return rows.slice().sort( ( a, b ) => {
 			let x = a[ key ];
 			let y = b[ key ];
+			if ( col.nullsLast && ( x === null || y === null ) ) {
+				// No posted pay sorts last in both directions.
+				return ( x === null ) - ( y === null ) || ( b.postedTime - a.postedTime );
+			}
 			if ( col.num ) {
 				x = Number( x );
 				y = Number( y );
@@ -105,7 +139,9 @@
 		const actions = document.getElementById( 'mt-head-actions' );
 		el.csv = h( 'button', { class: 'mt-btn', type: 'button' }, 'Download CSV' );
 		el.csv.addEventListener( 'click', downloadCsv );
-		actions.replaceChildren( el.csv );
+		el.subsBtn = h( 'button', { class: 'mt-btn', type: 'button' } );
+		el.subsBtn.addEventListener( 'click', () => set( { kind: state.kind === 'jobs' ? 'subs' : 'jobs' } ) );
+		actions.replaceChildren( el.subsBtn, el.csv );
 		if ( cfg.settings ) {
 			actions.append( h( 'a', { class: 'mt-btn', href: cfg.settings }, 'Settings' ) );
 		}
@@ -119,15 +155,16 @@
 		el.band = select( 'Grade level', [ [ '', 'All grade levels' ], [ 'Early Childhood', 'Early childhood' ], [ 'Elementary', 'Elementary' ], [ 'Middle', 'Middle' ], [ 'High School', 'High school' ], [ 'K-12', 'K-12 / district-wide' ], [ 'Unspecified', 'Not stated' ] ], 'band' );
 		el.appt = select( 'Type', [ [ '', 'Full & part time' ] ].concat( unique( data.vacancies.map( ( v ) => v.appt ) ).map( ( a ) => [ a, a ] ) ), 'appt' );
 		el.posted = select( 'Posted', [ [ '', 'Posted any time' ], [ '7', 'Posted in last 7 days' ], [ '30', 'Posted in last 30 days' ] ], 'posted' );
-		el.subs = h( 'input', { type: 'checkbox', id: 'mt-subs' } );
-		el.subs.addEventListener( 'change', () => set( { subs: el.subs.checked ? '1' : '0' } ) );
+		el.kind = select( 'Job type', [ [ 'jobs', 'Teaching jobs' ], [ 'subs', 'All substitute jobs' ] ].concat( Object.entries( data.subKinds ).map( ( [ k, label ] ) => [ k, label ] ) ).concat( [ [ 'all', 'Teaching + substitute' ] ] ), 'kind' );
+		el.pay = select( 'Pay', [ [ '', 'Any pay' ], [ 'listed', 'Pay amount listed' ], [ 'daily', 'Daily or hourly rate' ], [ 'salary', 'Annual salary' ] ], 'pay' );
+		el.minday = h( 'input', { type: 'number', min: '0', step: '5', inputmode: 'numeric', class: 'mt-input mt-minday', placeholder: 'Min $/day', 'aria-label': 'Minimum pay per day (daily equivalent)' } );
+		el.minday.addEventListener( 'input', debounce( () => set( { minday: el.minday.value } ), 400 ) );
 		el.reset = h( 'button', { class: 'mt-btn mt-btn-ghost', type: 'button' }, 'Clear filters' );
 		el.reset.addEventListener( 'click', () => set( Object.assign( {}, DEFAULTS, { sort: state.sort, dir: state.dir } ) ) );
 		el.employerChip = h( 'span', { class: 'mt-chips' } );
 
 		const filters = h( 'section', { class: 'mt-filters', 'aria-label': 'Filters' },
-			el.q, el.county, el.subject, el.band, el.appt, el.posted,
-			h( 'label', { class: 'mt-check', for: 'mt-subs' }, el.subs, 'Include substitute postings' ),
+			el.q, el.kind, el.county, el.subject, el.band, el.appt, el.posted, el.pay, el.minday,
 			el.employerChip, el.reset );
 
 		el.subjectChart = h( 'div', { class: 'mt-chart' } );
@@ -169,10 +206,14 @@
 		if ( document.activeElement !== el.q ) {
 			el.q.value = state.q;
 		}
-		[ 'county', 'subject', 'band', 'appt', 'posted' ].forEach( ( k ) => {
+		[ 'kind', 'county', 'subject', 'band', 'appt', 'posted', 'pay' ].forEach( ( k ) => {
 			el[ k ].value = state[ k ];
 		} );
-		el.subs.checked = state.subs === '1';
+		if ( document.activeElement !== el.minday ) {
+			el.minday.value = state.minday;
+		}
+		el.subsBtn.textContent = state.kind === 'jobs' ? 'Substitute jobs' : 'Teaching jobs';
+		el.subsBtn.setAttribute( 'aria-pressed', String( state.kind !== 'jobs' ) );
 	}
 
 	/* ---------- render ---------- */
@@ -207,10 +248,17 @@
 		const rows = filtered();
 		tiles.push( { label: 'Posted in last 7 days', value: rows.filter( ( v ) => v.postedTime >= weekAgo ).length } );
 		tiles.push( { label: 'Closing within 14 days', value: rows.filter( ( v ) => v.closeTime && v.closeTime >= today.getTime() && v.closeTime <= soon ).length } );
+		// Median daily-equivalent pay of substitute postings that state an amount, under the other filters.
+		const subPay = filtered( 'kind' ).filter( ( v ) => v.isSub && v.payDay !== null ).map( ( v ) => v.payDay ).sort( ( a, b ) => a - b );
+		tiles.push( {
+			label: 'Median sub pay per day',
+			value: subPay.length ? '$' + Math.round( subPay.length % 2 ? subPay[ ( subPay.length - 1 ) / 2 ] : ( subPay[ subPay.length / 2 - 1 ] + subPay[ subPay.length / 2 ] ) / 2 ) : '—',
+			note: subPay.length ? 'from ' + subPay.length + ' sub posting' + ( subPay.length === 1 ? '' : 's' ) + ' that list pay' : 'no sub postings list pay',
+		} );
 
 		el.kpis.replaceChildren( ...tiles.map( ( t ) => {
 			const attrs = { class: 'mt-kpi' + ( t.hero ? ' mt-kpi-hero' : '' ) + ( t.county && state.county === t.county ? ' is-active' : '' ) };
-			const inner = [ h( 'span', { class: 'mt-kpi-label' }, t.label ), h( 'span', { class: 'mt-kpi-value' }, t.value.toLocaleString() ) ];
+			const inner = [ h( 'span', { class: 'mt-kpi-label' }, t.label ), h( 'span', { class: 'mt-kpi-value' }, t.value.toLocaleString() ), t.note ? h( 'span', { class: 'mt-kpi-note' }, t.note ) : '' ];
 			if ( ! t.county ) {
 				return h( 'div', attrs, ...inner );
 			}
@@ -322,7 +370,7 @@
 	}
 
 	function renderTable( rows ) {
-		const total = data.vacancies.filter( ( v ) => state.subs === '1' || ! v.isSub ).length;
+		const total = data.vacancies.filter( kindMatch ).length;
 		el.count.textContent = 'Showing ' + rows.length.toLocaleString() + ' of ' + total.toLocaleString() + ' postings';
 		[ ...el.thead.children ].forEach( ( th ) => {
 			const on = th.dataset.key === state.sort;
@@ -338,12 +386,13 @@
 			const tr = h( 'tr', { class: 'mt-row' + ( openKey === v.key ? ' is-open' : '' ), tabindex: '0', 'aria-expanded': String( openKey === v.key ) },
 				h( 'td', { 'data-label': 'ID', class: 'mt-num' }, v.id || '—' ),
 				h( 'td', { 'data-label': 'Posted', class: 'mt-num', title: v.postedSeen ? 'The board shows no posting date; this is when the dashboard first saw it' : '' }, v.postedTime ? fmtDate( parseDate( v.posted ) ) + ( v.postedSeen ? '*' : '' ) : '—' ),
-				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ) ),
+				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, v.isSub ? h( 'span', { class: 'mt-badge mt-badge-sub' }, data.subKinds[ v.subKind ] ) : '', isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ) ),
 				h( 'td', { 'data-label': 'Subject' }, v.subject ),
 				h( 'td', { 'data-label': 'Employer' }, v.employer ),
 				h( 'td', { 'data-label': 'School' }, v.school || '—' ),
 				h( 'td', { 'data-label': 'County' }, v.county ),
 				h( 'td', { 'data-label': 'Type' }, v.appt || '—' ),
+				h( 'td', { 'data-label': 'Pay', class: 'mt-num', title: v.payText || '' }, v.pay || '—' ),
 				h( 'td', { 'data-label': 'Starts' }, v.start || '—' ),
 				h( 'td', { 'data-label': 'Closes', class: closingClass( v ) }, v.closeDate ? fmtDate( parseDate( v.closeDate ) ) : ( v.close || '—' ) ) );
 			const toggle = () => {
@@ -376,7 +425,8 @@
 				facts.append( h( 'dt', {}, k ), h( 'dd', {}, val ) );
 			}
 		};
-		add( 'Salary', v.salary );
+		add( 'Pay as posted', v.payText );
+		add( 'Daily equivalent', v.payDay !== null && v.payUnit !== 'day' ? '≈ $' + Math.round( v.payDay ) + '/day (' + ( v.payUnit === 'hour' ? '7-hour day' : '180-day year' ) + ')' : '' );
 		add( 'Openings', v.openings );
 		add( 'Grade level', v.band !== 'Unspecified' ? v.band : '' );
 		add( 'Degree', v.degree );
@@ -409,7 +459,7 @@
 		} );
 		return h( 'div', { class: 'mt-detail' },
 			facts,
-			v.source === 'wecan' && ! v.licenses.length && ! v.salary ? h( 'p', { class: 'mt-muted' }, 'Salary and license details are read from WECAN on the next refresh.' ) : '',
+			v.source === 'wecan' && ! v.licenses.length && ! v.payText ? h( 'p', { class: 'mt-muted' }, 'Pay and license details are read from WECAN on the next refresh.' ) : '',
 			v.summary ? h( 'p', { class: 'mt-summary' }, v.summary ) : '',
 			links );
 	}
@@ -435,7 +485,7 @@
 	/* ---------- CSV ---------- */
 
 	function downloadCsv() {
-		const cols = [ [ 'ID', 'id' ], [ 'Posted', 'posted' ], [ 'Position', 'title' ], [ 'Subject', 'subject' ], [ 'Grade level', 'band' ], [ 'Employer', 'employer' ], [ 'School', 'school' ], [ 'County', 'county' ], [ 'Type', 'appt' ], [ 'Starts', 'start' ], [ 'Closes', 'close' ], [ 'Salary', 'salary' ], [ 'Posting URL', 'url' ] ];
+		const cols = [ [ 'ID', 'id' ], [ 'Posted', 'posted' ], [ 'Position', 'title' ], [ 'Subject', 'subject' ], [ 'Grade level', 'band' ], [ 'Employer', 'employer' ], [ 'School', 'school' ], [ 'County', 'county' ], [ 'Type', 'appt' ], [ 'Substitute kind', 'subKindLabel' ], [ 'Starts', 'start' ], [ 'Closes', 'close' ], [ 'Pay', 'pay' ], [ 'Pay per day (approx.)', 'payDay' ], [ 'Pay as posted', 'payText' ], [ 'Posting URL', 'url' ] ];
 		const esc = ( x ) => {
 			let t = String( x ?? '' );
 			if ( /^[=+\-@\t\r]/.test( t ) ) {
@@ -463,6 +513,9 @@
 				out[ k ] = p.get( k );
 			}
 		} );
+		if ( p.get( 'subs' ) === '1' && ! p.has( 'kind' ) ) {
+			out.kind = 'all'; // Links saved before 1.1.0 used subs=1.
+		}
 		return out;
 	}
 

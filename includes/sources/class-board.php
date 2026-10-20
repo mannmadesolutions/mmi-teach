@@ -53,6 +53,7 @@ abstract class Board implements Source {
 				'close_date'    => null,
 				'url'           => '',
 				'apply_url'     => '',
+				'pay_text'      => '', // The board's own pay field, if it has one; Pay parses it.
 			),
 			$extra
 		);

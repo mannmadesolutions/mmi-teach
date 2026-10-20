@@ -75,7 +75,19 @@ final class Snapshot {
 				'firstSeen' => self::iso( $row['first_seen'] ),
 				'url'       => $row['url'],
 				'apply'     => $row['apply_url'],
-				'salary'    => $details['salary'] ?? '',
+				'subKind'   => $row['sub_kind'],
+				'payText'   => $row['pay_text'] ?: ( $details['salary'] ?? '' ),
+				'pay'       => Pay::label(
+					array(
+						'min'   => null === $row['pay_min'] ? null : (float) $row['pay_min'],
+						'max'   => null === $row['pay_max'] ? null : (float) $row['pay_max'],
+						'unit'  => $row['pay_unit'],
+						'basis' => $row['pay_basis'],
+					)
+				),
+				'payUnit'   => $row['pay_unit'],
+				'payBasis'  => $row['pay_basis'],
+				'payDay'    => null === $row['pay_day'] ? null : (float) $row['pay_day'],
 				'licenses'  => $details['licenses'] ?? array(),
 				'openings'  => $details['openings'] ?? '',
 				'degree'    => $details['degree'] ?? '',
@@ -91,6 +103,7 @@ final class Snapshot {
 			'since'     => $since, // Undated postings first seen on this day were already open before tracking began.
 			'counties'  => array_values( Plugin::COUNTIES ),
 			'subjects'  => Classifier::subjects(),
+			'subKinds'  => Classifier::SUB_KINDS,
 			'sources'   => $sources,
 			'unplaced'  => count( Store::unmapped_employers() ),
 			'vacancies' => $vacancies,
