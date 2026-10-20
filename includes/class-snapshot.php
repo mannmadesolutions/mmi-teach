@@ -98,6 +98,31 @@ final class Snapshot {
 		}
 		usort( $vacancies, static fn( $a, $b ) => strcmp( (string) $b['posted'], (string) $a['posted'] ) );
 
+		// Per-employer substitute summary for the "Become a substitute" page.
+		$sub_employers = array();
+		foreach ( $vacancies as $v ) {
+			if ( '' === $v['subKind'] ) {
+				continue;
+			}
+			$e = &$sub_employers[ $v['employer'] ];
+			$e ??= array(
+				'employer' => $v['employer'],
+				'county'   => $v['county'],
+				'count'    => 0,
+				'kinds'    => array(),
+				'payMin'   => null,
+				'payMax'   => null,
+			);
+			++$e['count'];
+			$e['kinds'][ $v['subKind'] ] = ( $e['kinds'][ $v['subKind'] ] ?? 0 ) + 1;
+			if ( null !== $v['payDay'] ) {
+				$e['payMin'] = null === $e['payMin'] ? $v['payDay'] : min( $e['payMin'], $v['payDay'] );
+				$e['payMax'] = null === $e['payMax'] ? $v['payDay'] : max( $e['payMax'], $v['payDay'] );
+			}
+			unset( $e );
+		}
+		usort( $sub_employers, static fn( $a, $b ) => $b['count'] <=> $a['count'] ?: strcmp( $a['employer'], $b['employer'] ) );
+
 		$snapshot = array(
 			'generated' => gmdate( 'c' ),
 			'since'     => $since, // Undated postings first seen on this day were already open before tracking began.
@@ -106,6 +131,7 @@ final class Snapshot {
 			'subKinds'  => Classifier::SUB_KINDS,
 			'sources'   => $sources,
 			'unplaced'  => count( Store::unmapped_employers() ),
+			'subEmployers' => $sub_employers,
 			'vacancies' => $vacancies,
 		);
 		update_option( self::OPTION, $snapshot, false );

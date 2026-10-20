@@ -15,6 +15,9 @@
 	--mt-dim: #c3c2b7;
 	--mt-good: #006300;
 	--mt-critical: #b42f2f;
+	--mt-series-1: #2a78d6;
+	--mt-series-2: #eb6834;
+	--mt-series-3: #1baf7a;
 	--mt-radius: 10px;
 	--mt-font: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -35,6 +38,9 @@
 		--mt-dim: #4a4a46;
 		--mt-good: #0ca30c;
 		--mt-critical: #e66767;
+		--mt-series-1: #3987e5;
+		--mt-series-2: #d95926;
+		--mt-series-3: #199e70;
 	}
 }
 :root[data-theme="dark"] {
@@ -53,6 +59,9 @@
 	--mt-dim: #4a4a46;
 	--mt-good: #0ca30c;
 	--mt-critical: #e66767;
+	--mt-series-1: #3987e5;
+	--mt-series-2: #d95926;
+	--mt-series-3: #199e70;
 }
 
 body.mmi-teach-body {
@@ -304,4 +313,76 @@ th[aria-sort="descending"] .mt-sort::after { content: "↓"; opacity: 1; }
 }
 @media (forced-colors: active) {
 	.mt-bar-fill, .mt-col-fill { background: CanvasText; fill: CanvasText; }
+}
+
+/* Site nav */
+.mt-nav { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-bottom: 14px; font-size: 0.9rem; }
+.mt-nav a { color: var(--mt-ink-2); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+.mt-nav a:hover { color: var(--mt-ink); }
+.mt-nav a[aria-current="page"] { color: var(--mt-ink); border-bottom-color: var(--mt-accent); font-weight: 600; }
+a.mt-kpi { text-decoration: none; }
+a.mt-kpi:hover { background: var(--mt-accent-wash); }
+
+/* Substitute pathway */
+.mt-pathway .mt-sub { max-width: 72ch; }
+.mt-pathway [hidden] { display: none !important; } /* Our display rules must never override the hidden attribute. */
+.mt-steps-nav { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; counter-reset: step; padding: 0; margin: 0 0 16px; }
+.mt-steps-nav li { counter-increment: step; }
+.mt-steps-nav a { display: inline-block; padding: 6px 12px; border: 1px solid var(--mt-border); border-radius: 999px; background: var(--mt-surface); color: var(--mt-ink); text-decoration: none; font-size: 0.85rem; }
+.mt-steps-nav a::before { content: counter(step) ". "; color: var(--mt-muted); }
+.mt-steps-nav a:hover { background: var(--mt-accent-wash); }
+.mt-section { margin-bottom: 16px; scroll-margin-top: 16px; }
+.mt-section h2 { margin: 0 0 8px; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; }
+.mt-section h3 { font-size: 1rem; margin: 18px 0 6px; }
+.mt-section p { max-width: 80ch; }
+.mt-step-no { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--mt-accent); color: #fff; font-size: 0.9rem; flex: none; }
+.mt-wizard { display: grid; gap: 12px; margin: 12px 0; }
+.mt-wizard fieldset { border: 1px solid var(--mt-border); border-radius: 8px; padding: 10px 14px; margin: 0; }
+.mt-wizard legend { padding: 0 4px; font-weight: 600; font-size: 0.9rem; max-width: 80ch; }
+.mt-wizard label { display: inline-flex; gap: 6px; align-items: center; margin: 6px 18px 2px 0; font-size: 0.9rem; cursor: pointer; }
+.mt-result-card { border: 1px solid var(--mt-accent); background: var(--mt-accent-wash); border-radius: var(--mt-radius); padding: 14px 16px; margin: 8px 0; }
+.mt-result-card.is-none { border-color: var(--mt-border); background: transparent; }
+.mt-result-card h3 { margin: 2px 0 6px; font-size: 1.1rem; }
+.mt-result-kicker { margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mt-ink-2); }
+.mt-result-facts { margin: 8px 0; padding-left: 20px; }
+.mt-result-facts li { margin: 4px 0; }
+.mt-all-licenses { margin-top: 12px; }
+.mt-all-licenses summary { cursor: pointer; font-weight: 600; }
+.mt-license h3 { margin-bottom: 2px; }
+.mt-license p { margin: 4px 0; }
+.mt-src { font-size: 0.8rem; color: var(--mt-muted); }
+.mt-dpi-steps li { margin: 8px 0; max-width: 80ch; }
+.mt-tips { color: var(--mt-ink-2); font-size: 0.9rem; }
+.mt-models { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.mt-model { border: 1px solid var(--mt-border); border-radius: 8px; padding: 12px 14px; }
+.mt-model h3 { margin-top: 0; }
+.mt-model p { font-size: 0.9rem; }
+.mt-section .mt-table-wrap { max-height: none; border: 1px solid var(--mt-border); border-radius: 8px; }
+.mt-plan-controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; margin-bottom: 8px; }
+.mt-field { display: grid; gap: 4px; font-size: 0.85rem; color: var(--mt-ink-2); max-width: 100%; min-width: 0; }
+.mt-field { grid-template-columns: minmax(0, 1fr); overflow: hidden; padding: 3px; margin: -3px; } /* WebKit lays a select's longest option out past its box; the inset keeps focus rings visible. */
+.mt-field select { width: 100%; min-width: 0; text-overflow: ellipsis; } /* A select's longest option must not widen the page. */
+.mt-plan-tb { width: 8em; }
+.mt-plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.mt-cost-table td { padding: 6px 8px; }
+.mt-cost-table .mt-total td { font-weight: 700; border-top: 1px solid var(--mt-axis); }
+.mt-figure { margin: 0; }
+.mt-gantt-title { fill: var(--mt-ink-2); font-size: 11px; paint-order: stroke; stroke: var(--mt-surface); stroke-width: 4px; stroke-linejoin: round; }
+.mt-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; list-style: none; padding: 0; margin: 6px 0; font-size: 0.8rem; color: var(--mt-ink-2); }
+.mt-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.mt-checks { list-style: none; padding: 0; display: grid; gap: 6px; }
+.mt-checks li { display: flex; gap: 8px; align-items: flex-start; }
+.mt-checks input { margin-top: 3px; }
+@media (max-width: 760px) {
+	.mt-section .mt-table thead { display: none; }
+	.mt-section .mt-table, .mt-section .mt-table tbody, .mt-section .mt-table tr, .mt-section .mt-table td { display: block; width: 100%; }
+	.mt-section .mt-table tr { padding: 10px 12px; border-bottom: 1px solid var(--mt-grid); }
+	.mt-section .mt-table td { border: 0; padding: 2px 0; display: flex; gap: 8px; white-space: normal; }
+	.mt-section .mt-table td > * { min-width: 0; }
+	.mt-section .mt-table td::before { content: attr(data-label); flex: 0 0 110px; color: var(--mt-muted); font-size: 0.75rem; padding-top: 2px; }
+	.mt-cost-table td::before { content: none !important; }
+}
+@media print {
+	.mt-nav, .mt-steps-nav, .mt-kpis, #license, #training, #dpi, #employers, .mt-plan-controls, .mt-plan-grid, .mt-foot, .mt-checklist .mt-btn, #wpadminbar { display: none !important; }
+	.mt-card { border: 0; }
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.6 — 2026-10-20
+
+New public **Become a substitute teacher** page (/substitute/): a license finder (which Wisconsin
+DPI permit or license fits, training and fingerprint needs, the 45-day limit, employers that
+require a bachelor's degree), a training-course comparison, the exact ELO application steps and
+fees, the three ways districts hire subs (directly, EDUStaff, Kelly Education) with retirement and
+process differences, a live "who's hiring subs right now" table with posted day rates, and a plan
+calculator with costs, a timeline of doing employer steps during the DPI wait, and a checklist
+saved in the browser. Every fact carries its source and check date (data/pathway.json); the
+settings screen lists facts older than 120 days. Shared site navigation on both pages.
+1.2.0–1.2.5 were same-day layout fixes (phone overflow, hidden-attribute rule).
+
 ## 1.1.0 — 2026-10-20
 
 Pay and substitute jobs. Pay text from every board (WECAN detail pages, Breezy, Lever, iSolved) is

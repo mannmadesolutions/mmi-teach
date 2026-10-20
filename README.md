@@ -20,6 +20,24 @@ Racine counties, Wisconsin** and shows them on one filterable dashboard.
   shows the median sub pay per day.
 - CSV download of the current view.
 
+## Become a substitute teacher (/substitute/)
+
+A public guide that removes the guesswork from becoming a sub in the three counties:
+
+1. **Find your license**: a short questionnaire names the DPI permit or license that fits, whether
+   training and fingerprints are needed, and flags employers with stricter rules (MPS requires a
+   bachelor's degree).
+2. **Get trained**: approved courses compared by format, length, cost and next start date.
+3. **Apply to DPI**: the exact ELO steps, fees and processing times.
+4. **Choose where to sub**: direct district hiring vs EDUStaff vs Kelly Education (who employs
+   you, retirement plan, process), and a live table of every employer with open sub postings and
+   their posted day rates.
+5. **Your plan**: total cost, a timeline showing how much sooner you start if you do employer
+   steps during the DPI wait, and a printable checklist (saved in your browser only).
+
+Facts live in `data/pathway.json`, each with a source URL and `verified_on` date; Settings →
+Teaching Vacancies lists any older than 120 days. Live numbers come from the job data.
+
 ## Where the data comes from
 
 | Source | What it covers | How it's read |

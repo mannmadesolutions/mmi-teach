@@ -1,0 +1,210 @@
+{
+	"about": "Facts for the public 'Become a substitute' page. Every entry names its source and the date it was last checked (verified_on). Re-check entries older than 120 days; the settings screen lists them.",
+	"dpi": {
+		"verified_on": "2026-10-20",
+		"elo_url": "https://elo.wieducatorlicensing.org/",
+		"lookup_url": "https://elo.wieducatorlicensing.org/datamart/searchByNameWIDPI.do",
+		"status_url": "https://dpi.wi.gov/licensing/check-my-license-application-status",
+		"fees_url": "https://dpi.wi.gov/licensing/apply-educator-license/fees",
+		"background_url": "https://dpi.wi.gov/licensing/background-check/faq",
+		"fee": 135,
+		"fee_out_of_state_5yr": 190,
+		"fee_stipulations": 140,
+		"fingerprint_fee_estimate": 40,
+		"processing_weeks": [
+			6,
+			8
+		],
+		"processing_weeks_out_of_state": [
+			8,
+			12
+		],
+		"steps": [
+			"Check whether you need fingerprints: only if you lived, worked or studied outside Wisconsin (another state, a US territory, Canada or Great Britain) in the last 20 years since age 17. If so, book Fieldprint (fieldprintwisconsin.com, code FPWIDPITeach) and pay about $40.",
+			"Scan your documents as PDF, Word, JPG or text, 2 MB or smaller each: an official transcript and your substitute-training certificate (or form PI-1633 if a district trained you; form PI-1975 if you're on the educator-program path).",
+			"Sign in to ELO (Educator Licensing Online), answer the setup questions, then choose 1-Teacher Category → S-Teacher – Short Term Substitute License [T910] → Request Short-term Substitute License [1910], attach your documents and submit.",
+			"Wait for DPI's confirmation email, then choose “Submit C&C and Payment”: answer the 14 Conduct & Competency questions and pay $135 by Mastercard, Visa or Discover credit card (no debit cards, no refunds).",
+			"Track the application on DPI's status page. Typical processing is 6–8 weeks, 8–12 if you've lived out of state. Meanwhile, keep going with employer applications: they don't wait on the permit, only your first day of work does."
+		],
+		"tips": [
+			"ELO is offline every Wednesday 10 pm to Thursday 2 am.",
+			"DPI runs its own background check on every application; an employer's check doesn't replace it.",
+			"Your permit lasts 3 years. Renew it in ELO with a new application before it expires."
+		],
+		"sources": [
+			"https://dpi.wi.gov/licensing/apply-educator-license/sub-permit/degree-training",
+			"https://dpi.wi.gov/licensing/apply-educator-license/fees",
+			"https://dpi.wi.gov/licensing/background-check/faq",
+			"https://dpi.wi.gov/licensing/check-my-license-application-status"
+		],
+		"employer_onboarding_weeks": 2,
+		"employer_onboarding_note": "Estimate: EDUStaff applicants report about 2 weeks from application to activation."
+	},
+	"licenses": {
+		"permit_a": {
+			"name": "Three-Year Short-Term Substitute Teacher Permit — degree path",
+			"who": "Associate degree or higher, plus a DPI-approved substitute teacher training course (a bachelor's degree doesn't exempt you from the training).",
+			"allows": "Any subject and grade, up to 45 consecutive days in one assignment. Valid 3 years.",
+			"training": true,
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit",
+			"verified_on": "2026-10-20"
+		},
+		"permit_b": {
+			"name": "Three-Year Short-Term Substitute Teacher Permit — educator-program path",
+			"who": "Age 20 or older, enrolled in a Wisconsin approved educator preparation program (junior standing if it leads to a bachelor's), with 15 hours of classroom observation. Your program confirms this on form PI-1975. No separate training course is required.",
+			"allows": "Any subject and grade, up to 45 consecutive days in one assignment. Valid 3 years.",
+			"training": false,
+			"source": "https://dpi.wi.gov/media/44307",
+			"verified_on": "2026-10-20"
+		},
+		"long_term": {
+			"name": "Five-Year Long-Term Substitute License",
+			"who": "Completed an approved educator preparation program and hold, or are eligible for, a Wisconsin (or equivalent) teaching license. Retired teachers whose license expired can use this route.",
+			"allows": "Long-term assignments in your license area, plus short-term (45 days or less) outside it. Valid 5 years.",
+			"training": false,
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-license",
+			"verified_on": "2026-10-20"
+		},
+		"none": {
+			"name": "Not eligible for a substitute teacher permit yet",
+			"who": "DPI's permits need at least an associate degree, or enrollment in an educator preparation program.",
+			"allows": "Options: finish an associate degree (Wisconsin technical colleges offer Foundations of Teacher Education), or start as a paraprofessional or support-staff substitute, which many districts and EDUStaff also hire for.",
+			"training": false,
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit",
+			"verified_on": "2026-10-20"
+		}
+	},
+	"long_term_note": "A permit caps you at 45 consecutive days in one assignment. Longer assignments need the Five-Year Long-Term Substitute License in that subject, or a One-Year License with Stipulations that the district requests ($140, and you must enroll in an educator program). Special-education assignments over 45 days need a special-education license.",
+	"training": [
+		{
+			"id": 1,
+			"provider": "EDUStaff Guest Teacher Workshop",
+			"format": "In person",
+			"hours": "2",
+			"cost": 0,
+			"cost_label": "Free",
+			"next": "Scheduled after you apply to EDUStaff",
+			"tied": "Part of applying to EDUStaff",
+			"url": "https://edustaff.org/k-12-education/requirements/",
+			"verified_on": "2026-10-20",
+			"weeks": 1
+		},
+		{
+			"id": 2,
+			"provider": "STEDI.org — Wisconsin substitute training",
+			"format": "Online, self-paced",
+			"hours": "About 8",
+			"cost": 39.95,
+			"cost_label": "$39.95–$79.95",
+			"next": "Start any time; pass the assessment with 85%",
+			"tied": "Open to anyone",
+			"url": "https://stedi.org/wi",
+			"verified_on": "2026-10-20",
+			"weeks": 1
+		},
+		{
+			"id": 3,
+			"provider": "Kelly Education substitute certificate course",
+			"format": "Online",
+			"hours": "Not posted",
+			"cost": 39.99,
+			"cost_label": "$39.99 introductory, $59.99 regular",
+			"next": "Start any time",
+			"tied": "Offered by Kelly Education",
+			"url": "https://www.kellyservices.com/press-releases/state-of-wisconsin-approves-kelly-education-to-provide-substitute-teacher-certificate-training",
+			"verified_on": "2026-10-20",
+			"weeks": 1
+		},
+		{
+			"id": 4,
+			"provider": "CESA 1 substitute teacher training",
+			"format": "Virtual, 2 days",
+			"hours": "2 days",
+			"cost": null,
+			"cost_label": "Price not posted",
+			"next": "Oct 28–29, 2026 · Jan 13–14, 2027 · Mar 10–11, 2027",
+			"tied": "Open to anyone",
+			"url": "https://www.cesa1.k12.wi.us/licensing/substitute-teacher",
+			"verified_on": "2026-10-20",
+			"weeks": null,
+			"dates": [
+				"2026-10-28",
+				"2027-01-13",
+				"2027-03-10"
+			]
+		},
+		{
+			"id": 5,
+			"provider": "District-run training",
+			"format": "Varies",
+			"hours": "Varies",
+			"cost": 0,
+			"cost_label": "Usually free",
+			"next": "Ask the district",
+			"tied": "The district confirms it on form PI-1633",
+			"url": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit/degree-training",
+			"verified_on": "2026-10-20",
+			"weeks": 2
+		}
+	],
+	"agencies": {
+		"edustaff": {
+			"name": "EDUStaff",
+			"apply_url": "https://account.edustaff.org/jobs/?start_app",
+			"info_url": "https://edustaff.org/k-12-education/requirements/",
+			"degree": "Associate degree or higher",
+			"retirement": "401(k) options; agency employees aren't in WRS",
+			"process": "Online application (about 2 hours, at least one reference) → online compliance modules → free 2-hour Guest Teacher Workshop (counts as DPI training; bring I-9 documents) → you apply to DPI → EDUStaff background check and TB test → activation in the district's absence system.",
+			"sources": [
+				"https://edustaff.org/k-12-education/requirements/",
+				"https://wausaupilotandreview.com/2024/07/09/wausau-school-board-shoots-down-proposed-changes-in-substitute-teaching-management-for-now/"
+			],
+			"verified_on": "2026-10-20"
+		},
+		"kelly": {
+			"name": "Kelly Education",
+			"apply_url": "https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities",
+			"info_url": "https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities",
+			"degree": "Follows DPI permit rules (associate degree + training)",
+			"retirement": "Agency employees aren't in WRS",
+			"process": "Take a DPI-approved training course → apply for the DPI permit → apply to Kelly Education and choose the districts you want.",
+			"sources": [
+				"https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities"
+			],
+			"verified_on": "2026-10-20"
+		}
+	},
+	"districts": {
+		"Milwaukee Public Schools": {
+			"via": "direct",
+			"apply_url": "https://www.milwaukeepublicschools.org/about/employment/careers/substitute-teachers",
+			"degree": "Bachelor's degree required",
+			"extras": "Resume, three recommendation letters under 3 years old, transcripts; virtual interview. $500 extra per month if you work 90% of student days.",
+			"absence": "Frontline",
+			"source": "https://www.milwaukeepublicschools.org/about/employment/careers/substitute-teachers",
+			"verified_on": "2026-10-20"
+		},
+		"Elmbrook Schools": {
+			"via": "kelly",
+			"source": "https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities",
+			"verified_on": "2026-10-20"
+		},
+		"Oak Creek-Franklin Joint School District": {
+			"via": "edustaff",
+			"extras": "Weekly pay through EDUStaff.",
+			"source": "https://www.ocfsd.org/district/human-resources",
+			"verified_on": "2026-10-20"
+		},
+		"Wauwatosa School District": {
+			"via": "edustaff",
+			"extras": "Daily subs through EDUStaff; long-term subs are also posted on WECAN.",
+			"source": "https://wauwatosa.k12.wi.us/o/wsd/page/substitute-teaching",
+			"verified_on": "2026-10-20"
+		},
+		"School District of New Berlin": {
+			"via": "edustaff",
+			"source": "https://www.edustaff.org/case-studies/building-relationships-in-the-school-district-of-new-berlin",
+			"verified_on": "2026-10-20"
+		}
+	}
+}

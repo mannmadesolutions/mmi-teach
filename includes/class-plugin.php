@@ -22,6 +22,7 @@ final class Plugin {
 
 	public static function boot(): void {
 		Dashboard::register();
+		Pathway::register();
 		Admin::register();
 		add_action( self::CRON_HOOK, array( self::class, 'run_cron_refresh' ) );
 		add_action( self::CRON_HOOK . '_now', array( self::class, 'run_cron_refresh' ) ); // "Refresh now" on the settings screen.
@@ -34,6 +35,7 @@ final class Plugin {
 	public static function activate(): void {
 		Store::install();
 		Dashboard::ensure_page();
+		Pathway::ensure_page();
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			// Fallback only: the system crontab runs `wp mmi-teach refresh` with no time limit.
 			wp_schedule_event( time() + 300, 'twicedaily', self::CRON_HOOK );

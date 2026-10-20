@@ -22,6 +22,7 @@ $mmi_teach_counties = implode( ', ', $mmi_teach_names ) . ' & ' . $mmi_teach_las
 <body <?php body_class( 'mmi-teach-body' ); ?>>
 <?php wp_body_open(); ?>
 <main class="mt-app" id="mt-app">
+	<?php require MMI_TEACH_DIR . 'templates/partials/nav.php'; ?>
 	<header class="mt-head">
 		<div>
 			<h1><?php esc_html_e( 'Teaching vacancies', 'mmi-teach' ); ?></h1>

@@ -101,6 +101,35 @@ final class Admin {
 				<?php submit_button( $queued ? __( 'Refresh queued…', 'mmi-teach' ) : __( 'Refresh now', 'mmi-teach' ), 'secondary', 'submit', false, $queued ? array( 'disabled' => 'disabled' ) : array() ); ?>
 			</form>
 
+			<h2><?php esc_html_e( 'Substitute page facts to re-check', 'mmi-teach' ); ?></h2>
+			<?php $stale = Pathway::stale_entries(); ?>
+			<?php if ( $stale ) : ?>
+				<p class="description">
+					<?php
+					/* translators: %d: number of days */
+					echo esc_html( sprintf( __( 'These facts on the "Become a substitute" page were last checked more than %d days ago. Check each source, update data/pathway.json and its verified_on date.', 'mmi-teach' ), Pathway::STALE_DAYS ) );
+					?>
+				</p>
+				<table class="widefat striped" style="max-width:900px">
+					<thead><tr><th><?php esc_html_e( 'Fact', 'mmi-teach' ); ?></th><th><?php esc_html_e( 'Last checked', 'mmi-teach' ); ?></th></tr></thead>
+					<tbody>
+					<?php foreach ( $stale as $label => $date ) : ?>
+						<tr><td><?php echo esc_html( $label ); ?></td><td><?php echo esc_html( $date ?: __( 'never', 'mmi-teach' ) ); ?></td></tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php else : ?>
+				<p>
+					<?php
+					/* translators: %d: number of days */
+					echo esc_html( sprintf( __( 'Every fact was checked within the last %d days.', 'mmi-teach' ), Pathway::STALE_DAYS ) );
+					?>
+					<?php if ( Pathway::url() ) : ?>
+						<a href="<?php echo esc_url( Pathway::url() ); ?>"><?php esc_html_e( 'View the page', 'mmi-teach' ); ?></a>
+					<?php endif; ?>
+				</p>
+			<?php endif; ?>
+
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="mmi_teach_save">
 				<?php wp_nonce_field( 'mmi_teach_save' ); ?>
