@@ -386,3 +386,5 @@ a.mt-kpi:hover { background: var(--mt-accent-wash); }
 	.mt-nav, .mt-steps-nav, .mt-kpis, #license, #training, #dpi, #employers, .mt-plan-controls, .mt-plan-grid, .mt-foot, .mt-checklist .mt-btn, #wpadminbar { display: none !important; }
 	.mt-card { border: 0; }
 }
+.mt-lic-list { margin: 0 0 2px; padding-left: 18px; }
+.mt-lic-list li { margin: 1px 0; }

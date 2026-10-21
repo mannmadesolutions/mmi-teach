@@ -79,8 +79,10 @@ final class Wecan implements Source {
 				continue;
 			}
 			$key = $label->getAttribute( 'for' );
-			if ( 'Licenses' === $key ) {
-				$values[ $key ] = array_values( array_filter( array_map( static fn( $li ) => self::clean( $li->textContent ), iterator_to_array( $xpath->query( './/li', $box ) ) ) ) );
+			$items = $xpath->query( './/li', $box );
+			// Only these two fields are lists; descriptions can contain bullet lists too.
+			if ( in_array( $key, array( 'Licenses', 'AdditionalRequirements' ), true ) ) {
+				$values[ $key ] = array_values( array_filter( array_map( static fn( $li ) => self::clean( $li->textContent ), iterator_to_array( $items ) ) ) );
 			} else {
 				$values[ $key ] = self::clean( $box->textContent );
 			}
@@ -93,15 +95,17 @@ final class Wecan implements Source {
 		// Where the description names a staffing agency ("Employer: Edustaff"), kept even when
 		// the summary below is cut short.
 		$agency_text = \MMI_Teach\Agencies::quotes( $summary );
+		// Likewise where it states degree, license, certification or experience requirements.
+		$req_text = \MMI_Teach\Requirements::quotes( $summary );
 		if ( mb_strlen( $summary ) > 700 ) {
 			$summary = rtrim( mb_substr( $summary, 0, 700 ) ) . '…';
 		}
-		return array_filter(
+		$details = array_filter(
 			array(
 				'salary'     => $values['Salary'] ?? '',
 				'licenses'   => $values['Licenses'] ?? array(),
+				'materials'  => $values['AdditionalRequirements'] ?? array(),
 				'openings'   => $values['NumberOfOpenings'] ?? '',
-				'experience' => $values['YearsOfExperience'] ?? '',
 				'degree'     => $values['DegreeType'] ?? '',
 				'contact'    => array_filter(
 					array(
@@ -113,8 +117,14 @@ final class Wecan implements Source {
 				),
 				'summary'     => $summary,
 				'agency_text' => implode( ' ', $agency_text ),
+				'req_text'    => implode( ' ', $req_text ),
 			)
 		);
+		// "0 years" is a real answer (no experience needed), so it's kept outside the filter above.
+		if ( isset( $values['YearsOfExperience'] ) && is_numeric( $values['YearsOfExperience'] ) ) {
+			$details['experience'] = (int) $values['YearsOfExperience'];
+		}
+		return $details;
 	}
 
 	/** Form body for one page of the public grid; repeated keys need manual encoding. */

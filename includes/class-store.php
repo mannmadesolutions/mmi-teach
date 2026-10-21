@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Store {
 
-	private const DB_VERSION        = '3';
+	private const DB_VERSION        = '4';
 	private const OPTION_DB_VERSION = 'mmi_teach_db_version';
 
 	public static function table(): string {
@@ -49,6 +49,10 @@ final class Store {
 				agency varchar(32) NOT NULL DEFAULT '',
 				agency_basis varchar(12) NOT NULL DEFAULT '',
 				pay_text varchar(255) NOT NULL DEFAULT '',
+				req_text text NULL,
+				req_degree varchar(12) NOT NULL DEFAULT '',
+				req_licenses varchar(255) NOT NULL DEFAULT '',
+				requirements text NULL,
 				pay_min decimal(10,2) DEFAULT NULL,
 				pay_max decimal(10,2) DEFAULT NULL,
 				pay_unit varchar(12) NOT NULL DEFAULT '',
@@ -222,7 +226,7 @@ final class Store {
 		global $wpdb;
 		$table   = self::table();
 		$cols    = implode( ', ', self::derived_columns() );
-		$rows    = $wpdb->get_results( "SELECT id, title, employer, location, position_type, url, apply_url, pay_text, details, {$cols} FROM {$table} WHERE removed_at IS NULL", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows    = $wpdb->get_results( "SELECT id, title, employer, location, position_type, url, apply_url, pay_text, req_text, details, {$cols} FROM {$table} WHERE removed_at IS NULL", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$places  = Places::instance();
 		$changed = 0;
 		foreach ( $rows as $row ) {
@@ -239,11 +243,11 @@ final class Store {
 
 	/** Columns a source supplies; a change in any of them means the posting changed. */
 	private static function source_columns(): array {
-		return array( 'title', 'employer', 'location', 'position_type', 'appointment', 'posted_date', 'updated_date', 'start_text', 'close_text', 'close_date', 'url', 'apply_url', 'pay_text' );
+		return array( 'title', 'employer', 'location', 'position_type', 'appointment', 'posted_date', 'updated_date', 'start_text', 'close_text', 'close_date', 'url', 'apply_url', 'pay_text', 'req_text' );
 	}
 
 	/** Columns this plugin works out from the source columns. */
 	private static function derived_columns(): array {
-		return array( 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day', 'agency', 'agency_basis' );
+		return array( 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day', 'agency', 'agency_basis', 'req_degree', 'req_licenses', 'requirements' );
 	}
 }

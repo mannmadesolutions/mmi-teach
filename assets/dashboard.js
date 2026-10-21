@@ -15,6 +15,7 @@
 		{ key: 'posted', label: 'Posted', date: true },
 		{ key: 'title', label: 'Position' },
 		{ key: 'subject', label: 'Subject' },
+		{ key: 'reqRank', label: 'Requirements', num: true },
 		{ key: 'employer', label: 'Employer' },
 		{ key: 'agencyLabel', label: 'Staffing agency' },
 		{ key: 'school', label: 'School / building' },
@@ -25,7 +26,9 @@
 		{ key: 'closeSort', label: 'Closes' },
 	];
 	// kind: jobs = regular teaching jobs, subs = every substitute kind, all, or one sub kind.
-	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', agency: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
+	// Lowest to highest; a posting's required degree is compared against the reader's own.
+	const DEGREE_ORDER = [ 'none', 'high_school', 'associate', 'bachelor', 'master', 'doctorate' ];
+	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', agency: '', mydegree: '', license: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
 
 	let data = null;
 	let state = readHash();
@@ -63,11 +66,23 @@
 			// Dated closings sort first by date; "until filled" after them.
 			v.closeSort = v.closeTime || Number.MAX_SAFE_INTEGER;
 			v.isSub = !! v.subKind;
+			v.req = v.req || { degree: '', licenses: [] };
+			// Expand the snapshot's shared dictionaries: license keys, note and route text ids.
+			v.req.licenses = v.req.licenses.map( ( l ) => ( typeof l === 'string' ? Object.assign( { key: l }, s.licenseInfo[ l ] ) : Object.assign( { key: '' }, l ) ) );
+			v.req.degreeNote = v.req.degreeNote === null || v.req.degreeNote === undefined ? '' : s.texts[ v.req.degreeNote ];
+			v.req.routes = ( v.req.routes || [] ).map( ( i ) => s.texts[ i ] );
+			v.reqRank = DEGREE_ORDER.indexOf( v.req.degree );
+			v.degreeLabel = s.degrees[ v.req.degree ] || '';
+			v.expYears = v.req.experience === null || v.req.experience === undefined ? '' : v.req.experience;
+			v.reqBasis = v.req.licenseBasis || '';
+			v.licenseKeys = v.req.licenses.map( ( l ) => l.key ).filter( Boolean );
+			v.licenseText = v.req.licenses.map( ( l ) => l.short || l.title ).join( '; ' );
+			v.reqSummary = [ s.degrees[ v.req.degree ] || '', v.req.licenses.length ? ( v.req.licenses[ 0 ].short || v.req.licenses[ 0 ].title ) + ( v.req.licenses.length > 1 ? ' +' + ( v.req.licenses.length - 1 ) : '' ) : '' ].filter( Boolean ).join( ' · ' );
 			v.subKindLabel = v.isSub ? s.subKinds[ v.subKind ] : '';
 			// Short form for the table; the filter uses the full labels.
 			v.agencyLabel = ( v.agency === 'direct' ? 'None' : ( s.agencies[ v.agency ] || '' ) ) + ( v.agencyBasis === 'likely' ? ' (likely)' : '' );
 			v.payDay = v.payDay === null || v.payDay === undefined ? null : Number( v.payDay );
-			v.haystack = [ v.title, v.subject, v.employer, v.agencyLabel, v.school, v.county, v.band, v.payText, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
+			v.haystack = [ v.title, v.subject, v.employer, v.agencyLabel, v.licenseText, v.school, v.county, v.band, v.payText, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
 		} );
 		return s;
 	}
@@ -86,6 +101,8 @@
 			( skip === 'subject' || ! state.subject || v.subject === state.subject ) &&
 			( skip === 'employer' || ! state.employer || v.employer === state.employer ) &&
 			( ! state.agency || v.agency === state.agency ) &&
+			( ! state.mydegree || v.reqRank <= DEGREE_ORDER.indexOf( state.mydegree ) ) &&
+			( ! state.license || v.licenseKeys.includes( state.license ) ) &&
 			( ! state.band || v.band === state.band ) &&
 			( ! state.appt || v.appt === state.appt ) &&
 			( ! postedSince || v.postedTime >= postedSince ) &&
@@ -161,6 +178,8 @@
 		el.posted = select( 'Posted', [ [ '', 'Posted any time' ], [ '7', 'Posted in last 7 days' ], [ '30', 'Posted in last 30 days' ] ], 'posted' );
 		el.kind = select( 'Job type', [ [ 'jobs', 'Teaching jobs' ], [ 'subs', 'All substitute jobs' ] ].concat( Object.entries( data.subKinds ).map( ( [ k, label ] ) => [ k, label ] ) ).concat( [ [ 'all', 'Teaching + substitute' ] ] ), 'kind' );
 		el.agency = select( 'Staffing agency', [ [ '', 'Any staffing agency' ] ].concat( Object.entries( data.agencies ) ), 'agency' );
+		el.mydegree = select( 'My highest degree', [ [ '', 'Any degree requirement' ], [ 'high_school', 'I have a high school diploma' ], [ 'associate', 'I have an associate degree' ], [ 'bachelor', 'I have a bachelor’s degree' ], [ 'master', 'I have a master’s degree' ] ], 'mydegree' );
+		el.license = licenseSelect();
 		el.pay = select( 'Pay', [ [ '', 'Any pay' ], [ 'listed', 'Pay amount listed' ], [ 'daily', 'Daily or hourly rate' ], [ 'salary', 'Annual salary' ] ], 'pay' );
 		el.minday = h( 'input', { type: 'number', min: '0', step: '5', inputmode: 'numeric', class: 'mt-input mt-minday', placeholder: 'Min $/day', 'aria-label': 'Minimum pay per day (daily equivalent)' } );
 		el.minday.addEventListener( 'input', debounce( () => set( { minday: el.minday.value } ), 400 ) );
@@ -169,7 +188,7 @@
 		el.employerChip = h( 'span', { class: 'mt-chips' } );
 
 		const filters = h( 'section', { class: 'mt-filters', 'aria-label': 'Filters' },
-			el.q, el.kind, el.agency, el.county, el.subject, el.band, el.appt, el.posted, el.pay, el.minday,
+			el.q, el.kind, el.agency, el.mydegree, el.license, el.county, el.subject, el.band, el.appt, el.posted, el.pay, el.minday,
 			el.employerChip, el.reset );
 
 		el.subjectChart = h( 'div', { class: 'mt-chart' } );
@@ -197,6 +216,21 @@
 		syncControls();
 	}
 
+	/** License areas grouped by category (regular education, special education, …). */
+	function licenseSelect() {
+		const names = { regular: 'Regular education', subject: 'Subject areas', special_education: 'Special education', bilingual: 'Bilingual & ESL', specialist: 'Specialists', pupil_services: 'Pupil services', substitute: 'Substitute licenses', other: 'Other' };
+		const sel = h( 'select', { class: 'mt-input', 'aria-label': 'License area' }, h( 'option', { value: '' }, 'Any license area' ) );
+		const groups = {};
+		Object.entries( data.licenseAreas || {} ).forEach( ( [ key, a ] ) => {
+			const cat = names[ a.category ] ? a.category : 'other';
+			groups[ cat ] = groups[ cat ] || h( 'optgroup', { label: names[ cat ] } );
+			groups[ cat ].append( h( 'option', { value: key }, a.label ) );
+		} );
+		Object.keys( names ).forEach( ( cat ) => groups[ cat ] && sel.append( groups[ cat ] ) );
+		sel.addEventListener( 'change', () => set( { license: sel.value } ) );
+		return sel;
+	}
+
 	function select( label, options, key ) {
 		const s = h( 'select', { class: 'mt-input', 'aria-label': label } );
 		options.forEach( ( [ value, text ] ) => s.append( h( 'option', { value }, text ) ) );
@@ -211,7 +245,7 @@
 		if ( document.activeElement !== el.q ) {
 			el.q.value = state.q;
 		}
-		[ 'kind', 'agency', 'county', 'subject', 'band', 'appt', 'posted', 'pay' ].forEach( ( k ) => {
+		[ 'kind', 'agency', 'mydegree', 'license', 'county', 'subject', 'band', 'appt', 'posted', 'pay' ].forEach( ( k ) => {
 			el[ k ].value = state[ k ];
 		} );
 		if ( document.activeElement !== el.minday ) {
@@ -393,6 +427,7 @@
 				h( 'td', { 'data-label': 'Posted', class: 'mt-num', title: v.postedSeen ? 'The board shows no posting date; this is when the dashboard first saw it' : '' }, v.postedTime ? fmtDate( parseDate( v.posted ) ) + ( v.postedSeen ? '*' : '' ) : '—' ),
 				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, v.isSub ? h( 'span', { class: 'mt-badge mt-badge-sub' }, data.subKinds[ v.subKind ] ) : '', isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ) ),
 				h( 'td', { 'data-label': 'Subject' }, v.subject ),
+				h( 'td', { 'data-label': 'Requirements', title: v.licenseText }, v.reqSummary || '—' ),
 				h( 'td', { 'data-label': 'Employer' }, v.employer ),
 				h( 'td', { 'data-label': 'Staffing agency', title: v.agencyNote || '', class: v.agency === 'unknown' ? 'mt-muted' : '' }, v.agencyLabel ),
 				h( 'td', { 'data-label': 'School' }, v.school || '—' ),
@@ -433,11 +468,10 @@
 		};
 		add( 'Staffing agency', v.agencyBasis === 'direct' ? '' : v.agencyLabel + ( v.agencyNote ? ' — ' + v.agencyNote : '' ) );
 		add( 'Pay as posted', v.payText );
+		qualify( v, facts );
 		add( 'Daily equivalent', v.payDay !== null && v.payUnit !== 'day' ? '≈ $' + Math.round( v.payDay ) + '/day (' + ( v.payUnit === 'hour' ? '7-hour day' : '180-day year' ) + ')' : '' );
 		add( 'Openings', v.openings );
 		add( 'Grade level', v.band !== 'Unspecified' ? v.band : '' );
-		add( 'Degree', v.degree );
-		add( 'Licenses', ( v.licenses || [] ).join( ', ' ) );
 		const c = v.contact || {};
 		const contact = [ c.name, c.title ].filter( Boolean ).join( ', ' );
 		if ( contact || c.email || c.phone ) {
@@ -471,6 +505,37 @@
 			links );
 	}
 
+	/** "To qualify": degree, licenses (any one of), experience, specializations, what to submit, other routes. */
+	function qualify( v, facts ) {
+		const r = v.req;
+		if ( ! r || ( ! r.degree && ! r.licenses.length ) ) {
+			return;
+		}
+		const basis = { posted: 'as posted', text: 'stated in the posting', rule: 'Wisconsin rule for this kind of job', inferred: 'typical for this job — the posting doesn’t list licenses' };
+		const row = ( label, node ) => facts.append( h( 'dt', {}, label ), h( 'dd', {}, node ) );
+		row( 'Degree required', h( 'span', {}, data.degrees[ r.degree ] || '—', h( 'span', { class: 'mt-muted' }, ' (' + ( basis[ r.degreeBasis ] || '' ) + ')' ), r.degreeNote ? h( 'span', { class: 'mt-muted' }, ' ' + r.degreeNote ) : '' ) );
+		if ( r.licenses.length ) {
+			const list = h( 'ul', { class: 'mt-lic-list' } );
+			r.licenses.forEach( ( l ) => list.append( h( 'li', {}, l.title, l.levels ? h( 'span', { class: 'mt-muted' }, ' · ' + l.levels ) : '', l.codes && l.codes.length ? h( 'span', { class: 'mt-muted' }, ' · DPI ' + l.codes.join( ', ' ) ) : '' ) ) );
+			row( r.licenses.length > 1 ? 'Licenses (any one)' : 'License', h( 'span', {}, list, h( 'span', { class: 'mt-muted' }, basis[ r.licenseBasis ] || '' ) ) );
+		}
+		if ( r.experience !== null && r.experience !== undefined ) {
+			row( 'Experience', r.experience ? r.experience + '+ year' + ( r.experience === 1 ? '' : 's' ) : 'None required' );
+		}
+		if ( r.specializations && r.specializations.length ) {
+			row( 'Specialization', r.specializations.join( ', ' ) );
+		}
+		if ( r.materials && r.materials.length ) {
+			row( 'Submit', r.materials.join( ', ' ) );
+		}
+		if ( r.routes && r.routes.length ) {
+			row( 'Other ways in', h( 'span', {}, ...r.routes.map( ( t, i ) => ( i ? ' ' : '' ) + t ) ) );
+		}
+		if ( r.quote ) {
+			row( 'Posting says', '“' + r.quote + '”' );
+		}
+	}
+
 	function renderFoot() {
 		const parts = [ 'Source: ' ];
 		data.sources.forEach( ( src, i ) => {
@@ -492,7 +557,7 @@
 	/* ---------- CSV ---------- */
 
 	function downloadCsv() {
-		const cols = [ [ 'ID', 'id' ], [ 'Posted', 'posted' ], [ 'Position', 'title' ], [ 'Subject', 'subject' ], [ 'Grade level', 'band' ], [ 'Employer', 'employer' ], [ 'Staffing agency', 'agencyLabel' ], [ 'School', 'school' ], [ 'County', 'county' ], [ 'Type', 'appt' ], [ 'Substitute kind', 'subKindLabel' ], [ 'Starts', 'start' ], [ 'Closes', 'close' ], [ 'Pay', 'pay' ], [ 'Pay per day (approx.)', 'payDay' ], [ 'Pay as posted', 'payText' ], [ 'Posting URL', 'url' ] ];
+		const cols = [ [ 'ID', 'id' ], [ 'Posted', 'posted' ], [ 'Position', 'title' ], [ 'Subject', 'subject' ], [ 'Grade level', 'band' ], [ 'Employer', 'employer' ], [ 'Staffing agency', 'agencyLabel' ], [ 'School', 'school' ], [ 'County', 'county' ], [ 'Type', 'appt' ], [ 'Substitute kind', 'subKindLabel' ], [ 'Starts', 'start' ], [ 'Closes', 'close' ], [ 'Pay', 'pay' ], [ 'Pay per day (approx.)', 'payDay' ], [ 'Pay as posted', 'payText' ], [ 'Degree required', 'degreeLabel' ], [ 'Licenses (any one)', 'licenseText' ], [ 'Experience (years)', 'expYears' ], [ 'Requirements source', 'reqBasis' ], [ 'Posting URL', 'url' ] ];
 		const esc = ( x ) => {
 			let t = String( x ?? '' );
 			if ( /^[=+\-@\t\r]/.test( t ) ) {

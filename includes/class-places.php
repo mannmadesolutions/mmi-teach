@@ -33,6 +33,8 @@ final class Places {
 	private array $districts = array();
 	/** @var array<string, array<string, true>> normalized school name => county codes */
 	private array $schools = array();
+	/** @var array<string, true> normalized names of private schools (NCES Private School Survey) */
+	private array $private = array();
 	/** @var array<string, string> normalized district + '|' + school => county code */
 	private array $district_schools = array();
 	/** @var array<string, string> lowercase city => county code */
@@ -66,6 +68,8 @@ final class Places {
 			$this->schools[ $key ][ $code ]    = true;
 			if ( '' !== $district ) {
 				$this->district_schools[ self::normalize( $district ) . '|' . $key ] = $code;
+			} else {
+				$this->private[ $key ] = true; // Private-survey schools carry no district.
 			}
 		}
 		$this->cities       = $data['cities'] ?? array();
@@ -119,6 +123,18 @@ final class Places {
 		}
 
 		return array( 'code' => '', 'method' => 'unknown' );
+	}
+
+	/**
+	 * public (a school district or district-run school), private (in the Private School Survey)
+	 * or other (independent charters, agencies, networks the directories don't name).
+	 */
+	public function sector( string $employer ): string {
+		$key = self::normalize( $employer );
+		if ( isset( $this->districts[ $key ] ) ) {
+			return 'public';
+		}
+		return isset( $this->private[ $key ] ) ? 'private' : 'other';
 	}
 
 	public function county_name( string $code ): string {

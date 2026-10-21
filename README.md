@@ -38,6 +38,22 @@ A public guide that removes the guesswork from becoming a sub in the three count
 Facts live in `data/pathway.json`, each with a source URL and `verified_on` date; Settings →
 Teaching Vacancies lists any older than 120 days. Live numbers come from the job data.
 
+## Qualification requirements
+
+Every posting carries what it takes to qualify, each part labeled with where it came from:
+
+| Part | From the posting | When the posting doesn't say |
+|---|---|---|
+| Minimum degree | WECAN's Degree field, or the description ("Bachelor's degree required") | Wisconsin rule: substitute permit = associate; teaching license = bachelor's; pupil services = master's; Head Start = associate |
+| DPI license areas | WECAN's Licenses list (any one qualifies), or license areas / DPI codes the description names | The licenses a job with that title, subject and grade level normally needs (`data/licenses.json` → `infer.rules`) |
+| Experience, what to submit | WECAN's Years of Experience and Additional Requirements | — |
+| Other ways in | — | One-Year License with Stipulations, License Based on Equivalency, Choice-school (bachelor's accepted) and charter-license rules |
+
+`data/licenses.json` holds 66 DPI license areas with official titles, ELO subject codes, current
+(2018 PI 34) and legacy grade levels, minimum degree, required tests, regex aliases, and the 87
+WECAN license names mapped to them. The job board filters by "My highest degree" (shows jobs whose
+required degree you meet) and by license area.
+
 ## Staffing agencies
 
 Every posting shows which staffing agency, if any, fills it (job board column and filter):

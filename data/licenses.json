@@ -1,0 +1,2320 @@
+{
+	"about": "Wisconsin DPI license areas for cross-referencing postings: official titles, ELO subject codes, current (2018 PI 34) and legacy grade levels, minimum degree, tests, regex aliases for posting text, and the WECAN license names that map to each. 'infer' rules (first match wins) name the usual licenses when a posting lists none; 'routes' and 'rules' hold the plain-language alternatives and degree rules. Built 2026-10-21 from PI 34 (via Cornell LII, amended through CR 24-077), DPI testing and add-on guidance, the 2026-27 WISEstaff assignment list and DPI Choice Bulletin 05-01. Entries marked verified:false rest on secondary sources.",
+	"verified_on": "2026-10-21",
+	"licenses": {
+		"ec_regular": {
+			"title": "Early Childhood - Regular Education",
+			"short": "Early Childhood (Birth–Gr 3)",
+			"category": "regular",
+			"codes": [
+				"1777"
+			],
+			"levels": "Birth-Grade 3",
+			"legacy": "EC (PK-3) / EC-MC (birth-6) Regular Ed 1777 (old 777)",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5018 (157) or EPP GPA/portfolio",
+				"Foundations of Reading Test for WI (NES 190/890, pass 233) for first Tier II",
+				"2023 Act 20 reading/LA coursework (apps on/after 2025-07-01)"
+			],
+			"aliases": [
+				"\\b4K\\b",
+				"\\bK4\\b",
+				"pre-?k(indergarten)?",
+				"early childhood(?! special)",
+				"\\bECE\\b",
+				"\\b5K\\b",
+				"\\bK5\\b",
+				"kindergarten",
+				"\\bgrades? ?[1-3]\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "1777 is reused: legacy MC-EA/EC-MC 'Regular Education' also = 1777; check grade range. 4K may also be taught on a K-9 license that includes PK/K.",
+			"wecan": [
+				"Early Childhood – Middle Childhood Regular Education",
+				"Early Childhood – Regular Education"
+			]
+		},
+		"elem_middle": {
+			"title": "Elementary and Middle School (regular education)",
+			"short": "Elementary & Middle (K–9)",
+			"category": "regular",
+			"codes": [
+				"2088"
+			],
+			"levels": "K-9",
+			"legacy": "1088 Elementary Ed 1-8 or 1-6; 1777 Regular Ed MC-EA (1-8) or EC-MC (birth-6)",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5001 subtests RLA157/M157/SS155/S159 (OOS) or EPP GPA/portfolio",
+				"Foundations of Reading Test for WI (NES 190/890, pass 233) for first Tier II",
+				"2023 Act 20 reading/LA coursework (apps on/after 2025-07-01)"
+			],
+			"aliases": [
+				"elementary",
+				"grade [1-6] teacher",
+				"\\bK-?[5-8]\\b",
+				"self-contained",
+				"classroom teacher",
+				"middle school (core|ELA|math|science|social)",
+				"\\b[6-8]th grade\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Self-contained any subject except world language; departmentalized ELA/math/sci/SS only (PI 34.045). Grades 7-8 graduation-credit/HS courses need content license.",
+			"wecan": [
+				"Elementary - Classroom Teacher",
+				"Elementary/Middle Level Education",
+				"Middle Childhood – Early Adolescence Regular Education"
+			]
+		},
+		"ela": {
+			"title": "English and Language Arts",
+			"short": "English/Language Arts",
+			"category": "subject",
+			"codes": [
+				"2300",
+				"1300",
+				"1301",
+				"1310",
+				"1320"
+			],
+			"levels": "4-12",
+			"legacy": "1300 English EA-A; 1301 Broadfield Language Arts EA-A (thru gr10 + basic 11-12); 1310 Journalism; 1320 Speech Communication",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5038 (167)"
+			],
+			"aliases": [
+				"\\bELA\\b",
+				"english( language arts)?",
+				"language arts",
+				"\\bAP (English|Lit|Lang)",
+				"journalism",
+				"speech|forensics",
+				"composition"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "2300 covers English, journalism, speech; NOT a reading teacher assignment.",
+			"wecan": [
+				"Broadfield Language Arts",
+				"English",
+				"Journalism",
+				"Language Arts",
+				"Language Arts - Fusion",
+				"Speech (Academic)"
+			]
+		},
+		"math": {
+			"title": "Mathematics",
+			"short": "Mathematics",
+			"category": "subject",
+			"codes": [
+				"1400"
+			],
+			"levels": "4-12 (legacy MC-EA 1-8 or EA-A 5-12)",
+			"legacy": "1400 at MC-EA/EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5165 (159)"
+			],
+			"aliases": [
+				"\\bmath(ematics)?\\b",
+				"algebra",
+				"geometry",
+				"calculus",
+				"statistics",
+				"\\bAP (Calc|Stat)"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"Math Support / Intervention",
+				"Mathematics",
+				"Title I - Mathematics"
+			]
+		},
+		"computer_science": {
+			"title": "Computer Science",
+			"short": "Computer Science",
+			"category": "subject",
+			"codes": [
+				"1405"
+			],
+			"levels": "4-12",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5652 (149)"
+			],
+			"aliases": [
+				"computer science",
+				"\\bAP CS",
+				"\\bCS\\b",
+				"coding|programming"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Required when CS course earns math credit; other tech courses may be business (1250) / tech ed (1220) / art (1550).",
+			"wecan": [
+				"Computer Literacy",
+				"Computer Science"
+			]
+		},
+		"science": {
+			"title": "Science (broad)",
+			"short": "Science",
+			"category": "subject",
+			"codes": [
+				"2600",
+				"1601",
+				"1620",
+				"1621"
+			],
+			"levels": "4-12",
+			"legacy": "1601 Broadfield Science EA-A (thru gr10 + basic 11-12); 1620 General Science; 1621 Science (1-9/6-9); 1600 Science(all) pre-1980",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5436 (141)"
+			],
+			"aliases": [
+				"\\bscience\\b",
+				"general science",
+				"physical science",
+				"integrated science"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "2600 = any science grades 4-12. 1600/1620/1627/1630/1637-type legacy codes partly obsolete (PI 34.111).",
+			"wecan": [
+				"Broadfield Science",
+				"General Science",
+				"Physical Science",
+				"Science"
+			]
+		},
+		"biology": {
+			"title": "Biology / Life & Environmental Science",
+			"short": "Biology/Life Science",
+			"category": "subject",
+			"codes": [
+				"1605",
+				"1606"
+			],
+			"levels": "4-12 add-on (EA-A legacy)",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5235/5236 (152/154) or NES 305 (220)"
+			],
+			"aliases": [
+				"biology",
+				"life science",
+				"anatomy|physiology",
+				"\\bAP Bio"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Biology/Life Science",
+				"Life and Environmental Science"
+			]
+		},
+		"chemistry": {
+			"title": "Chemistry",
+			"short": "Chemistry",
+			"category": "subject",
+			"codes": [
+				"1610"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5245/5246 (152/146) or NES 306"
+			],
+			"aliases": [
+				"chemistry",
+				"\\bAP Chem"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Chemistry"
+			]
+		},
+		"physics": {
+			"title": "Physics",
+			"short": "Physics",
+			"category": "subject",
+			"codes": [
+				"1625"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5265/5266 (141/145) or NES 308"
+			],
+			"aliases": [
+				"physics",
+				"\\bAP Physics"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Physics"
+			]
+		},
+		"earth_space": {
+			"title": "Earth and Space Science",
+			"short": "Earth & Space Science",
+			"category": "subject",
+			"codes": [
+				"1635"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A (covers astronomy 1627, geology 1636)",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5571/5572 (152/154) or NES 307"
+			],
+			"aliases": [
+				"earth (and|&) space",
+				"earth science",
+				"geology",
+				"astronomy"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Astronomy",
+				"Earth Science",
+				"Geology"
+			]
+		},
+		"environmental": {
+			"title": "Environmental Studies",
+			"short": "Environmental Studies",
+			"category": "subject",
+			"codes": [
+				"1615",
+				"1606"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis Biology 5235/5236"
+			],
+			"aliases": [
+				"environmental (science|studies)",
+				"\\bAP Environmental",
+				"\\bAPES\\b"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Advanced or AP Environmental Science",
+				"Environmental Science",
+				"Introductory Environmental Science"
+			]
+		},
+		"social_studies": {
+			"title": "Social Studies (broad)",
+			"short": "Social Studies",
+			"category": "subject",
+			"codes": [
+				"2700",
+				"1701",
+				"1700"
+			],
+			"levels": "4-12",
+			"legacy": "1701 Broadfield Social Studies EA-A (thru gr10 + fusion 11-12); 1700 SS(all) pre-1972",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5581 (153)"
+			],
+			"aliases": [
+				"social studies",
+				"civics",
+				"government",
+				"\\bAP (Gov|US Gov|Comp)",
+				"US history|world history|american history",
+				"economics|personal finance"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "2700 = any social studies 4-12 incl. AP Gov/history; also personal financial literacy.",
+			"wecan": [
+				"Anthropology",
+				"Broadfield Social Studies",
+				"Social Studies",
+				"Social Studies (Fusion Course)"
+			]
+		},
+		"history": {
+			"title": "History",
+			"short": "History",
+			"category": "subject",
+			"codes": [
+				"1725"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5941 (150) or NES 302"
+			],
+			"aliases": [
+				"\\bhistory\\b",
+				"\\bAP (US|World|European) History",
+				"\\bAPUSH\\b"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"History"
+			]
+		},
+		"geography": {
+			"title": "Geography",
+			"short": "Geography",
+			"category": "subject",
+			"codes": [
+				"1715"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5921 (153)"
+			],
+			"aliases": [
+				"geography",
+				"\\bAP Human Geo"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Geography"
+			]
+		},
+		"economics": {
+			"title": "Economics",
+			"short": "Economics",
+			"category": "subject",
+			"codes": [
+				"1710"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5911 (150)"
+			],
+			"aliases": [
+				"economics",
+				"\\bAP (Macro|Micro)"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Economics"
+			]
+		},
+		"political_science": {
+			"title": "Political Science (and Citizenship)",
+			"short": "Political Science",
+			"category": "subject",
+			"codes": [
+				"1735"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A (assignment area 0705 Civics)",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5931 (149)"
+			],
+			"aliases": [
+				"political science",
+				"civics",
+				"\\bAP Gov"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Civics (Citizenship)",
+				"Political Science"
+			]
+		},
+		"psychology": {
+			"title": "Psychology",
+			"short": "Psychology",
+			"category": "subject",
+			"codes": [
+				"1740"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5391 (154)"
+			],
+			"aliases": [
+				"psychology",
+				"\\bAP Psych"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"notes": "Broadfield SS (1701) and pre-1972 1700 do not cover discrete psychology courses.",
+			"wecan": [
+				"Psychology"
+			]
+		},
+		"sociology": {
+			"title": "Sociology",
+			"short": "Sociology",
+			"category": "subject",
+			"codes": [
+				"1745"
+			],
+			"levels": "4-12 add-on",
+			"legacy": "EA-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5952 (154)"
+			],
+			"aliases": [
+				"sociology"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": [
+				"Sociology"
+			]
+		},
+		"world_languages": {
+			"title": "World Languages",
+			"short": "World Language",
+			"category": "subject",
+			"codes": [
+				"1365",
+				"1355",
+				"1370",
+				"1349",
+				"1350",
+				"1385",
+				"1360",
+				"1375",
+				"1380",
+				"1381",
+				"1356",
+				"1389"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"spanish",
+				"french",
+				"german",
+				"chinese|mandarin",
+				"latin",
+				"world language|foreign language",
+				"\\bASL\\b|american sign language",
+				"hmong|japanese|russian|italian"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "ASL (assignment area 0348) code not found; 'Other World Languages' license exists. Unverified for ASL.",
+			"wecan": []
+		},
+		"esl": {
+			"title": "English as a Second Language",
+			"short": "ESL",
+			"category": "bilingual",
+			"codes": [
+				"1395"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A; MC-EA ESL ran K-8",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5362 (149)"
+			],
+			"aliases": [
+				"\\bESL\\b",
+				"\\bELL\\b",
+				"\\bEL\\b teacher",
+				"English (language )?learner",
+				"\\bESOL\\b",
+				"multilingual learner|\\bMLL\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Can be added to 2088/2801 by content test.",
+			"wecan": [
+				"Bilingual/English Language Learner",
+				"English Language Learner",
+				"English as a Second Language"
+			]
+		},
+		"bilingual": {
+			"title": "Bilingual-Bicultural Education (supplementary)",
+			"short": "Bilingual-Bicultural",
+			"category": "bilingual",
+			"codes": [
+				"1023"
+			],
+			"levels": "Grade levels of the base teaching license",
+			"legacy": "same",
+			"degree": "bachelor + base teaching license",
+			"tests": [
+				"target-language proficiency; approved bilingual program"
+			],
+			"aliases": [
+				"bilingual",
+				"dual language",
+				"(two-way )?immersion",
+				"bilingual (spanish|hmong)"
+			],
+			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
+			"verified": true,
+			"notes": "Supplemental: must also hold a teaching license (PI 34.078); 'Bilingual Spanish elementary' = 2088 (or 1777) + 1023 (+ Spanish proficiency).",
+			"wecan": [
+				"Bilingual-Bicultural Education"
+			]
+		},
+		"reading_teacher": {
+			"title": "Reading Teacher (supplementary)",
+			"short": "Reading Teacher",
+			"category": "specialist",
+			"codes": [
+				"1316"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor + base teaching license + 2 yrs classroom experience",
+			"tests": [
+				"Foundations of Reading Test (233)",
+				"2023 Act 20 reading/LA"
+			],
+			"aliases": [
+				"reading (teacher|interventionist|specialist)",
+				"literacy (interventionist|coach|teacher)",
+				"title i reading",
+				"reading recovery",
+				"interventionist"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Required for teaching reading >1 class/day, Title I reading, Reading Recovery outside self-contained class.",
+			"wecan": [
+				"Reading Teacher",
+				"Title I - Reading"
+			]
+		},
+		"reading_specialist": {
+			"title": "Reading Specialist (administrator category)",
+			"short": "Reading Specialist",
+			"category": "specialist",
+			"codes": [
+				"5017"
+			],
+			"levels": "PK-12",
+			"legacy": "EC-A; WISEstaff position 17",
+			"degree": "master's (admin-category license; see PI 34.070, not downloaded) - unverified",
+			"tests": [
+				"Foundations of Reading Test (233)",
+				"2023 Act 20 reading/LA"
+			],
+			"aliases": [
+				"reading specialist",
+				"literacy specialist|literacy coordinator",
+				"district reading"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": false,
+			"notes": "Directs reading programs / coaches teachers.",
+			"wecan": [
+				"Reading Specialist"
+			]
+		},
+		"art": {
+			"title": "Art",
+			"short": "Art",
+			"category": "subject",
+			"codes": [
+				"1550"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5134 (158)"
+			],
+			"aliases": [
+				"\\bart\\b teacher",
+				"visual art",
+				"art education"
+			],
+			"source": "https://dpi.wi.gov/media/44294/download?inline",
+			"verified": true,
+			"wecan": [
+				"Art"
+			]
+		},
+		"music": {
+			"title": "Music",
+			"short": "Music",
+			"category": "subject",
+			"codes": [
+				"2500",
+				"1506",
+				"1511",
+				"1515",
+				"1505",
+				"1510",
+				"1500"
+			],
+			"levels": "K-12 (2500 any music)",
+			"legacy": "1506 Instrumental EC-A; 1511 Choral EC-A; 1515 General EC-A; 1505/1510 legacy instrumental/vocal; 1500 Music(all) obsolete",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5113 (150)"
+			],
+			"aliases": [
+				"\\bmusic\\b",
+				"\\bband\\b",
+				"orchestra",
+				"choir|choral|vocal music",
+				"general music"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Match posting: band/orchestra -> 1506/1505/2500; choir -> 1511/1510/2500; general -> 1515/2500.",
+			"wecan": [
+				"Music (Choral)",
+				"Music (General)",
+				"Music (Instrumental)"
+			]
+		},
+		"theatre": {
+			"title": "Theatre",
+			"short": "Theatre",
+			"category": "subject",
+			"codes": [
+				"1325"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5641 (157)"
+			],
+			"aliases": [
+				"theat(re|er)",
+				"drama"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"Theater"
+			]
+		},
+		"dance": {
+			"title": "Dance",
+			"short": "Dance",
+			"category": "subject",
+			"codes": [
+				"1536"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"(add-on via test listed by DPI)"
+			],
+			"aliases": [
+				"\\bdance\\b"
+			],
+			"source": "https://dpi.wi.gov/licensing/general/teachers",
+			"verified": false,
+			"notes": "CR 24-008 proposed making dance obsolete (dance under PE); status unclear (scope withdrawn 2025-02-07?) - DPI site still lists Dance K-12.",
+			"wecan": []
+		},
+		"pe": {
+			"title": "Physical Education",
+			"short": "Physical Education",
+			"category": "subject",
+			"codes": [
+				"1530"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5091 (150)"
+			],
+			"aliases": [
+				"phy\\.? ?ed",
+				"physical education",
+				"\\bPE\\b",
+				"\\bgym\\b",
+				"phys ed"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"Physical Education"
+			]
+		},
+		"adapted_pe": {
+			"title": "Adaptive Physical Education (supplementary)",
+			"short": "Adapted PE",
+			"category": "special_education",
+			"codes": [
+				"1860"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor + PE license (1530)",
+			"tests": [
+				"approved APE program"
+			],
+			"aliases": [
+				"adapt(ed|ive) (PE|phy(sical)? ?ed)",
+				"\\bAPE\\b"
+			],
+			"source": "https://dpi.wi.gov/sfs/valid-reporting-and-license-codes-special-education-and-pupil-services-staff-spedsap-categorical",
+			"verified": true,
+			"wecan": [
+				"Adaptive Physical Education"
+			]
+		},
+		"health": {
+			"title": "Health",
+			"short": "Health",
+			"category": "subject",
+			"codes": [
+				"1910"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (some MC-EA/EA-A legacy)",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5551 (151)"
+			],
+			"aliases": [
+				"\\bhealth\\b (teacher|education)",
+				"health\\/PE|PE\\/health"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"Health"
+			]
+		},
+		"tech_ed": {
+			"title": "Technology Education",
+			"short": "Technology Education",
+			"category": "subject",
+			"codes": [
+				"1220"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5053 (157) [K-12 add-on sheet lists 5051 (159)]"
+			],
+			"aliases": [
+				"tech(nology)? ?ed",
+				"technology (and|&) engineering",
+				"\\bSTEM\\b",
+				"\\bPLTW\\b|project lead the way",
+				"woods|metals|manufacturing|welding|construction|automotive|engineering"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Experience-based Tier I tech/vocational license (PI 34.037) and trade specialist permit (PI 34.0374) are district-specific alternatives.",
+			"wecan": [
+				"Technology Education",
+				"Technology Occupations/Communications"
+			]
+		},
+		"business_ed": {
+			"title": "Business Education (Business & Information Technology)",
+			"short": "Business Education",
+			"category": "subject",
+			"codes": [
+				"1250",
+				"1251"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5101 (154)"
+			],
+			"aliases": [
+				"business (education|ed\\b|and information technology)",
+				"\\bBIT\\b",
+				"accounting|marketing|keyboarding",
+				"personal finance"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "1251 appears in DPI's What Can I Teach page (business ed variant) - meaning unverified.",
+			"wecan": [
+				"Business Education"
+			]
+		},
+		"marketing_ed": {
+			"title": "Marketing Education",
+			"short": "Marketing Education",
+			"category": "subject",
+			"codes": [
+				"1285"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5561 (153)"
+			],
+			"aliases": [
+				"marketing",
+				"\\bDECA\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"facs": {
+			"title": "Family and Consumer Education",
+			"short": "Family & Consumer Sciences",
+			"category": "subject",
+			"codes": [
+				"1210"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5123 (151)"
+			],
+			"aliases": [
+				"\\bFACS\\b",
+				"\\bFCS\\b",
+				"\\bFCE\\b",
+				"family (and|&) consumer",
+				"home ec",
+				"culinary|child development"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"agriculture": {
+			"title": "Agriculture Education",
+			"short": "Agriculture",
+			"category": "subject",
+			"codes": [
+				"1200"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5701 (147)"
+			],
+			"aliases": [
+				"agricultur",
+				"\\bag ed\\b|\\bag teacher",
+				"\\bFFA\\b",
+				"agriscience"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"library_media": {
+			"title": "Instructional Library Media Specialist",
+			"short": "Library Media",
+			"category": "specialist",
+			"codes": [
+				"1902"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A; 1901 non-renewable obsolete",
+			"degree": "bachelor (via approved program)",
+			"tests": [
+				"none listed in OOS guidance - unverified"
+			],
+			"aliases": [
+				"library media",
+				"\\bLMS\\b",
+				"librarian",
+				"media specialist"
+			],
+			"source": "https://dpi.wi.gov/media/44236/download?inline",
+			"verified": true,
+			"wecan": []
+		},
+		"gifted": {
+			"title": "Gifted and Talented (teacher, supplementary)",
+			"short": "Gifted & Talented",
+			"category": "specialist",
+			"codes": [
+				"1013",
+				"5013"
+			],
+			"levels": "base license grades",
+			"legacy": "n/a",
+			"degree": "bachelor + teaching license",
+			"tests": [
+				"approved program"
+			],
+			"aliases": [
+				"gifted",
+				"talented and gifted|\\bTAG\\b|\\bG\\/?T\\b",
+				"advanced learner"
+			],
+			"source": "https://web-ns-vip.uww.edu/coeps/edfound/gifted-and-talented/faqs",
+			"verified": false,
+			"notes": "PI 34.081: license is NOT required to teach in a G&T program. Codes from UW-Whitewater, not DPI.",
+			"wecan": [
+				"Gifted and Talented"
+			]
+		},
+		"alternative_ed": {
+			"title": "Alternative Education Program (supplementary)",
+			"short": "Alternative Education",
+			"category": "specialist",
+			"codes": [
+				"1952"
+			],
+			"levels": "base license grades",
+			"legacy": "n/a",
+			"degree": "bachelor + Tier II+ teaching license",
+			"tests": [
+				"approved program"
+			],
+			"aliases": [
+				"alternative (education|ed|school|program)",
+				"at-risk"
+			],
+			"source": "https://institutes.cuw.edu/programs/altedcert/index.html",
+			"verified": false,
+			"notes": "Code from CUW program page, not DPI.",
+			"wecan": []
+		},
+		"montessori": {
+			"title": "Montessori Teacher",
+			"short": "Montessori",
+			"category": "regular",
+			"codes": [
+				"1778"
+			],
+			"levels": "MEC PK-1, ELEM1 1-4, ELEM2 4-6, MDLHI 6-12",
+			"legacy": "n/a",
+			"degree": "bachelor + MACTE/AMI-accredited training + 3-credit SPED course",
+			"tests": [
+				"Praxis 5018 (EC, Elem I) or 5001 (Elem II, secondary)",
+				"Foundations of Reading Test"
+			],
+			"aliases": [
+				"montessori"
+			],
+			"source": "https://dpi.wi.gov/licensing/general/montessori-path",
+			"verified": true,
+			"notes": "Tier II under PI 34.040(2)(e)/s.118.194; exempt from Act 20 reading/LA requirement.",
+			"wecan": [
+				"Montessori"
+			]
+		},
+		"cross_cat": {
+			"title": "Cross-Categorical Special Education",
+			"short": "Cross-Categorical SpEd",
+			"category": "special_education",
+			"codes": [
+				"2801",
+				"1801"
+			],
+			"levels": "K-12 (2801)",
+			"legacy": "1801 at MC-EA (K-8 for SPED) or EA-A (5-12)",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5001 (OOS) or EPP GPA/portfolio",
+				"Foundations of Reading Test or SPED FORT-alternative course (s.118.19(14)(b))",
+				"2023 Act 20 reading/LA"
+			],
+			"aliases": [
+				"cross[- ]?cat(egorical)?",
+				"special education",
+				"\\bSPED\\b|\\bsped\\b",
+				"resource (room|teacher)",
+				"intervention specialist",
+				"\\bLD\\b|\\bEBD\\b|\\bED\\b|\\bCD\\b|\\bID\\b",
+				"autism"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "2801 serves ID, EBD, SLD, autism, OHI etc. (not DHH/VI/SLP services). Tier I SPED max 3 years (IDEA).",
+			"wecan": [
+				"Cross Categorical Special Education",
+				"Special Education Diagnostic - Cross Categorical"
+			]
+		},
+		"ld": {
+			"title": "Learning Disabilities / Specific Learning Disabilities",
+			"short": "Learning Disabilities (legacy)",
+			"category": "special_education",
+			"codes": [
+				"1811"
+			],
+			"levels": "legacy MC-EA (K-8) / EA-A (5-12)",
+			"legacy": "legacy only (no new issuance under 2018 rule; new = 2801)",
+			"degree": "bachelor",
+			"tests": [
+				"FORT for first license"
+			],
+			"aliases": [
+				"\\bS?LD\\b",
+				"learning disabilit"
+			],
+			"source": "https://dpi.wi.gov/sfs/valid-reporting-and-license-codes-special-education-and-pupil-services-staff-spedsap-categorical",
+			"verified": true,
+			"wecan": [
+				"Specific Learning Disabilities"
+			]
+		},
+		"ebd": {
+			"title": "Emotional Behavioral Disabilities",
+			"short": "Emotional Behavioral Disability (legacy)",
+			"category": "special_education",
+			"codes": [
+				"1830"
+			],
+			"levels": "legacy MC-EA / EA-A",
+			"legacy": "legacy only (new = 2801)",
+			"degree": "bachelor",
+			"tests": [
+				"FORT for first license"
+			],
+			"aliases": [
+				"\\bE\\/?BD\\b",
+				"emotional(ly)? (behavio(u)?ral|disturb)",
+				"\\bED\\b classroom",
+				"behavio(u)?r (program|classroom)"
+			],
+			"source": "https://dpi.wi.gov/sfs/valid-reporting-and-license-codes-special-education-and-pupil-services-staff-spedsap-categorical",
+			"verified": true,
+			"wecan": [
+				"Emotional Behavioral Disability"
+			]
+		},
+		"id_cd": {
+			"title": "Cognitive Disabilities / Intellectual Disabilities",
+			"short": "Intellectual Disability (legacy)",
+			"category": "special_education",
+			"codes": [
+				"1810",
+				"1806",
+				"1807"
+			],
+			"levels": "legacy MC-EA / EA-A",
+			"legacy": "legacy only; 1806 Mild/Moderate ID, 1807 Severely Handicapped (rare)",
+			"degree": "bachelor",
+			"tests": [
+				"FORT for first license"
+			],
+			"aliases": [
+				"\\bC\\/?D\\b",
+				"\\bI\\/?D\\b",
+				"cognitive(ly)? disab",
+				"intellectual disab",
+				"significant disab",
+				"life skills"
+			],
+			"source": "https://dpi.wi.gov/sfs/valid-reporting-and-license-codes-special-education-and-pupil-services-staff-spedsap-categorical",
+			"verified": true,
+			"wecan": [
+				"Intellectual Disability"
+			]
+		},
+		"autism": {
+			"title": "Autism (no separate license)",
+			"short": "Autism (SpEd license)",
+			"category": "special_education",
+			"codes": [
+				"2801",
+				"1801",
+				"1810",
+				"1811",
+				"1830",
+				"1808",
+				"1809"
+			],
+			"levels": "per license",
+			"legacy": "WISEstaff area 0818 Autism accepts these codes",
+			"degree": "bachelor",
+			"tests": [],
+			"aliases": [
+				"autism",
+				"\\bASD\\b"
+			],
+			"source": "https://dpi.wi.gov/sfs/valid-reporting-and-license-codes-special-education-and-pupil-services-staff-spedsap-categorical",
+			"verified": true,
+			"notes": "Wisconsin has no autism-specific teaching license.",
+			"wecan": [
+				"Autism"
+			]
+		},
+		"dhh": {
+			"title": "Deaf or Hard of Hearing",
+			"short": "Deaf/Hard of Hearing",
+			"category": "special_education",
+			"codes": [
+				"1805"
+			],
+			"levels": "K-12 (any grade)",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5001 subtests (OOS)"
+			],
+			"aliases": [
+				"deaf",
+				"hard of hearing",
+				"\\bD\\/?HH\\b",
+				"hearing impair"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "No LWS3 allowed; Tier I not allowed.",
+			"wecan": [
+				"Deaf/Hard of Hearing"
+			]
+		},
+		"vi": {
+			"title": "Blind and Visual Impairment",
+			"short": "Visual Impairment",
+			"category": "special_education",
+			"codes": [
+				"1825",
+				"O060"
+			],
+			"levels": "K-12 (any grade)",
+			"legacy": "EC-A",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5001 subtests",
+				"NCUEB braille certification"
+			],
+			"aliases": [
+				"visual(ly)? impair",
+				"\\bVI\\b teacher",
+				"\\bTVI\\b",
+				"blind",
+				"orientation (and|&) mobility|\\bO&M\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"Blind/Visual Impairment"
+			]
+		},
+		"ecse": {
+			"title": "Early Childhood Special Education",
+			"short": "Early Childhood SpEd",
+			"category": "special_education",
+			"codes": [
+				"1809",
+				"1808"
+			],
+			"levels": "Birth-Grade 3",
+			"legacy": "1808 ECSE grades PK-K only (legacy); 1809 PK-3",
+			"degree": "bachelor",
+			"tests": [
+				"Praxis 5018 (157)",
+				"Foundations of Reading Test for WI (NES 190/890, pass 233) for first Tier II",
+				"2023 Act 20 reading/LA coursework (apps on/after 2025-07-01)"
+			],
+			"aliases": [
+				"\\bECSE\\b",
+				"early childhood special",
+				"\\bEC ?SPED\\b",
+				"preschool special",
+				"\\bEEN\\b|early childhood exceptional"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"Early Childhood - Special Education"
+			]
+		},
+		"slp": {
+			"title": "Speech and Language Pathology",
+			"short": "Speech-Language Pathology",
+			"category": "pupil_services",
+			"codes": [
+				"1820"
+			],
+			"levels": "PK-12 (any grade)",
+			"legacy": "EC-A",
+			"degree": "master's (communication disorders)",
+			"tests": [
+				"Praxis 5331 (162)"
+			],
+			"aliases": [
+				"speech( and|\\/| &)? ?language",
+				"\\bSLP\\b",
+				"speech therap",
+				"speech path"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"notes": "Tier I path: master's + DSPS SLP license (PI 34.028(2)(d)). Licensed as a teaching license under PI 34.0475.",
+			"wecan": [
+				"Speech/Language Impairment",
+				"Speech/Language Pathologist"
+			]
+		},
+		"school_counselor": {
+			"title": "School Counselor",
+			"short": "School Counselor",
+			"category": "pupil_services",
+			"codes": [
+				"7054"
+			],
+			"levels": "PK-12",
+			"legacy": "EC-A",
+			"degree": "master's",
+			"tests": [
+				"Praxis 5422 (159)"
+			],
+			"aliases": [
+				"school counsel",
+				"guidance counsel",
+				"\\bcounselor\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"School Counselor"
+			]
+		},
+		"school_psychologist": {
+			"title": "School Psychologist",
+			"short": "School Psychologist",
+			"category": "pupil_services",
+			"codes": [
+				"7062",
+				"7055",
+				"7058",
+				"7061"
+			],
+			"levels": "PK-12",
+			"legacy": "EC-A; 7061 non-renewable",
+			"degree": "Ed.S./specialist or doctorate (LWS1: master's + enrollment)",
+			"tests": [
+				"Praxis 5403 (155)"
+			],
+			"aliases": [
+				"school psycholog",
+				"\\bpsych\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"school_social_worker": {
+			"title": "School Social Worker",
+			"short": "School Social Worker",
+			"category": "pupil_services",
+			"codes": [
+				"7050"
+			],
+			"levels": "PK-12",
+			"legacy": "EC-A",
+			"degree": "MSW",
+			"tests": [
+				"none (since 2014-07-01)"
+			],
+			"aliases": [
+				"social worker",
+				"\\bMSW\\b",
+				"\\bSSW\\b"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"school_nurse": {
+			"title": "Licensed School Nurse",
+			"short": "School Nurse",
+			"category": "pupil_services",
+			"codes": [
+				"7075"
+			],
+			"levels": "PK-12",
+			"legacy": "EC-A",
+			"degree": "RN (DSPS); DPI license optional",
+			"tests": [],
+			"aliases": [
+				"school nurse",
+				"\\bRN\\b",
+				"\\bLSN\\b"
+			],
+			"source": "https://dpi.wi.gov/sfs/valid-reporting-and-license-codes-special-education-and-pupil-services-staff-spedsap-categorical",
+			"verified": true,
+			"wecan": []
+		},
+		"short_term_sub_permit": {
+			"title": "Three-Year Short-Term Substitute Teacher Permit (Tier I)",
+			"short": "Short-Term Substitute Permit",
+			"category": "substitute",
+			"codes": [],
+			"levels": "Any subject/grade, <=45 consecutive days per assignment",
+			"legacy": "formerly 'short-term substitute license'",
+			"degree": "associate degree + approved sub training, OR age 20+ & EPP junior status + 15 hrs observation",
+			"tests": [],
+			"aliases": [
+				"(short[- ]term |day[- ]to[- ]day |daily |guest )?substitute",
+				"\\bsub\\b",
+				"guest teacher"
+			],
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit",
+			"verified": true,
+			"notes": "ELO license-type code not found (unverified). Does not satisfy Choice teacher credential.",
+			"wecan": [
+				"Permanent Substitute",
+				"Short Term Substitute Teacher"
+			]
+		},
+		"five_year_sub": {
+			"title": "Five-Year (Long-Term) Substitute License (Tier I)",
+			"short": "Long-Term Substitute License",
+			"category": "substitute",
+			"codes": [
+				"T601",
+				"P601",
+				"A601"
+			],
+			"levels": "Grades/subjects of a license held or eligible; short-term anywhere",
+			"legacy": "n/a",
+			"degree": "completed an approved EPP (or equivalent OOS license)",
+			"tests": [],
+			"aliases": [
+				"long[- ]term sub(stitute)?",
+				"\\bLTS\\b",
+				"maternity (leave )?(sub|position)",
+				"leave replacement"
+			],
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-license",
+			"verified": true,
+			"notes": "Long-term (>45 days) assignment requires license in the grade/subject, or a district-requested LWS1.",
+			"wecan": [
+				"Long Term Substitute Teacher"
+			]
+		},
+		"charter_school_license": {
+			"title": "Charter School License (teacher) - Tier I, 5-yr renewable",
+			"short": "Charter School License",
+			"category": "other",
+			"codes": [
+				"T400"
+			],
+			"levels": "Subject/grade of license; non-virtual charter schools only",
+			"legacy": "replaces obsolete 'Charter School Instructional Staff' permit",
+			"degree": "bachelor (accredited) + major/minor or passing content test in subject",
+			"tests": [
+				"Praxis content test if no major/minor"
+			],
+			"aliases": [
+				"charter school license",
+				"charter (school )?teacher"
+			],
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/other/charter",
+			"verified": true,
+			"notes": "Exempt from Act 20 reading/LA (Tier I). Not valid in virtual charters.",
+			"wecan": [
+				"Charter School Teacher"
+			]
+		},
+		"wl_spanish": {
+			"title": "World Language – Spanish",
+			"short": "Spanish",
+			"category": "subject",
+			"codes": [
+				"1365"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"spanish"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"World Language - Spanish"
+			]
+		},
+		"wl_chinese": {
+			"title": "World Language – Chinese (Mandarin)",
+			"short": "Chinese (Mandarin)",
+			"category": "subject",
+			"codes": [
+				"1349"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"chinese",
+				"mandarin"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": [
+				"World Language - Chinese"
+			]
+		},
+		"wl_french": {
+			"title": "World Language – French",
+			"short": "French",
+			"category": "subject",
+			"codes": [
+				"1355"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"french"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"wl_german": {
+			"title": "World Language – German",
+			"short": "German",
+			"category": "subject",
+			"codes": [
+				"1370"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"german"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"wl_hmong": {
+			"title": "World Language – Hmong",
+			"short": "Hmong",
+			"category": "subject",
+			"codes": [
+				"1389"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"hmong"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"wl_latin": {
+			"title": "World Language – Latin",
+			"short": "Latin",
+			"category": "subject",
+			"codes": [
+				"1350"
+			],
+			"levels": "K-12",
+			"legacy": "EC-A (also seen PK-12)",
+			"degree": "bachelor",
+			"tests": [
+				"ACTFL OPI + WPT Intermediate High (LTI); Hmong: STAMP WS 6"
+			],
+			"aliases": [
+				"latin"
+			],
+			"source": "https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+			"verified": true,
+			"wecan": []
+		},
+		"any_license": {
+			"title": "Any Wisconsin teaching license",
+			"short": "Any teaching license",
+			"category": "substitute",
+			"codes": [],
+			"levels": "",
+			"legacy": "",
+			"degree": "bachelor",
+			"tests": [],
+			"aliases": [],
+			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
+			"verified": false,
+			"notes": "Short-term subs may hold any Wisconsin license or the substitute permit (PI 34.109).",
+			"wecan": []
+		},
+		"adaptive_ed": {
+			"title": "Adaptive Education (special education)",
+			"short": "Adaptive Education",
+			"category": "special_education",
+			"codes": [
+				"1859"
+			],
+			"levels": "",
+			"legacy": "",
+			"degree": "bachelor",
+			"tests": [],
+			"aliases": [],
+			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
+			"verified": false,
+			"notes": "Code from DPI special-education aid table.",
+			"wecan": [
+				"Adaptive Education"
+			]
+		},
+		"interpreter_sub": {
+			"title": "Educational Interpreter Substitute License",
+			"short": "Educational Interpreter (sub)",
+			"category": "substitute",
+			"codes": [],
+			"levels": "",
+			"legacy": "",
+			"degree": "associate",
+			"tests": [],
+			"aliases": [],
+			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
+			"verified": false,
+			"notes": "Educational interpreter substitute license (45 days or less).",
+			"wecan": [
+				"Substitute - Educational Interpreter"
+			]
+		},
+		"physical_therapy": {
+			"title": "Physical therapist (state DSPS license)",
+			"short": "Physical Therapist",
+			"category": "pupil_services",
+			"codes": [],
+			"levels": "",
+			"legacy": "",
+			"degree": "master",
+			"tests": [],
+			"aliases": [],
+			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
+			"verified": false,
+			"notes": "Licensed by DSPS, not DPI.",
+			"wecan": [
+				"Physical Therapy"
+			]
+		},
+		"assignment": {
+			"title": "Teaching license for the assignment",
+			"short": "Teaching license (any area)",
+			"category": "other",
+			"codes": [],
+			"levels": "",
+			"legacy": "",
+			"degree": "bachelor",
+			"tests": [],
+			"aliases": [],
+			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
+			"verified": false,
+			"notes": "WECAN lists an assignment rather than a license area (e.g. Title I, academic support, teacher in charge, religious studies); a teaching license appropriate to the assignment is expected.",
+			"wecan": [
+				"Academic Support- Teachers",
+				"Career Education",
+				"Philosophy",
+				"Religious Studies",
+				"Teacher in Charge"
+			]
+		},
+		"head_start": {
+			"title": "Head Start teacher credential (federal Head Start standards)",
+			"short": "Head Start credential",
+			"category": "other",
+			"codes": [],
+			"levels": "Birth–age 5",
+			"legacy": "",
+			"degree": "associate",
+			"tests": [],
+			"aliases": [],
+			"source": "https://eclkc.ohs.acf.hhs.gov/policy/45-cfr-chap-xiii/1302-91-staff-qualifications-competency-requirements",
+			"verified": false,
+			"notes": "Head Start and Early Head Start teachers are covered by federal staff-qualification rules (an associate or bachelor’s degree in early childhood education, or a CDA credential for infant/toddler teachers), not a DPI license.",
+			"wecan": []
+		}
+	},
+	"infer": {
+		"substitute": [
+			"short_term_sub_permit",
+			"any_license"
+		],
+		"long_term_extra": [
+			"five_year_sub"
+		],
+		"rules": [
+			{
+				"title": "head start|infant|toddler",
+				"licenses": [
+					"head_start"
+				]
+			},
+			{
+				"title": "montessori",
+				"licenses": [
+					"montessori"
+				]
+			},
+			{
+				"title": "speech|\\bslp\\b|language patholog",
+				"licenses": [
+					"slp"
+				]
+			},
+			{
+				"title": "counsel",
+				"licenses": [
+					"school_counselor"
+				]
+			},
+			{
+				"title": "school psycholog",
+				"licenses": [
+					"school_psychologist"
+				]
+			},
+			{
+				"title": "social work",
+				"licenses": [
+					"school_social_worker"
+				]
+			},
+			{
+				"title": "\\bnurse\\b",
+				"licenses": [
+					"school_nurse"
+				]
+			},
+			{
+				"title": "early childhood|\\b[34]\\s?k\\b|\\bk[34]\\b|preschool|ecse|pre-?k",
+				"subject": [
+					"Special Education"
+				],
+				"licenses": [
+					"ecse"
+				]
+			},
+			{
+				"title": "deaf|hard of hearing|\\bdhh\\b",
+				"licenses": [
+					"dhh"
+				]
+			},
+			{
+				"title": "visual(ly)? impair|blind|\\btvi\\b",
+				"licenses": [
+					"vi"
+				]
+			},
+			{
+				"title": "\\bebd?\\b|emotional|behavio",
+				"subject": [
+					"Special Education"
+				],
+				"licenses": [
+					"cross_cat",
+					"ebd"
+				]
+			},
+			{
+				"title": "\\bs?ld\\b|learning disab",
+				"subject": [
+					"Special Education"
+				],
+				"licenses": [
+					"cross_cat",
+					"ld"
+				]
+			},
+			{
+				"title": "\\b(cd|id)\\b|intellectual|cognitive|life skills",
+				"subject": [
+					"Special Education"
+				],
+				"licenses": [
+					"cross_cat",
+					"id_cd"
+				]
+			},
+			{
+				"title": "autism|\\basd\\b",
+				"subject": [
+					"Special Education"
+				],
+				"licenses": [
+					"cross_cat",
+					"autism"
+				]
+			},
+			{
+				"subject": [
+					"Special Education"
+				],
+				"licenses": [
+					"cross_cat"
+				]
+			},
+			{
+				"title": "bilingual|dual language",
+				"subject": [
+					"ESL / Bilingual"
+				],
+				"band": [
+					"Early Childhood"
+				],
+				"licenses": [
+					"bilingual",
+					"ec_regular"
+				]
+			},
+			{
+				"title": "bilingual|dual language",
+				"subject": [
+					"ESL / Bilingual"
+				],
+				"band": [
+					"Elementary",
+					"Middle",
+					"Unspecified"
+				],
+				"licenses": [
+					"bilingual",
+					"elem_middle"
+				]
+			},
+			{
+				"subject": [
+					"ESL / Bilingual"
+				],
+				"licenses": [
+					"esl"
+				]
+			},
+			{
+				"title": "specialist|coach",
+				"subject": [
+					"Reading & Literacy",
+					"Intervention / Title I"
+				],
+				"licenses": [
+					"reading_specialist"
+				]
+			},
+			{
+				"subject": [
+					"Reading & Literacy"
+				],
+				"licenses": [
+					"reading_teacher"
+				]
+			},
+			{
+				"title": "reading|literacy",
+				"subject": [
+					"Intervention / Title I"
+				],
+				"licenses": [
+					"reading_teacher"
+				]
+			},
+			{
+				"title": "math",
+				"subject": [
+					"Intervention / Title I"
+				],
+				"licenses": [
+					"math"
+				]
+			},
+			{
+				"subject": [
+					"Intervention / Title I"
+				],
+				"licenses": [
+					"elem_middle"
+				]
+			},
+			{
+				"subject": [
+					"Math"
+				],
+				"band": [
+					"High School"
+				],
+				"licenses": [
+					"math"
+				]
+			},
+			{
+				"subject": [
+					"Math"
+				],
+				"licenses": [
+					"elem_middle",
+					"math"
+				]
+			},
+			{
+				"title": "biolog|life science|anatomy",
+				"subject": [
+					"Science"
+				],
+				"licenses": [
+					"biology",
+					"science"
+				]
+			},
+			{
+				"title": "chemist",
+				"subject": [
+					"Science"
+				],
+				"licenses": [
+					"chemistry",
+					"science"
+				]
+			},
+			{
+				"title": "physics",
+				"subject": [
+					"Science"
+				],
+				"licenses": [
+					"physics",
+					"science"
+				]
+			},
+			{
+				"title": "earth|space|astronom|geolog",
+				"subject": [
+					"Science"
+				],
+				"licenses": [
+					"earth_space",
+					"science"
+				]
+			},
+			{
+				"title": "environment",
+				"subject": [
+					"Science"
+				],
+				"licenses": [
+					"environmental",
+					"science"
+				]
+			},
+			{
+				"subject": [
+					"Science"
+				],
+				"band": [
+					"High School"
+				],
+				"licenses": [
+					"science"
+				]
+			},
+			{
+				"subject": [
+					"Science"
+				],
+				"licenses": [
+					"elem_middle",
+					"science"
+				]
+			},
+			{
+				"subject": [
+					"English / Language Arts"
+				],
+				"band": [
+					"High School"
+				],
+				"licenses": [
+					"ela"
+				]
+			},
+			{
+				"subject": [
+					"English / Language Arts"
+				],
+				"licenses": [
+					"elem_middle",
+					"ela"
+				]
+			},
+			{
+				"title": "histor",
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"history",
+					"social_studies"
+				]
+			},
+			{
+				"title": "government|civics|political",
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"political_science",
+					"social_studies"
+				]
+			},
+			{
+				"title": "econom",
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"economics",
+					"social_studies"
+				]
+			},
+			{
+				"title": "psycholog",
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"psychology",
+					"social_studies"
+				]
+			},
+			{
+				"title": "sociolog",
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"sociology",
+					"social_studies"
+				]
+			},
+			{
+				"title": "geograph",
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"geography",
+					"social_studies"
+				]
+			},
+			{
+				"subject": [
+					"Social Studies"
+				],
+				"band": [
+					"High School"
+				],
+				"licenses": [
+					"social_studies"
+				]
+			},
+			{
+				"subject": [
+					"Social Studies"
+				],
+				"licenses": [
+					"elem_middle",
+					"social_studies"
+				]
+			},
+			{
+				"title": "spanish",
+				"licenses": [
+					"wl_spanish"
+				]
+			},
+			{
+				"title": "chinese|mandarin",
+				"licenses": [
+					"wl_chinese"
+				]
+			},
+			{
+				"title": "french",
+				"licenses": [
+					"wl_french"
+				]
+			},
+			{
+				"title": "german",
+				"licenses": [
+					"wl_german"
+				]
+			},
+			{
+				"title": "hmong",
+				"licenses": [
+					"wl_hmong"
+				]
+			},
+			{
+				"title": "\\blatin\\b",
+				"licenses": [
+					"wl_latin"
+				]
+			},
+			{
+				"subject": [
+					"World Languages"
+				],
+				"licenses": [
+					"world_languages"
+				]
+			},
+			{
+				"subject": [
+					"Music"
+				],
+				"licenses": [
+					"music"
+				]
+			},
+			{
+				"title": "theat|drama",
+				"subject": [
+					"Art"
+				],
+				"licenses": [
+					"theatre"
+				]
+			},
+			{
+				"title": "dance",
+				"subject": [
+					"Art"
+				],
+				"licenses": [
+					"dance"
+				]
+			},
+			{
+				"subject": [
+					"Art"
+				],
+				"licenses": [
+					"art"
+				]
+			},
+			{
+				"title": "adapt",
+				"subject": [
+					"Physical Ed & Health"
+				],
+				"licenses": [
+					"adapted_pe"
+				]
+			},
+			{
+				"title": "health(?!.*phys)",
+				"subject": [
+					"Physical Ed & Health"
+				],
+				"licenses": [
+					"health"
+				]
+			},
+			{
+				"subject": [
+					"Physical Ed & Health"
+				],
+				"licenses": [
+					"pe"
+				]
+			},
+			{
+				"title": "computer|coding|programming",
+				"subject": [
+					"CTE / Technology"
+				],
+				"licenses": [
+					"computer_science"
+				]
+			},
+			{
+				"title": "business",
+				"subject": [
+					"CTE / Technology"
+				],
+				"licenses": [
+					"business_ed"
+				]
+			},
+			{
+				"title": "marketing|deca",
+				"subject": [
+					"CTE / Technology"
+				],
+				"licenses": [
+					"marketing_ed"
+				]
+			},
+			{
+				"title": "family|consumer|facs|culinary",
+				"subject": [
+					"CTE / Technology"
+				],
+				"licenses": [
+					"facs"
+				]
+			},
+			{
+				"title": "agri",
+				"subject": [
+					"CTE / Technology"
+				],
+				"licenses": [
+					"agriculture"
+				]
+			},
+			{
+				"subject": [
+					"CTE / Technology"
+				],
+				"licenses": [
+					"tech_ed"
+				]
+			},
+			{
+				"subject": [
+					"Library & Media"
+				],
+				"licenses": [
+					"library_media"
+				]
+			},
+			{
+				"subject": [
+					"Gifted & Talented"
+				],
+				"licenses": [
+					"gifted"
+				]
+			},
+			{
+				"title": "\\b[1-5](st|nd|rd|th)\\b|\\bgrades? ?[1-5]\\b",
+				"licenses": [
+					"elem_middle"
+				]
+			},
+			{
+				"subject": [
+					"Early Childhood"
+				],
+				"licenses": [
+					"ec_regular"
+				]
+			},
+			{
+				"subject": [
+					"Elementary",
+					"Middle Grades"
+				],
+				"licenses": [
+					"elem_middle"
+				]
+			},
+			{
+				"band": [
+					"Early Childhood"
+				],
+				"licenses": [
+					"ec_regular"
+				]
+			},
+			{
+				"band": [
+					"Elementary",
+					"Middle"
+				],
+				"licenses": [
+					"elem_middle"
+				]
+			}
+		]
+	},
+	"rules": {
+		"substitute": "DPI’s short-term substitute permit needs at least an associate degree plus approved training, or enrollment in an educator-preparation program at junior standing.",
+		"long_term": "Assignments over 45 consecutive days need a license for the assignment (or a Five-Year Long-Term Substitute License), and every Wisconsin teaching license requires a bachelor’s degree.",
+		"teacher": "Every Wisconsin teaching license requires a bachelor’s degree.",
+		"pupil_services": "School counselor, speech-language pathologist and social worker licenses require a master’s degree; school psychologists need an Ed.S. or doctorate."
+	},
+	"routes": {
+		"substitute": [
+			"No license yet? The DPI short-term substitute permit needs an associate degree plus approved training; see Become a substitute."
+		],
+		"long_term": [
+			"Permit holders can cover up to 45 consecutive days. Beyond that, a district can request a One-Year License with Stipulations if you hold a bachelor’s degree and enroll in an educator-preparation program."
+		],
+		"teacher": [
+			"Bachelor’s degree but no license? Public districts, charters and private schools can request a One-Year License with Stipulations (Tier I) while you complete an educator-preparation program.",
+			"License Based on Equivalency, the ABCTE online route, and out-of-state reciprocity also lead to a Tier II license."
+		],
+		"sector": {
+			"private": [
+				"Private schools in the Parental Choice Program accept any DPI teaching license or a bachelor’s degree from an accredited institution; the short-term substitute permit doesn’t qualify."
+			],
+			"other": [
+				"Charter schools can use the Tier I Charter School License: a bachelor’s degree plus a major or minor in the subject, or a passing content test."
+			]
+		}
+	},
+	"sources": [
+		"https://dpi.wi.gov/licensing/general/what-can-i-teach",
+		"https://dpi.wi.gov/licensing/general/legacy-licenses-codes-assignments",
+		"https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
+		"https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-PI-34"
+	]
+}

@@ -136,11 +136,24 @@ final class Classifier {
 			$kind,
 			implode( ' ', array( $row['title'], $row['url'] ?? '', $row['apply_url'] ?? '', $details['summary'] ?? '', $details['agency_text'] ?? '' ) )
 		);
+		$subject = self::subject( $row['title'], $row['position_type'], $details['licenses'] ?? array() );
+		$band    = self::grade_band( $row['title'], $row['location'] );
+		$req     = Requirements::for_posting(
+			array_merge(
+				$row,
+				array(
+					'sub_kind'   => $kind,
+					'subject'    => $subject,
+					'grade_band' => $band,
+				)
+			),
+			$details
+		);
 		return array(
 			'county_code'   => $county['code'],
 			'county_method' => $county['method'],
-			'subject'       => self::subject( $row['title'], $row['position_type'], $details['licenses'] ?? array() ),
-			'grade_band'    => self::grade_band( $row['title'], $row['location'] ),
+			'subject'       => $subject,
+			'grade_band'    => $band,
 			'sub_kind'      => $kind,
 			'pay_min'       => $pay['min'],
 			'pay_max'       => $pay['max'],
@@ -149,6 +162,9 @@ final class Classifier {
 			'pay_day'       => $pay['day'],
 			'agency'        => $agency['agency'],
 			'agency_basis'  => $agency['basis'],
+			'req_degree'    => $req['degree'],
+			'req_licenses'  => substr( implode( ',', array_filter( array_column( $req['licenses'], 'key' ) ) ), 0, 255 ),
+			'requirements'  => (string) wp_json_encode( $req, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
 		);
 	}
 

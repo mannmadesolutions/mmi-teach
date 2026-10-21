@@ -89,7 +89,7 @@ final class Admin {
 						<td><a href="<?php echo esc_url( $source->home_url() ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $source->label() ); ?></a></td>
 						<td><?php echo esc_html( isset( $s['listed'] ) ? number_format_i18n( $s['listed'] ) : '—' ); ?></td>
 						<td><?php echo esc_html( ! empty( $s['last_ok'] ) ? get_date_from_gmt( $s['last_ok'], 'M j, g:i a' ) : __( 'never', 'mmi-teach' ) ); ?></td>
-						<td><?php echo esc_html( $s['last_error'] ?? '' ); ?></td>
+						<td><?php echo esc_html( trim( ( $s['last_error'] ?? '' ) . ( empty( $s['detail_error'] ) ? '' : ' Detail pages: ' . $s['detail_error'] ) ) ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
@@ -100,6 +100,19 @@ final class Admin {
 				<?php wp_nonce_field( 'mmi_teach_refresh' ); ?>
 				<?php submit_button( $queued ? __( 'Refresh queued…', 'mmi-teach' ) : __( 'Refresh now', 'mmi-teach' ), 'secondary', 'submit', false, $queued ? array( 'disabled' => 'disabled' ) : array() ); ?>
 			</form>
+
+			<h2><?php esc_html_e( 'License names to map', 'mmi-teach' ); ?></h2>
+			<?php $unmapped = Requirements::unmapped_names(); ?>
+			<?php if ( $unmapped ) : ?>
+				<p class="description"><?php esc_html_e( 'These license names appear on open postings but aren’t mapped to a DPI license area in data/licenses.json, so they show as written. Add each to the matching entry’s "wecan" list, then run wp mmi-teach reclassify.', 'mmi-teach' ); ?></p>
+				<ul>
+					<?php foreach ( $unmapped as $name => $count ) : ?>
+						<li><?php echo esc_html( $name . ' (' . $count . ')' ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php else : ?>
+				<p><?php esc_html_e( 'Every license name on open postings is mapped to a DPI license area.', 'mmi-teach' ); ?></p>
+			<?php endif; ?>
 
 			<h2><?php esc_html_e( 'Substitute page facts to re-check', 'mmi-teach' ); ?></h2>
 			<?php $stale = Pathway::stale_entries(); ?>

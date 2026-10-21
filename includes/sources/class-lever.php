@@ -42,6 +42,7 @@ final class Lever extends Board {
 					'appointment' => self::appointment( (string) ( $cat['commitment'] ?? '' ) ),
 					'posted_date' => self::date( $job['createdAt'] ?? null ),
 					'pay_text'    => self::range_text( (array) ( $job['salaryRange'] ?? array() ) ),
+					'req_text'    => implode( ' ', \MMI_Teach\Requirements::quotes( self::clean( implode( ' ', array_column( (array) ( $job['lists'] ?? array() ), 'content' ) ) . ' ' . ( $job['descriptionPlain'] ?? '' ) . ' ' . ( $job['additionalPlain'] ?? '' ) ) ) ),
 					'url'         => esc_url_raw( (string) ( $job['hostedUrl'] ?? '' ) ),
 					'apply_url'   => esc_url_raw( (string) ( $job['applyUrl'] ?? '' ) ),
 				)

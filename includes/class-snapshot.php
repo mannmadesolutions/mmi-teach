@@ -40,6 +40,10 @@ final class Snapshot {
 
 		$vacancies = array();
 		$by_job    = array();
+		$dict      = array(
+			'licenses' => array(),
+			'texts'    => array(),
+		);
 		$since     = get_date_from_gmt( (string) get_option( Refresher::OPTION_FIRST_RUN, current_time( 'mysql', true ) ), 'Y-m-d' );
 		foreach ( $rows as $row ) {
 			$job  = self::job_key( $row['employer'], $row['title'] );
@@ -79,6 +83,7 @@ final class Snapshot {
 				'agency'    => $row['agency'] ?: Agencies::DIRECT,
 				'agencyBasis' => $row['agency_basis'],
 				'agencyNote'  => self::agency_note( $row, $details ),
+				'req'         => self::compact_requirements( $row['requirements'], $dict ),
 				'payText'   => $row['pay_text'] ?: ( $details['salary'] ?? '' ),
 				'pay'       => Pay::label(
 					array(
@@ -135,6 +140,10 @@ final class Snapshot {
 			'subjects'  => Classifier::subjects(),
 			'subKinds'  => Classifier::SUB_KINDS,
 			'agencies'  => Agencies::labels(),
+			'degrees'   => Requirements::DEGREES,
+			'licenseAreas' => self::license_areas( $vacancies, $dict['licenses'] ),
+			'licenseInfo'  => $dict['licenses'],
+			'texts'        => array_keys( $dict['texts'] ),
 			'sources'   => $sources,
 			'unplaced'  => count( Store::unmapped_employers() ),
 			'subEmployers' => $sub_employers,
@@ -142,6 +151,49 @@ final class Snapshot {
 		);
 		update_option( self::OPTION, $snapshot, false );
 		return $snapshot;
+	}
+
+	/**
+	 * A posting's requirements with shared parts pulled into $dict so 300 rows don't repeat them:
+	 * licenses become keys into licenseInfo, notes and routes become indexes into texts.
+	 */
+	private static function compact_requirements( ?string $json, array &$dict ): ?array {
+		$req = $json ? json_decode( $json, true ) : null;
+		if ( ! is_array( $req ) ) {
+			return null;
+		}
+		$text_id = static function ( string $t ) use ( &$dict ): int {
+			if ( ! isset( $dict['texts'][ $t ] ) ) {
+				$dict['texts'][ $t ] = count( $dict['texts'] );
+			}
+			return $dict['texts'][ $t ];
+		};
+		$licenses = array();
+		foreach ( $req['licenses'] as $l ) {
+			if ( '' === $l['key'] ) {
+				$licenses[] = array( 'title' => $l['title'] ); // Not in the taxonomy: keep the posted name.
+				continue;
+			}
+			$dict['licenses'][ $l['key'] ] ??= array_intersect_key( $l, array_flip( array( 'title', 'short', 'category', 'codes', 'levels' ) ) );
+			$licenses[] = $l['key'];
+		}
+		$req['licenses']   = $licenses;
+		$req['degreeNote'] = '' === $req['degreeNote'] ? null : $text_id( $req['degreeNote'] );
+		$req['routes']     = array_map( $text_id, $req['routes'] );
+		return $req;
+	}
+
+	/** License areas that appear on current postings, for the filter: key => short title, by category. */
+	private static function license_areas( array $vacancies, array $info ): array {
+		$areas = array();
+		foreach ( $info as $key => $l ) {
+			$areas[ $key ] = array(
+				'label'    => $l['short'] ?? $l['title'],
+				'category' => $l['category'] ?? '',
+			);
+		}
+		uasort( $areas, static fn( $a, $b ) => strcmp( $a['category'] . $a['label'], $b['category'] . $b['label'] ) );
+		return $areas;
 	}
 
 	/** Why the posting got its agency: the posting's own words, or the employer's confirmed route. */

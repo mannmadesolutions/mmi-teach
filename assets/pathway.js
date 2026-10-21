@@ -75,7 +75,12 @@
 					facts.append( h( 'li', {}, 'Heads-up: ' + needBachelor.join( ', ' ) + ' ' + ( needBachelor.length === 1 ? 'requires' : 'require' ) + ' a bachelor’s degree for subs, even though DPI doesn’t. EDUStaff and Kelly Education follow DPI’s associate-degree rule.' ) );
 				}
 			}
-			card.append( facts, h( 'p', {}, h( 'a', { href: '#plan' }, 'See your cost and timeline →' ) ) );
+			// The job board filters by the degree a posting requires, so hand over what the reader has.
+			const have = answers.degree || ( licenseKey === 'long_term' ? 'bachelor' : '' );
+			const jobs = P.jobsUrl + '#kind=subs' + ( have ? '&mydegree=' + have : '' );
+			card.append( facts, h( 'p', { class: 'mt-links' },
+				h( 'a', { class: 'mt-btn mt-btn-primary', href: jobs }, 'See substitute jobs you qualify for' ),
+				h( 'a', { class: 'mt-btn', href: '#plan' }, 'Your cost and timeline' ) ) );
 		} else {
 			card.append( h( 'p', {}, lic.who ) );
 		}

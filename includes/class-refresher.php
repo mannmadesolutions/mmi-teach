@@ -124,14 +124,17 @@ final class Refresher {
 				'ok'      => true,
 				'listed'  => count( $rows ),
 				'removed' => $removed,
-				'details' => $this->read_details( $source, $detail_limit ),
+				'details' => $this->read_details( $source, $detail_limit, $detail_error ),
 			)
 		);
-		$this->say( sprintf( '%s: %d listed — %d new, %d changed, %d gone; %d detail pages read.', $id, count( $rows ), $counts['new'], $counts['changed'], $removed, $result['details'] ) );
+		$result['detail_error'] = $detail_error;
+		$this->say( sprintf( '%s: %d listed — %d new, %d changed, %d gone; %d detail pages read.%s', $id, count( $rows ), $counts['new'], $counts['changed'], $removed, $result['details'], $detail_error ? ' Detail pass stopped: ' . $detail_error : '' ) );
 		return $result;
 	}
 
-	private function read_details( Source $source, int $limit ): int {
+	/** @param string $error Set to the last failure when repeated failures stop the pass early. */
+	private function read_details( Source $source, int $limit, ?string &$error = '' ): int {
+		$error = '';
 		if ( $limit <= 0 || $source instanceof Sources\Board ) {
 			return 0; // Single-employer boards have no detail pages worth reading.
 		}
@@ -144,6 +147,7 @@ final class Refresher {
 			} catch ( \Throwable $e ) {
 				$this->say( "{$source->id()} {$row['source_id']}: {$e->getMessage()}" );
 				if ( ++$failures >= self::MAX_DETAIL_FAILURES ) {
+					$error = $e->getMessage();
 					break;
 				}
 				continue;
@@ -180,6 +184,7 @@ final class Refresher {
 					'label'      => $result['label'],
 					'last_run'   => $summary['finished'],
 					'last_error' => $result['error'],
+					'detail_error' => $result['detail_error'] ?? '',
 				),
 				$result['ok'] ? array(
 					'last_ok' => $summary['finished'],

@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.4 — 2026-10-21
+
+Qualification requirements for every posting. Each posting now carries the minimum degree, the
+Wisconsin DPI license areas that qualify (official title, ELO code, current and legacy grade
+levels), years of experience, specializations (special-education area, bilingual language), what
+to submit, and other ways in (One-Year License with Stipulations, Choice-school and charter
+rules). Requirements come from the posting's own fields (WECAN Degree/Licenses/Additional
+Requirements), its description (quoted), or — labeled as such — the Wisconsin rule and the
+licenses a job like it normally needs. New data/licenses.json maps all 87 WECAN license names
+to 66 DPI license areas with inference rules. Job board: Requirements column, "My highest
+degree" and "License area" filters, a "To qualify" block in row details, CSV fields. The
+substitute page's license finder links to the substitute jobs the reader qualifies for.
+1.4.0–1.4.3 were same-day steps (snapshot compaction, duplicate detail rows, a WECAN description-list bug). Detail-page failures now show in the refresh log and settings screen.
+
 ## 1.3.0 — 2026-10-21
 
 Staffing agencies. Every posting now shows which staffing agency, if any, fills it, with a
