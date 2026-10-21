@@ -23,12 +23,8 @@ $mmi_teach_paid     = array_values( array_filter( array_map( static fn( $v ) => 
 sort( $mmi_teach_paid );
 $mmi_teach_n        = count( $mmi_teach_paid );
 $mmi_teach_median   = $mmi_teach_n ? ( $mmi_teach_n % 2 ? $mmi_teach_paid[ intdiv( $mmi_teach_n, 2 ) ] : ( $mmi_teach_paid[ $mmi_teach_n / 2 - 1 ] + $mmi_teach_paid[ $mmi_teach_n / 2 ] ) / 2 ) : null;
-$mmi_teach_agencies = $mmi_teach_data['agencies'];
-$mmi_teach_via      = array(
-	'direct'   => __( 'The district directly', 'mmi-teach' ),
-	'edustaff' => 'EDUStaff',
-	'kelly'    => 'Kelly Education',
-);
+$mmi_teach_agencies = MMI_Teach\Agencies::all();
+$mmi_teach_labels   = MMI_Teach\Agencies::labels();
 $mmi_teach_money    = static fn( $n ) => '$' . number_format( (float) $n );
 $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s: date */ __( 'checked %s', 'mmi-teach' ), wp_date( 'M j, Y', strtotime( $date ) ) ) : '';
 ?><!doctype html>
@@ -205,19 +201,78 @@ $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s:
 				<p class="mt-src"><a href="https://etf.wi.gov/" target="_blank" rel="noopener"><?php esc_html_e( 'WRS rules (ETF)', 'mmi-teach' ); ?></a></p>
 			</div>
 			<?php foreach ( $mmi_teach_agencies as $mmi_teach_agency ) : ?>
+				<?php
+				if ( empty( $mmi_teach_agency['local'] ) ) {
+					continue; // Agencies without confirmed clients in these counties are listed in the table below.
+				}
+				?>
 				<div class="mt-model">
 					<h3><?php echo esc_html( sprintf( /* translators: %s: agency name */ __( 'Through %s', 'mmi-teach' ), $mmi_teach_agency['name'] ) ); ?></h3>
-					<p><?php echo esc_html( $mmi_teach_agency['process'] ); ?></p>
-					<p><strong><?php esc_html_e( 'Degree:', 'mmi-teach' ); ?></strong> <?php echo esc_html( $mmi_teach_agency['degree'] ); ?>. <strong><?php esc_html_e( 'Retirement:', 'mmi-teach' ); ?></strong> <?php echo esc_html( $mmi_teach_agency['retirement'] ); ?>.</p>
-					<p class="mt-links"><a class="mt-btn" href="<?php echo esc_url( $mmi_teach_agency['apply_url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( sprintf( /* translators: %s: agency name */ __( 'Apply with %s', 'mmi-teach' ), $mmi_teach_agency['name'] ) ); ?></a></p>
+					<?php if ( ! empty( $mmi_teach_agency['former'] ) ) : ?>
+						<p class="mt-muted"><?php echo esc_html( sprintf( /* translators: %s: former name */ __( 'Formerly %s', 'mmi-teach' ), $mmi_teach_agency['former'] ) ); ?></p>
+					<?php endif; ?>
+					<?php if ( ! empty( $mmi_teach_agency['process'] ) ) : ?>
+						<p><?php echo esc_html( $mmi_teach_agency['process'] ); ?></p>
+					<?php endif; ?>
+					<p>
+						<?php if ( ! empty( $mmi_teach_agency['degree'] ) ) : ?>
+							<strong><?php esc_html_e( 'Degree:', 'mmi-teach' ); ?></strong> <?php echo esc_html( $mmi_teach_agency['degree'] ); ?>.
+						<?php endif; ?>
+						<?php if ( ! empty( $mmi_teach_agency['retirement'] ) ) : ?>
+							<strong><?php esc_html_e( 'Retirement:', 'mmi-teach' ); ?></strong> <?php echo esc_html( $mmi_teach_agency['retirement'] ); ?>.
+						<?php endif; ?>
+					</p>
+					<?php if ( ! empty( $mmi_teach_agency['apply_url'] ) ) : ?>
+						<p class="mt-links"><a class="mt-btn" href="<?php echo esc_url( $mmi_teach_agency['apply_url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( sprintf( /* translators: %s: agency name */ __( 'Apply with %s', 'mmi-teach' ), $mmi_teach_agency['name'] ) ); ?></a></p>
+					<?php endif; ?>
 					<p class="mt-src">
-						<?php foreach ( $mmi_teach_agency['sources'] as $mmi_teach_i => $mmi_teach_src ) : ?>
+						<?php foreach ( $mmi_teach_agency['sources'] ?? array() as $mmi_teach_i => $mmi_teach_src ) : ?>
 							<a href="<?php echo esc_url( $mmi_teach_src ); ?>" target="_blank" rel="noopener"><?php echo esc_html( sprintf( /* translators: %d: number */ __( 'Source %d', 'mmi-teach' ), $mmi_teach_i + 1 ) ); ?></a>
 						<?php endforeach; ?>
-						· <?php echo esc_html( $mmi_teach_checked( $mmi_teach_agency['verified_on'] ) ); ?>
+						· <?php echo esc_html( $mmi_teach_checked( $mmi_teach_agency['verified_on'] ?? '' ) ); ?>
 					</p>
 				</div>
 			<?php endforeach; ?>
+		</div>
+
+		<h3><?php esc_html_e( 'Every staffing agency placing school staff in Wisconsin', 'mmi-teach' ); ?></h3>
+		<p><?php esc_html_e( 'Agencies we’ve found placing substitutes or contract staff in Wisconsin schools. Where an agency is your employer, it handles your paperwork and pay; the district still sets the day rate.', 'mmi-teach' ); ?></p>
+		<div class="mt-table-wrap">
+			<table class="mt-table mt-sortable">
+				<thead><tr>
+					<th scope="col" data-sort="num"><?php esc_html_e( 'ID', 'mmi-teach' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Agency', 'mmi-teach' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Places', 'mmi-teach' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Clients in these counties', 'mmi-teach' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Elsewhere in Wisconsin', 'mmi-teach' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Apply', 'mmi-teach' ); ?></th>
+				</tr></thead>
+				<tbody>
+				<?php $mmi_teach_row = 0; ?>
+				<?php foreach ( $mmi_teach_agencies as $mmi_teach_agency ) : ?>
+					<tr>
+						<td class="mt-num" data-label="ID"><?php echo esc_html( ++$mmi_teach_row ); ?></td>
+						<td data-label="<?php esc_attr_e( 'Agency', 'mmi-teach' ); ?>"><span>
+							<?php echo esc_html( $mmi_teach_agency['name'] ); ?>
+							<?php if ( ! empty( $mmi_teach_agency['former'] ) ) : ?>
+								<span class="mt-muted">(<?php echo esc_html( sprintf( /* translators: %s: former name */ __( 'formerly %s', 'mmi-teach' ), $mmi_teach_agency['former'] ) ); ?>)</span>
+							<?php endif; ?>
+						</span></td>
+						<td data-label="<?php esc_attr_e( 'Places', 'mmi-teach' ); ?>"><?php echo esc_html( $mmi_teach_agency['roles'] ?? '' ); ?></td>
+						<td data-label="<?php esc_attr_e( 'Clients in these counties', 'mmi-teach' ); ?>"><?php echo esc_html( implode( ', ', $mmi_teach_agency['local_clients'] ?? array() ) ?: '—' ); ?></td>
+						<td data-label="<?php esc_attr_e( 'Elsewhere in Wisconsin', 'mmi-teach' ); ?>"><?php echo esc_html( implode( ', ', $mmi_teach_agency['wi_clients'] ?? array() ) ?: '—' ); ?></td>
+						<td data-label="<?php esc_attr_e( 'Apply', 'mmi-teach' ); ?>"><span>
+							<?php if ( ! empty( $mmi_teach_agency['apply_url'] ) ) : ?>
+								<a href="<?php echo esc_url( $mmi_teach_agency['apply_url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Apply', 'mmi-teach' ); ?></a>
+							<?php endif; ?>
+							<?php foreach ( $mmi_teach_agency['sources'] ?? array() as $mmi_teach_i => $mmi_teach_src ) : ?>
+								<a class="mt-src" href="<?php echo esc_url( $mmi_teach_src ); ?>" target="_blank" rel="noopener"><?php echo esc_html( sprintf( /* translators: %d: number */ __( 'source %d', 'mmi-teach' ), $mmi_teach_i + 1 ) ); ?></a>
+							<?php endforeach; ?>
+						</span></td>
+					</tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
 		</div>
 
 		<h3><?php esc_html_e( 'Who’s hiring subs right now', 'mmi-teach' ); ?></h3>
@@ -230,7 +285,7 @@ $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s:
 					<th scope="col"><?php esc_html_e( 'County', 'mmi-teach' ); ?></th>
 					<th scope="col" data-sort="num"><?php esc_html_e( 'Open sub postings', 'mmi-teach' ); ?></th>
 					<th scope="col" data-sort="num"><?php esc_html_e( 'Posted pay per day', 'mmi-teach' ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Daily subs hired by', 'mmi-teach' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Daily subs through', 'mmi-teach' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Good to know', 'mmi-teach' ); ?></th>
 				</tr></thead>
 				<tbody>
@@ -240,6 +295,14 @@ $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s:
 					foreach ( $mmi_teach_e['kinds'] as $mmi_teach_k => $mmi_teach_c ) {
 						$mmi_teach_kinds[] = $mmi_teach_c . ' ' . strtolower( Classifier::SUB_KINDS[ $mmi_teach_k ] ?? $mmi_teach_k );
 					}
+					// The employer's researched route for daily subs; otherwise whatever its postings name.
+					$mmi_teach_daily = MMI_Teach\Agencies::route( $mmi_teach_e['employer'], 'daily' );
+					if ( $mmi_teach_daily ) {
+						$mmi_teach_route = ( 'direct' === $mmi_teach_daily['agency'] ? __( 'Hires directly', 'mmi-teach' ) : MMI_Teach\Agencies::name( $mmi_teach_daily['agency'] ) ) . ( 'likely' === $mmi_teach_daily['confidence'] ? ' ' . __( '(likely)', 'mmi-teach' ) : '' );
+					} else {
+						$mmi_teach_named = array_diff( array_keys( $mmi_teach_e['agencies'] ), array( 'direct', 'unknown' ) );
+						$mmi_teach_route = $mmi_teach_named ? implode( ', ', array_map( array( 'MMI_Teach\\Agencies', 'name' ), $mmi_teach_named ) ) . ' ' . __( '(named in postings)', 'mmi-teach' ) : __( 'Not confirmed', 'mmi-teach' );
+					}
 					$mmi_teach_pay = null === $mmi_teach_e['payMin'] ? '' : $mmi_teach_money( $mmi_teach_e['payMin'] ) . ( $mmi_teach_e['payMax'] > $mmi_teach_e['payMin'] ? '–' . $mmi_teach_money( $mmi_teach_e['payMax'] ) : '' );
 					?>
 					<tr>
@@ -248,7 +311,7 @@ $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s:
 						<td data-label="<?php esc_attr_e( 'County', 'mmi-teach' ); ?>"><?php echo esc_html( $mmi_teach_e['county'] ); ?></td>
 						<td class="mt-num" data-label="<?php esc_attr_e( 'Open sub postings', 'mmi-teach' ); ?>" data-value="<?php echo esc_attr( $mmi_teach_e['count'] ); ?>"><span><?php echo esc_html( $mmi_teach_e['count'] ); ?> <span class="mt-muted">(<?php echo esc_html( implode( ', ', $mmi_teach_kinds ) ); ?>)</span></span></td>
 						<td class="mt-num" data-label="<?php esc_attr_e( 'Posted pay per day', 'mmi-teach' ); ?>" data-value="<?php echo esc_attr( (string) ( $mmi_teach_e['payMin'] ?? '' ) ); ?>"><?php echo esc_html( $mmi_teach_pay ?: '—' ); ?></td>
-						<td data-label="<?php esc_attr_e( 'Daily subs hired by', 'mmi-teach' ); ?>"><?php echo esc_html( $mmi_teach_via[ $mmi_teach_e['via'] ] ?? __( 'Not confirmed — apply through the posting', 'mmi-teach' ) ); ?></td>
+						<td data-label="<?php esc_attr_e( 'Daily subs through', 'mmi-teach' ); ?>"><?php echo esc_html( $mmi_teach_route ); ?></td>
 						<td data-label="<?php esc_attr_e( 'Good to know', 'mmi-teach' ); ?>"><span>
 							<?php echo esc_html( trim( ( $mmi_teach_e['degree'] ? $mmi_teach_e['degree'] . '. ' : '' ) . $mmi_teach_e['extras'] ) ); ?>
 							<?php if ( $mmi_teach_e['source'] ) : ?>

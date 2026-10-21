@@ -131,6 +131,11 @@ final class Classifier {
 		if ( 'daily' === $kind && 'year' === $pay['unit'] ) {
 			$kind = 'building'; // A salaried "district substitute" is a full-time, every-day sub.
 		}
+		$agency = Agencies::for_posting(
+			$row['employer'],
+			$kind,
+			implode( ' ', array( $row['title'], $row['url'] ?? '', $row['apply_url'] ?? '', $details['summary'] ?? '', $details['agency_text'] ?? '' ) )
+		);
 		return array(
 			'county_code'   => $county['code'],
 			'county_method' => $county['method'],
@@ -142,6 +147,8 @@ final class Classifier {
 			'pay_unit'      => $pay['unit'],
 			'pay_basis'     => $pay['basis'],
 			'pay_day'       => $pay['day'],
+			'agency'        => $agency['agency'],
+			'agency_basis'  => $agency['basis'],
 		);
 	}
 

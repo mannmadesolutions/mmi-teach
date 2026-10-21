@@ -90,6 +90,9 @@ final class Wecan implements Source {
 		}
 
 		$summary = $values['Description'] ?? '';
+		// Where the description names a staffing agency ("Employer: Edustaff"), kept even when
+		// the summary below is cut short.
+		$agency_text = \MMI_Teach\Agencies::quotes( $summary );
 		if ( mb_strlen( $summary ) > 700 ) {
 			$summary = rtrim( mb_substr( $summary, 0, 700 ) ) . '…';
 		}
@@ -108,7 +111,8 @@ final class Wecan implements Source {
 						'phone' => $values['ContactPhone'] ?? '',
 					)
 				),
-				'summary'    => $summary,
+				'summary'     => $summary,
+				'agency_text' => implode( ' ', $agency_text ),
 			)
 		);
 	}

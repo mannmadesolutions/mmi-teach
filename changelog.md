@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.0 — 2026-10-21
+
+Staffing agencies. Every posting now shows which staffing agency, if any, fills it, with a
+Staffing agency column, filter, row detail and CSV field on the job board. The agency comes from
+the posting's own words ("Employer: Edustaff", "employed through Kelly Education") when it names
+one, otherwise from the employer's researched route for that kind of sub job (marked "likely" when
+it rests on an agency ad or board record); regular teaching jobs are hired directly. New
+data/agencies.json lists 13 agencies active in Wisconsin K-12 (EDUStaff, Kelly Education, ESS,
+Goodwill TalentBridge, Parallel Employment, Teachers On Demand, Amergis, Soliant, ProCare,
+Sunbelt, Stepping Stones, Elevate K12, Proximity Learning) and the routes of 45 employers in the
+three counties, each sourced. The substitute page gains an all-agencies table, and WECAN detail
+reads keep a short quote wherever a description names an agency.
+
 ## 1.2.6 — 2026-10-20
 
 New public **Become a substitute teacher** page (/substitute/): a license finder (which Wisconsin

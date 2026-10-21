@@ -38,6 +38,21 @@ A public guide that removes the guesswork from becoming a sub in the three count
 Facts live in `data/pathway.json`, each with a source URL and `verified_on` date; Settings →
 Teaching Vacancies lists any older than 120 days. Live numbers come from the job data.
 
+## Staffing agencies
+
+Every posting shows which staffing agency, if any, fills it (job board column and filter):
+
+1. **Named in the posting**: the posting itself says so ("Employer: Edustaff", "employed through
+   Kelly Education", a mykelly.com link). A short quote is kept as evidence.
+2. **The employer's route**: for substitute jobs, `data/agencies.json` records how each employer
+   fills them: through an agency, or directly. A route covers daily subs; agency districts often
+   hire building and long-term subs themselves, so those show "Not confirmed" unless researched.
+   Routes resting on an agency ad or board discussion are labeled "likely".
+3. **Regular teaching jobs** are hired directly by the employer.
+
+`data/agencies.json` also lists every agency found placing school staff in Wisconsin, with the
+regex aliases used to recognize it in posting text, its clients and sources.
+
 ## Where the data comes from
 
 | Source | What it covers | How it's read |

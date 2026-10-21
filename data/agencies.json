@@ -1,0 +1,617 @@
+{
+	"about": "Staffing agencies that place K-12 staff in Wisconsin, and how each employer in the covered counties fills substitute jobs. 'aliases' are case-insensitive regexes that identify the agency when a posting names it. employers[name].agency is an agency key or 'direct'. Every entry needs a source and verified_on; Settings lists entries older than 120 days. Routes describe daily substitutes; at an agency district, building and long-term subs are often hired by the district, so those stay 'Not confirmed' unless by_kind or the posting itself says otherwise. confidence: confirmed (the district, its posting or a press release says so) or likely (agency ad, board discussion, or only the district's own posting).",
+	"agencies": {
+		"edustaff": {
+			"name": "EDUStaff",
+			"apply_url": "https://account.edustaff.org/jobs/?start_app",
+			"info_url": "https://edustaff.org/k-12-education/requirements/",
+			"degree": "Associate degree or higher",
+			"retirement": "401(k) options; agency employees aren't in WRS",
+			"process": "Online application (about 2 hours, at least one reference) → online compliance modules → free 2-hour Guest Teacher Workshop (counts as DPI training; bring I-9 documents) → you apply to DPI → EDUStaff background check and TB test → activation in the district's absence system.",
+			"sources": [
+				"https://edustaff.org/k-12-education/requirements/",
+				"https://wausaupilotandreview.com/2024/07/09/wausau-school-board-shoots-down-proposed-changes-in-substitute-teaching-management-for-now/",
+				"https://finance.yahoo.com/small-business/articles/wisconsin-school-districts-turn-edustaff-133900254.html"
+			],
+			"verified_on": "2026-10-21",
+			"aliases": [
+				"edu\\s?staff",
+				"edustaff\\.org"
+			],
+			"roles": "Daily, building and long-term subs; para and support-staff subs (employer of record)",
+			"local": true,
+			"local_clients": [
+				"Wauwatosa",
+				"Oak Creek-Franklin",
+				"St. Francis",
+				"New Berlin"
+			],
+			"wi_clients": [
+				"Germantown",
+				"Fort Atkinson",
+				"Marinette",
+				"Eau Claire",
+				"Middleton-Cross Plains",
+				"Oregon",
+				"about 23 districts in all (its Oct 2026 release)"
+			]
+		},
+		"kelly": {
+			"name": "Kelly Education",
+			"apply_url": "https://www.mykelly.com/open-interest/education",
+			"info_url": "https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities",
+			"degree": "Follows DPI permit rules (associate degree + training)",
+			"retirement": "Agency employees aren't in WRS",
+			"process": "Take a DPI-approved training course → apply for the DPI permit → apply to Kelly Education and choose the districts you want.",
+			"sources": [
+				"https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities",
+				"https://www.kellyservices.com/press-releases/state-of-wisconsin-approves-kelly-education-to-provide-substitute-teacher-certificate-training",
+				"https://www.sdoj.org/district/employment/substitute-opportunities",
+				"https://www.onalaskaschools.com/departments/human-resources/substitute-opportunities"
+			],
+			"verified_on": "2026-10-21",
+			"aliases": [
+				"kelly\\s+(education|educational\\s+staffing|services|staffing)",
+				"teachers\\s*on\\s*call",
+				"teachersoncall\\.com",
+				"mykelly\\.com"
+			],
+			"former": "Teachers On Call",
+			"roles": "Daily and long-term subs; para and support-staff subs (employer of record); one of three DPI-approved sub-training vendors",
+			"local": true,
+			"local_clients": [
+				"Elmbrook",
+				"Franklin",
+				"Pewaukee",
+				"Waterford Graded",
+				"West Allis-West Milwaukee"
+			],
+			"wi_clients": [
+				"Mequon-Thiensville",
+				"Jefferson",
+				"Milton",
+				"Onalaska",
+				"Slinger"
+			]
+		},
+		"ess": {
+			"name": "ESS",
+			"former": "Education Solutions Services",
+			"aliases": [
+				"ess\\b(?=.{0,40}(substitut|staffing|k-12))",
+				"ess\\.com",
+				"ess\\.jobs",
+				"education\\s+solutions\\s+services"
+			],
+			"roles": "Daily and long-term subs, paras, support staff (employer of record)",
+			"local_clients": [],
+			"wi_clients": [
+				"Stoughton (2024–Jan 2025)"
+			],
+			"apply_url": "https://www.ess.com/jobs/",
+			"sources": [
+				"https://www.ess.com/jobs/"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"talentbridge": {
+			"name": "Goodwill TalentBridge",
+			"aliases": [
+				"goodwill\\s+talentbridge",
+				"talentbridge"
+			],
+			"roles": "Subs (bachelor’s degree; helps with the DPI license), school secretaries, health assistants, food service (employer of record)",
+			"local_clients": [
+				"Milwaukee County schools (unnamed)",
+				"MPS classified-staff contract 2024–2027"
+			],
+			"wi_clients": [
+				"Racine-area sub posting (client not named)"
+			],
+			"apply_url": "https://www.goodwillgreatermc.org/find-a-job/job-openings/talentbridge",
+			"sources": [
+				"https://www.goodwillgreatermc.org/find-a-job/job-openings/talentbridge",
+				"https://tmj4.com/news/local-news/mps-substitute-teachers-concerned-over-temp-agency-hires"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"parallel": {
+			"name": "Parallel Employment (Education Division)",
+			"aliases": [
+				"parallel\\s+(employment|education)"
+			],
+			"roles": "Subs, teaching and educational assistants for public, private and charter schools (Milwaukee office)",
+			"local_clients": [],
+			"wi_clients": [],
+			"apply_url": "https://www.parallelemployment.com/substitute-teacher-staffing/",
+			"sources": [
+				"https://www.parallelemployment.com/substitute-teacher-staffing/"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"teachersondemand": {
+			"name": "Teachers On Demand",
+			"aliases": [
+				"teachers\\s*on\\s*demand",
+				"teachersondemand"
+			],
+			"roles": "Subs, paras and tutors for Milwaukee charter and private schools (not affiliated with Teachers On Call)",
+			"local_clients": [
+				"Milwaukee charter and private schools (unnamed)"
+			],
+			"wi_clients": [],
+			"apply_url": "https://teachersondemand.org/",
+			"sources": [
+				"https://teachersondemand.org/"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"amergis": {
+			"name": "Amergis Education",
+			"former": "Maxim Healthcare Staffing",
+			"aliases": [
+				"amergis",
+				"maxim\\s+(healthcare|staffing)"
+			],
+			"roles": "Building subs, special-ed subs and teachers, paras, behavior techs, SLPs, psychologists, school nurses (Wauwatosa office)",
+			"local_clients": [
+				"South Milwaukee (special-ed sub, nurse postings)"
+			],
+			"wi_clients": [
+				"Beloit",
+				"Appleton",
+				"Wausau",
+				"La Crosse"
+			],
+			"apply_url": "https://careers.amergis.com/",
+			"sources": [
+				"https://www.amergis.com/about/locations/milwaukee/",
+				"https://careers.amergis.com/?p=115610"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"soliant": {
+			"name": "Soliant",
+			"aliases": [
+				"soliant"
+			],
+			"roles": "Contract speech-language pathologists, OTs, special-ed teachers",
+			"local_clients": [
+				"Milwaukee-area schools (unnamed)"
+			],
+			"wi_clients": [
+				"Madison area",
+				"Kenosha area"
+			],
+			"apply_url": "https://www.soliant.com/",
+			"sources": [
+				"https://www.soliant.com/"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"procare": {
+			"name": "ProCare Therapy",
+			"aliases": [
+				"procare\\s*therapy"
+			],
+			"roles": "Contract special-ed teachers, Deaf/Hard of Hearing teachers, SLPs",
+			"local_clients": [],
+			"wi_clients": [
+				"Wauzeka",
+				"Oneida",
+				"Green Bay",
+				"Ashland",
+				"Mellen"
+			],
+			"apply_url": "https://www.procaretherapy.com/?p=7947",
+			"sources": [
+				"https://www.procaretherapy.com/?p=7947"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"sunbelt": {
+			"name": "Sunbelt Staffing",
+			"aliases": [
+				"sunbelt\\s+staffing"
+			],
+			"roles": "Contract school psychologists and related-service staff",
+			"local_clients": [
+				"Racine and Milwaukee postings (schools unnamed)"
+			],
+			"wi_clients": [
+				"Chilton area",
+				"Sun Prairie",
+				"Middleton",
+				"Appleton"
+			],
+			"apply_url": "https://www.sunbeltstaffing.com/",
+			"sources": [
+				"https://www.sunbeltstaffing.com/"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"steppingstones": {
+			"name": "The Stepping Stones Group",
+			"former": "includes Bilingual Therapies",
+			"aliases": [
+				"stepping\\s+stones\\s+group",
+				"bilingual\\s+therapies"
+			],
+			"roles": "Contract school SLPs and therapists",
+			"local_clients": [
+				"Milwaukee, Racine postings (schools unnamed)"
+			],
+			"wi_clients": [
+				"Oostburg",
+				"McFarland"
+			],
+			"apply_url": "https://www.thesteppingstonesgroup.com/",
+			"sources": [
+				"https://www.thesteppingstonesgroup.com/"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"elevate": {
+			"name": "Elevate K12",
+			"aliases": [
+				"elevate\\s*k-?12"
+			],
+			"roles": "Live virtual teachers projected into classrooms (contractors, not W-2)",
+			"local_clients": [
+				"Milwaukee Public Schools (pilot from 2022–23)"
+			],
+			"wi_clients": [],
+			"apply_url": "https://www.elevatek12.com/",
+			"sources": [
+				"https://www.wuwm.com/2022-10-21/mps-pilots-use-of-remote-teachers-for-in-person-classes-amid-staffing-shortage"
+			],
+			"verified_on": "2026-10-21"
+		},
+		"proximity": {
+			"name": "Proximity Learning",
+			"aliases": [
+				"proximity\\s+learning",
+				"proxlearn"
+			],
+			"roles": "Virtual DPI-licensed teachers",
+			"local_clients": [],
+			"wi_clients": [],
+			"apply_url": "https://www.proxlearn.com/virtual-education-staffing/wisconsin/",
+			"sources": [
+				"https://www.proxlearn.com/virtual-education-staffing/wisconsin/"
+			],
+			"verified_on": "2026-10-21"
+		}
+	},
+	"employers": {
+		"Milwaukee Public Schools": {
+			"degree": "Bachelor's degree required",
+			"apply_url": "https://www.milwaukeepublicschools.org/about/employment/careers/substitute-teachers",
+			"absence": "Frontline",
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Resume, three recommendation letters under 3 years old, transcripts; virtual interview. $500 extra per month if you work 90% of student days. Some MPS subs have come through Goodwill TalentBridge (TMJ4 report, undated).",
+			"source": "https://www.milwaukeepublicschools.org/about/employment/careers/substitute-teachers",
+			"verified_on": "2026-10-21"
+		},
+		"Wauwatosa School District": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"by_kind": {
+				"long_term": "edustaff"
+			},
+			"extras": "Daily subs through EDUStaff; long-term subs are also posted on WECAN.",
+			"source": "https://wauwatosa.k12.wi.us/o/wsd/page/substitute-teaching",
+			"verified_on": "2026-10-21"
+		},
+		"West Allis-West Milwaukee School District": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"by_kind": {
+				"building": "direct"
+			},
+			"extras": "Board discussed its Kelly substitute contract on Dec 11, 2025; building and long-term subs are posted by the district.",
+			"source": "https://civiciq.com/public-contract/3fcf11eb-aa88-48f8-ae22-1701cf1833cc",
+			"verified_on": "2026-10-21"
+		},
+		"Oak Creek-Franklin Joint School District": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs; weekly pay through EDUStaff.",
+			"source": "https://www.ocfsd.org/district/human-resources",
+			"verified_on": "2026-10-21"
+		},
+		"Franklin Public Schools": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "District substitute (building) jobs are posted by the district.",
+			"source": "https://www.franklin.k12.wi.us/about-us/human-resources/careers",
+			"verified_on": "2026-10-21"
+		},
+		"Greendale School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Uses Red Rover.",
+			"source": "https://wecan.waspa.org/Vacancy/273905",
+			"verified_on": "2026-10-21"
+		},
+		"Whitnall School District": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"source": "https://www.whitnall.com/district-link/about/employment",
+			"verified_on": "2026-10-21"
+		},
+		"School District of Cudahy": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://cudahysdwi.sites.thrillshare.com/page/human-resources",
+			"verified_on": "2026-10-21"
+		},
+		"School District of South Milwaukee": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.sdsm.k12.wi.us/departments/human-resources/substitutes",
+			"verified_on": "2026-10-21"
+		},
+		"St. Francis School District": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"source": "https://markets.financialcontent.com/franklincredit/article/gnwcq-2025-11-18-edustaff-partners-with-st-francis-public-school-district-strengthening-its-growing-presence-in-wisconsin",
+			"verified_on": "2026-10-21"
+		},
+		"Shorewood School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.shorewood.k12.wi.us/district-41/employment",
+			"verified_on": "2026-10-21"
+		},
+		"School District of Whitefish Bay": {
+			"agency": "direct",
+			"confidence": "likely",
+			"source": "https://wecan.waspa.org/Vacancy/269192",
+			"verified_on": "2026-10-21"
+		},
+		"Glendale-River Hills School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "The district's substitute link goes to Kelly's job search.",
+			"source": "https://www.glendale.k12.wi.us/employment-opportunities",
+			"verified_on": "2026-10-21"
+		},
+		"Nicolet Union High School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"source": "https://wecan.waspa.org/Vacancy/245280",
+			"verified_on": "2026-10-21"
+		},
+		"School District of Brown Deer": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"by_kind": {
+				"building": "direct"
+			},
+			"extras": "Based on a Kelly job ad (Sept 2026); building subs are posted by the district.",
+			"source": "https://www.mykelly.com/open-interest/education",
+			"verified_on": "2026-10-21"
+		},
+		"Seeds of Health, Inc.": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"extras": "Based on a Kelly job ad (Sept 2026).",
+			"source": "https://www.mykelly.com/open-interest/education",
+			"verified_on": "2026-10-21"
+		},
+		"St. Joseph Academy": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"extras": "Based on a Kelly job listing.",
+			"source": "https://www.mykelly.com/open-interest/education",
+			"verified_on": "2026-10-21"
+		},
+		"United Community Center Schools": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"source": "https://wecan.waspa.org/Vacancy/275433",
+			"verified_on": "2026-10-21"
+		},
+		"School District of Waukesha": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Uses Frontline Absence Management.",
+			"source": "https://wecan.waspa.org/Vacancy/264836",
+			"verified_on": "2026-10-21"
+		},
+		"Elmbrook Schools": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.elmbrookschools.org/departments/human-resources/elmbrook-careers/substitute-opportunities",
+			"verified_on": "2026-10-21"
+		},
+		"School District of New Berlin": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"source": "https://www.edustaff.org/case-studies/building-relationships-in-the-school-district-of-new-berlin",
+			"verified_on": "2026-10-21"
+		},
+		"Kettle Moraine School District": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"extras": "Based on a Kelly job ad (Oct 2026).",
+			"source": "https://www.mykelly.com/open-interest/education",
+			"verified_on": "2026-10-21"
+		},
+		"Oconomowoc Area School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"source": "https://www.oasd.k12.wi.us/district/substitute-teachers.cfm",
+			"verified_on": "2026-10-21"
+		},
+		"Mukwonago Area School District": {
+			"agency": "edustaff",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.masd.k12.wi.us/Departments/District-Departments/Human-Resources/Substitute-Teachers/index.html",
+			"verified_on": "2026-10-21"
+		},
+		"Muskego-Norway School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.muskegonorway.org/about/humanresources.cfm",
+			"verified_on": "2026-10-21"
+		},
+		"Hamilton School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and aide subs.",
+			"source": "https://www.hamilton.k12.wi.us/district/join-employee-team/",
+			"verified_on": "2026-10-21"
+		},
+		"School District of Menomonee Falls": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and support-staff subs.",
+			"source": "https://www.fallsschools.org/employment",
+			"verified_on": "2026-10-21"
+		},
+		"Pewaukee School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"source": "https://www.pewaukeeschools.org/humanresources",
+			"verified_on": "2026-10-21"
+		},
+		"Arrowhead Union High School": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Teacher and aide subs.",
+			"source": "https://wecan.waspa.org/Vacancy/274748",
+			"verified_on": "2026-10-21"
+		},
+		"Hartland-Lakeside School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"by_kind": {
+				"building": "direct"
+			},
+			"extras": "Teacher and para subs; one building daily sub is posted by the district.",
+			"source": "https://www.hartlake.org/departments/human-resources.cfm",
+			"verified_on": "2026-10-21"
+		},
+		"Lake Country School District": {
+			"agency": "direct",
+			"confidence": "likely",
+			"source": "https://www.lcs.k12.wi.us/cms_files/resources/Substitute%20Teacher.pdf",
+			"verified_on": "2026-10-21"
+		},
+		"Merton Community School District": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"extras": "Based on a Kelly job listing.",
+			"source": "https://www.mykelly.com/job/10349489",
+			"verified_on": "2026-10-21"
+		},
+		"North Lake School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"source": "https://www.northlakeschool.org/district/employment/",
+			"verified_on": "2026-10-21"
+		},
+		"Stone Bank School District": {
+			"agency": "kelly",
+			"confidence": "likely",
+			"extras": "Based on a Kelly job listing.",
+			"source": "https://www.mykelly.com/job/9837891",
+			"verified_on": "2026-10-21"
+		},
+		"Swallow School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.swallowschool.org/departments-services/employment",
+			"verified_on": "2026-10-21"
+		},
+		"Lake Country Classical Academy": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"source": "https://www.lakecountryclassical.org/about/staff/careers/",
+			"verified_on": "2026-10-21"
+		},
+		"Racine Unified School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Teacher and educational-assistant subs; district runs its own online sub workshop.",
+			"source": "https://wecan.waspa.org/Vacancy/270993",
+			"verified_on": "2026-10-21"
+		},
+		"Burlington Area School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Uses Red Rover.",
+			"source": "https://wecan.waspa.org/Vacancy/273092",
+			"verified_on": "2026-10-21"
+		},
+		"Waterford Graded School District": {
+			"agency": "kelly",
+			"confidence": "confirmed",
+			"extras": "Teacher and para subs.",
+			"source": "https://www.waterford.k12.wi.us/district/employment",
+			"verified_on": "2026-10-21"
+		},
+		"Waterford Union": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "Will help you get licensed.",
+			"source": "https://www.waterforduhs.k12.wi.us/district/employment-opportunities",
+			"verified_on": "2026-10-21"
+		},
+		"Union Grove Elementary School - J1": {
+			"agency": "direct",
+			"confidence": "likely",
+			"source": "https://wecan.waspa.org/Vacancy/273434",
+			"verified_on": "2026-10-21"
+		},
+		"Union Grove Union High School": {
+			"agency": "direct",
+			"confidence": "likely",
+			"source": "https://wecan.waspa.org/Vacancy/221978",
+			"verified_on": "2026-10-21"
+		},
+		"Raymond School District #14": {
+			"agency": "direct",
+			"confidence": "likely",
+			"source": "https://wecan.waspa.org/Vacancy/253966",
+			"verified_on": "2026-10-21"
+		},
+		"Washington Caldwell School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"extras": "The DPI license is handled during hiring.",
+			"source": "https://wecan.waspa.org/Vacancy/269805",
+			"verified_on": "2026-10-21"
+		},
+		"North Cape School District": {
+			"agency": "direct",
+			"confidence": "confirmed",
+			"source": "https://www.northcape.k12.wi.us/district/employment",
+			"verified_on": "2026-10-21"
+		}
+	},
+	"ruled_out": {
+		"note": "Checked 2026-10-21 and found no Wisconsin K-12 activity",
+		"names": [
+			"Swing Education",
+			"Penmac",
+			"Insight Workforce Solutions",
+			"SOS Personnel",
+			"Cross Country Education",
+			"AMN Healthcare (education)",
+			"EBS Healthcare",
+			"Supplemental Health Care",
+			"CESA shared sub pools (CESAs run sub training, not sub pools)"
+		]
+	}
+}

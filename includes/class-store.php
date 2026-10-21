@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Store {
 
-	private const DB_VERSION        = '2';
+	private const DB_VERSION        = '3';
 	private const OPTION_DB_VERSION = 'mmi_teach_db_version';
 
 	public static function table(): string {
@@ -46,6 +46,8 @@ final class Store {
 				subject varchar(48) NOT NULL DEFAULT '',
 				grade_band varchar(32) NOT NULL DEFAULT '',
 				sub_kind varchar(12) NOT NULL DEFAULT '',
+				agency varchar(32) NOT NULL DEFAULT '',
+				agency_basis varchar(12) NOT NULL DEFAULT '',
 				pay_text varchar(255) NOT NULL DEFAULT '',
 				pay_min decimal(10,2) DEFAULT NULL,
 				pay_max decimal(10,2) DEFAULT NULL,
@@ -220,7 +222,7 @@ final class Store {
 		global $wpdb;
 		$table   = self::table();
 		$cols    = implode( ', ', self::derived_columns() );
-		$rows    = $wpdb->get_results( "SELECT id, title, employer, location, position_type, pay_text, details, {$cols} FROM {$table} WHERE removed_at IS NULL", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows    = $wpdb->get_results( "SELECT id, title, employer, location, position_type, url, apply_url, pay_text, details, {$cols} FROM {$table} WHERE removed_at IS NULL", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$places  = Places::instance();
 		$changed = 0;
 		foreach ( $rows as $row ) {
@@ -242,6 +244,6 @@ final class Store {
 
 	/** Columns this plugin works out from the source columns. */
 	private static function derived_columns(): array {
-		return array( 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day' );
+		return array( 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day', 'agency', 'agency_basis' );
 	}
 }

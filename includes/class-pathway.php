@@ -93,7 +93,7 @@ final class Pathway {
 					'longTerm'   => $data['long_term_note'],
 					'training'   => $data['training'],
 					'jobsUrl'    => home_url( '/' ),
-					'districts'  => self::district_notes(),
+					'districts'  => Agencies::employer_notes(),
 				),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			) . ';',
@@ -118,36 +118,25 @@ final class Pathway {
 	}
 
 	/**
-	 * Employers with open substitute postings, joined to what we know about how each hires:
-	 * directly, or through EDUStaff or Kelly Education.
+	 * Employers with open substitute postings, with the staffing agencies their postings use
+	 * and what we've confirmed about how each hires subs.
 	 *
-	 * @return array<int, array> employer, county, count, kinds, payMin, payMax, via, degree, extras, apply, source, verified
+	 * @return array<int, array> employer, county, count, kinds, payMin, payMax, agencies, degree, extras, source, verified
 	 */
 	public static function hiring_now(): array {
-		$snapshot = Snapshot::get();
-		$notes    = self::district_notes();
-		$rows     = array();
-		foreach ( $snapshot['subEmployers'] ?? array() as $e ) {
+		$notes = Agencies::employer_notes();
+		$rows  = array();
+		foreach ( Snapshot::get()['subEmployers'] ?? array() as $e ) {
 			$note   = $notes[ Places::normalize( $e['employer'] ) ] ?? array();
 			$rows[] = $e + array(
-				'via'      => $note['via'] ?? '',
+				'agencies' => array(),
 				'degree'   => $note['degree'] ?? '',
 				'extras'   => $note['extras'] ?? '',
-				'apply'    => $note['apply_url'] ?? '',
 				'source'   => $note['source'] ?? '',
 				'verified' => $note['verified_on'] ?? '',
 			);
 		}
 		return $rows;
-	}
-
-	/** Curated district notes keyed by normalized employer name. */
-	public static function district_notes(): array {
-		$out = array();
-		foreach ( self::data()['districts'] ?? array() as $name => $note ) {
-			$out[ Places::normalize( $name ) ] = $note + array( 'name' => $name );
-		}
-		return $out;
 	}
 
 	/** Every curated entry whose verified_on date is older than STALE_DAYS, for the settings screen. */
@@ -161,12 +150,6 @@ final class Pathway {
 		foreach ( $data['training'] ?? array() as $t ) {
 			$items[ 'Training: ' . $t['provider'] ] = $t['verified_on'] ?? '';
 		}
-		foreach ( $data['agencies'] ?? array() as $a ) {
-			$items[ 'Agency: ' . $a['name'] ] = $a['verified_on'] ?? '';
-		}
-		foreach ( $data['districts'] ?? array() as $name => $d ) {
-			$items[ 'District: ' . $name ] = $d['verified_on'] ?? '';
-		}
-		return array_filter( $items, static fn( $date ) => '' === $date || $date < $cutoff );
+		return array_merge( array_filter( $items, static fn( $date ) => '' === $date || $date < $cutoff ), Agencies::stale( $cutoff ) );
 	}
 }

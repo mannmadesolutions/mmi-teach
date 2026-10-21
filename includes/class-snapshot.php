@@ -76,6 +76,9 @@ final class Snapshot {
 				'url'       => $row['url'],
 				'apply'     => $row['apply_url'],
 				'subKind'   => $row['sub_kind'],
+				'agency'    => $row['agency'] ?: Agencies::DIRECT,
+				'agencyBasis' => $row['agency_basis'],
+				'agencyNote'  => self::agency_note( $row, $details ),
 				'payText'   => $row['pay_text'] ?: ( $details['salary'] ?? '' ),
 				'pay'       => Pay::label(
 					array(
@@ -112,8 +115,10 @@ final class Snapshot {
 				'kinds'    => array(),
 				'payMin'   => null,
 				'payMax'   => null,
+				'agencies' => array(),
 			);
 			++$e['count'];
+			$e['agencies'][ $v['agency'] ] = ( $e['agencies'][ $v['agency'] ] ?? 0 ) + 1;
 			$e['kinds'][ $v['subKind'] ] = ( $e['kinds'][ $v['subKind'] ] ?? 0 ) + 1;
 			if ( null !== $v['payDay'] ) {
 				$e['payMin'] = null === $e['payMin'] ? $v['payDay'] : min( $e['payMin'], $v['payDay'] );
@@ -129,6 +134,7 @@ final class Snapshot {
 			'counties'  => array_values( Plugin::COUNTIES ),
 			'subjects'  => Classifier::subjects(),
 			'subKinds'  => Classifier::SUB_KINDS,
+			'agencies'  => Agencies::labels(),
 			'sources'   => $sources,
 			'unplaced'  => count( Store::unmapped_employers() ),
 			'subEmployers' => $sub_employers,
@@ -136,6 +142,27 @@ final class Snapshot {
 		);
 		update_option( self::OPTION, $snapshot, false );
 		return $snapshot;
+	}
+
+	/** Why the posting got its agency: the posting's own words, or the employer's confirmed route. */
+	private static function agency_note( array $row, array $details ): string {
+		if ( 'posting' === $row['agency_basis'] ) {
+			$quote = $details['agency_text'] ?? '';
+			return $quote ? 'The posting says: “' . $quote . '”' : 'The posting names this agency.';
+		}
+		$note = Agencies::employer_notes()[ Places::normalize( $row['employer'] ) ] ?? array();
+		if ( 'employer' === $row['agency_basis'] || 'likely' === $row['agency_basis'] ) {
+			$how = 'direct' === $row['agency'] ? 'hires its substitutes directly' : 'fills substitute jobs through ' . Agencies::name( $row['agency'] );
+			return trim( ( 'likely' === $row['agency_basis'] ? 'Likely: ' : '' ) . $row['employer'] . ' ' . $how . '. ' . ( $note['extras'] ?? '' ) );
+		}
+		if ( 'unknown' === $row['agency_basis'] ) {
+			$daily = Agencies::route( $row['employer'], 'daily' );
+			if ( $daily && 'direct' !== $daily['agency'] ) {
+				return $row['employer'] . ' uses ' . Agencies::name( $daily['agency'] ) . ' for daily subs, but this posting doesn’t say who employs this ' . str_replace( '_', '-', $row['sub_kind'] ) . ' sub.';
+			}
+			return 'We haven’t confirmed whether this employer fills substitute jobs through an agency.';
+		}
+		return '';
 	}
 
 	/** Employer + title, ignoring school years, bracketed notes, punctuation and case. */

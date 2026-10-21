@@ -8,3 +8,4 @@
 - County matching lives in `Places`; add checked employer answers to `data/employers.json`, then `wp mmi-teach reclassify`.
 - Every heading in the table sorts; ID is the first column (owner rules).
 - Bump `Version` + `MMI_TEACH_VERSION` and add a `changelog.md` entry for every change.
+- Agencies: posting text beats curated routes; never mark a sub job's agency without a source. Routes in data/agencies.json are for daily subs unless `by_kind` says otherwise.

@@ -16,6 +16,7 @@
 		{ key: 'title', label: 'Position' },
 		{ key: 'subject', label: 'Subject' },
 		{ key: 'employer', label: 'Employer' },
+		{ key: 'agencyLabel', label: 'Staffing agency' },
 		{ key: 'school', label: 'School / building' },
 		{ key: 'county', label: 'County' },
 		{ key: 'appt', label: 'Type' },
@@ -24,7 +25,7 @@
 		{ key: 'closeSort', label: 'Closes' },
 	];
 	// kind: jobs = regular teaching jobs, subs = every substitute kind, all, or one sub kind.
-	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
+	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', agency: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
 
 	let data = null;
 	let state = readHash();
@@ -63,8 +64,10 @@
 			v.closeSort = v.closeTime || Number.MAX_SAFE_INTEGER;
 			v.isSub = !! v.subKind;
 			v.subKindLabel = v.isSub ? s.subKinds[ v.subKind ] : '';
+			// Short form for the table; the filter uses the full labels.
+			v.agencyLabel = ( v.agency === 'direct' ? 'None' : ( s.agencies[ v.agency ] || '' ) ) + ( v.agencyBasis === 'likely' ? ' (likely)' : '' );
 			v.payDay = v.payDay === null || v.payDay === undefined ? null : Number( v.payDay );
-			v.haystack = [ v.title, v.subject, v.employer, v.school, v.county, v.band, v.payText, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
+			v.haystack = [ v.title, v.subject, v.employer, v.agencyLabel, v.school, v.county, v.band, v.payText, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
 		} );
 		return s;
 	}
@@ -82,6 +85,7 @@
 			( skip === 'county' || ! state.county || v.county === state.county ) &&
 			( skip === 'subject' || ! state.subject || v.subject === state.subject ) &&
 			( skip === 'employer' || ! state.employer || v.employer === state.employer ) &&
+			( ! state.agency || v.agency === state.agency ) &&
 			( ! state.band || v.band === state.band ) &&
 			( ! state.appt || v.appt === state.appt ) &&
 			( ! postedSince || v.postedTime >= postedSince ) &&
@@ -156,6 +160,7 @@
 		el.appt = select( 'Type', [ [ '', 'Full & part time' ] ].concat( unique( data.vacancies.map( ( v ) => v.appt ) ).map( ( a ) => [ a, a ] ) ), 'appt' );
 		el.posted = select( 'Posted', [ [ '', 'Posted any time' ], [ '7', 'Posted in last 7 days' ], [ '30', 'Posted in last 30 days' ] ], 'posted' );
 		el.kind = select( 'Job type', [ [ 'jobs', 'Teaching jobs' ], [ 'subs', 'All substitute jobs' ] ].concat( Object.entries( data.subKinds ).map( ( [ k, label ] ) => [ k, label ] ) ).concat( [ [ 'all', 'Teaching + substitute' ] ] ), 'kind' );
+		el.agency = select( 'Staffing agency', [ [ '', 'Any staffing agency' ] ].concat( Object.entries( data.agencies ) ), 'agency' );
 		el.pay = select( 'Pay', [ [ '', 'Any pay' ], [ 'listed', 'Pay amount listed' ], [ 'daily', 'Daily or hourly rate' ], [ 'salary', 'Annual salary' ] ], 'pay' );
 		el.minday = h( 'input', { type: 'number', min: '0', step: '5', inputmode: 'numeric', class: 'mt-input mt-minday', placeholder: 'Min $/day', 'aria-label': 'Minimum pay per day (daily equivalent)' } );
 		el.minday.addEventListener( 'input', debounce( () => set( { minday: el.minday.value } ), 400 ) );
@@ -164,7 +169,7 @@
 		el.employerChip = h( 'span', { class: 'mt-chips' } );
 
 		const filters = h( 'section', { class: 'mt-filters', 'aria-label': 'Filters' },
-			el.q, el.kind, el.county, el.subject, el.band, el.appt, el.posted, el.pay, el.minday,
+			el.q, el.kind, el.agency, el.county, el.subject, el.band, el.appt, el.posted, el.pay, el.minday,
 			el.employerChip, el.reset );
 
 		el.subjectChart = h( 'div', { class: 'mt-chart' } );
@@ -206,7 +211,7 @@
 		if ( document.activeElement !== el.q ) {
 			el.q.value = state.q;
 		}
-		[ 'kind', 'county', 'subject', 'band', 'appt', 'posted', 'pay' ].forEach( ( k ) => {
+		[ 'kind', 'agency', 'county', 'subject', 'band', 'appt', 'posted', 'pay' ].forEach( ( k ) => {
 			el[ k ].value = state[ k ];
 		} );
 		if ( document.activeElement !== el.minday ) {
@@ -389,6 +394,7 @@
 				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, v.isSub ? h( 'span', { class: 'mt-badge mt-badge-sub' }, data.subKinds[ v.subKind ] ) : '', isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ) ),
 				h( 'td', { 'data-label': 'Subject' }, v.subject ),
 				h( 'td', { 'data-label': 'Employer' }, v.employer ),
+				h( 'td', { 'data-label': 'Staffing agency', title: v.agencyNote || '', class: v.agency === 'unknown' ? 'mt-muted' : '' }, v.agencyLabel ),
 				h( 'td', { 'data-label': 'School' }, v.school || '—' ),
 				h( 'td', { 'data-label': 'County' }, v.county ),
 				h( 'td', { 'data-label': 'Type' }, v.appt || '—' ),
@@ -425,6 +431,7 @@
 				facts.append( h( 'dt', {}, k ), h( 'dd', {}, val ) );
 			}
 		};
+		add( 'Staffing agency', v.agencyBasis === 'direct' ? '' : v.agencyLabel + ( v.agencyNote ? ' — ' + v.agencyNote : '' ) );
 		add( 'Pay as posted', v.payText );
 		add( 'Daily equivalent', v.payDay !== null && v.payUnit !== 'day' ? '≈ $' + Math.round( v.payDay ) + '/day (' + ( v.payUnit === 'hour' ? '7-hour day' : '180-day year' ) + ')' : '' );
 		add( 'Openings', v.openings );
@@ -485,7 +492,7 @@
 	/* ---------- CSV ---------- */
 
 	function downloadCsv() {
-		const cols = [ [ 'ID', 'id' ], [ 'Posted', 'posted' ], [ 'Position', 'title' ], [ 'Subject', 'subject' ], [ 'Grade level', 'band' ], [ 'Employer', 'employer' ], [ 'School', 'school' ], [ 'County', 'county' ], [ 'Type', 'appt' ], [ 'Substitute kind', 'subKindLabel' ], [ 'Starts', 'start' ], [ 'Closes', 'close' ], [ 'Pay', 'pay' ], [ 'Pay per day (approx.)', 'payDay' ], [ 'Pay as posted', 'payText' ], [ 'Posting URL', 'url' ] ];
+		const cols = [ [ 'ID', 'id' ], [ 'Posted', 'posted' ], [ 'Position', 'title' ], [ 'Subject', 'subject' ], [ 'Grade level', 'band' ], [ 'Employer', 'employer' ], [ 'Staffing agency', 'agencyLabel' ], [ 'School', 'school' ], [ 'County', 'county' ], [ 'Type', 'appt' ], [ 'Substitute kind', 'subKindLabel' ], [ 'Starts', 'start' ], [ 'Closes', 'close' ], [ 'Pay', 'pay' ], [ 'Pay per day (approx.)', 'payDay' ], [ 'Pay as posted', 'payText' ], [ 'Posting URL', 'url' ] ];
 		const esc = ( x ) => {
 			let t = String( x ?? '' );
 			if ( /^[=+\-@\t\r]/.test( t ) ) {
@@ -520,6 +527,9 @@
 	}
 
 	function set( changes ) {
+		if ( changes.agency && changes.agency !== 'direct' && state.kind === 'jobs' && ! ( 'kind' in changes ) ) {
+			changes.kind = 'subs'; // Agencies only fill substitute jobs; don't show an empty list.
+		}
 		state = Object.assign( {}, state, changes );
 		const p = new URLSearchParams();
 		Object.keys( DEFAULTS ).forEach( ( k ) => {
