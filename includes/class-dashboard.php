@@ -17,6 +17,7 @@ final class Dashboard {
 	public static function register(): void {
 		add_action( 'rest_api_init', array( self::class, 'routes' ) );
 		add_filter( 'template_include', array( self::class, 'template' ), 99 );
+		add_action( 'template_redirect', array( self::class, 'no_cache' ) );
 		add_filter( 'wp_robots', array( self::class, 'robots' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'assets' ) );
 		add_filter( 'display_post_states', array( self::class, 'post_state' ), 10, 2 );
@@ -73,11 +74,20 @@ final class Dashboard {
 		);
 	}
 
+	/**
+	 * Sent on template_redirect, which runs before WordPress ends HEAD requests: a HEAD response
+	 * without no-store would otherwise let Cloudflare's "Cache Everything" keep this page.
+	 */
+	public static function no_cache(): void {
+		if ( self::is_dashboard() ) {
+			nocache_headers();
+		}
+	}
+
 	public static function template( string $template ): string {
 		if ( ! self::is_dashboard() ) {
 			return $template;
 		}
-		nocache_headers();
 		return MMI_TEACH_DIR . 'templates/dashboard.php';
 	}
 

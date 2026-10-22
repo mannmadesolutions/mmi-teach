@@ -28,12 +28,18 @@
 	// kind: jobs = regular teaching jobs, subs = every substitute kind, all, or one sub kind.
 	// Lowest to highest; a posting's required degree is compared against the reader's own.
 	const DEGREE_ORDER = [ 'none', 'high_school', 'associate', 'bachelor', 'master', 'doctorate' ];
-	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', agency: '', mydegree: '', license: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
+	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', agency: '', mydegree: '', license: '', fit: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
 	// Filters folded under "More filters".
 	const MORE_KEYS = [ 'agency', 'license', 'subject', 'band', 'appt', 'posted', 'pay' ];
 	const OVERVIEW_KEY = 'mmiTeachOverview';
 	// A source that hasn't refreshed in this long (three missed runs) gets a note in the footer.
 	const STALE_MS = 9 * 36e5;
+	// The reader's answers from the "Become a substitute" page (pathway.js), if they gave any.
+	const profile = readProfile();
+	const FIT_LABELS = [ 'Not yet', 'Might fit', 'You qualify' ];
+	if ( profile ) {
+		COLUMNS.splice( 3, 0, { key: 'fitRank', label: 'Your fit', num: true } );
+	}
 
 	let data = null;
 	let state = readHash();
@@ -93,6 +99,8 @@
 			// Short form for the table; the filter uses the full labels.
 			v.agencyLabel = ( v.agency === 'direct' ? 'None' : ( s.agencies[ v.agency ] || '' ) ) + ( v.agencyBasis === 'likely' ? ' (likely)' : '' );
 			v.payDay = v.payDay === null || v.payDay === undefined ? null : Number( v.payDay );
+			v.fit = profile ? fitFor( v, s ) : null;
+			v.fitRank = v.fit ? v.fit.rank : -1;
 			v.haystack = [ v.title, v.subject, v.employer, v.agencyLabel, v.licenseText, v.school, v.county, v.band, v.payText, ( v.licenses || [] ).join( ' ' ), v.id ].join( ' ' ).toLowerCase();
 		} );
 		return s;
@@ -114,6 +122,7 @@
 			( ! state.agency || v.agency === state.agency ) &&
 			( ! state.mydegree || v.reqRank <= DEGREE_ORDER.indexOf( state.mydegree ) ) &&
 			( ! state.license || v.licenseKeys.includes( state.license ) ) &&
+			( ! state.fit || ! v.fit || v.fit.rank >= ( state.fit === 'yes' ? 2 : 1 ) ) &&
 			( ! state.band || v.band === state.band ) &&
 			( ! state.appt || v.appt === state.appt ) &&
 			( ! postedSince || v.postedTime >= postedSince ) &&
@@ -132,6 +141,38 @@
 			default:
 				return v.subKind === state.kind;
 		}
+	}
+
+	/**
+	 * Whether the reader's license and degree fit a posting: 2 qualifies, 1 might (a condition to
+	 * check), 0 not yet. A permit's own degree rule is already met, so for permit holders only a
+	 * degree the posting itself states counts (or the rule, outside long-term jobs, which follow
+	 * the license's rule a permit holder is exempt from for 45 days).
+	 */
+	function fitFor( v, s ) {
+		const r = v.req;
+		const permit = profile.license !== 'long_term';
+		if ( ! v.isSub ) {
+			return permit ? { rank: 0, text: 'Needs a Wisconsin teaching license' } : { rank: 1, text: 'If your license covers ' + ( ( r.licenses[ 0 ] && ( r.licenses[ 0 ].short || r.licenses[ 0 ].title ) ) || v.subject ) };
+		}
+		const stated = r.degreeBasis === 'posted' || r.degreeBasis === 'text';
+		const counts = profile.license === 'permit_b' ? stated : ( profile.license === 'permit_a' ? stated || v.subKind !== 'long_term' : true );
+		if ( counts && v.reqRank > DEGREE_ORDER.indexOf( profile.degree ) ) {
+			const need = ( s.degrees[ r.degree ] || 'degree' ).toLowerCase();
+			// An associate degree is DPI's permit minimum, which the educator-program permit meets another way.
+			if ( profile.license === 'permit_b' && r.degree === 'associate' ) {
+				return { rank: 1, text: 'Asks for an associate degree; ask whether your educator-program permit is accepted' };
+			}
+			return { rank: 0, text: 'Needs ' + ( /^[aeiou]/.test( need ) ? 'an ' : 'a ' ) + need };
+		}
+		if ( v.subKind === 'long_term' ) {
+			const special = r.licenses.some( ( l ) => l.category === 'special_education' ) && r.licenses.every( ( l ) => l.category === 'special_education' || l.category === 'substitute' );
+			if ( special ) {
+				return permit ? { rank: 0, text: 'Over 45 days needs a special-education license' } : { rank: 1, text: 'If your license is in special education' };
+			}
+			return permit ? { rank: 1, text: 'A permit covers 45 consecutive days; longer needs a license in this subject' } : { rank: 1, text: 'If your license covers this subject' };
+		}
+		return { rank: 2, text: 'Your ' + profile.licenseName.toLowerCase() + ' covers it' };
 	}
 
 	function payMatch( v ) {
@@ -187,6 +228,7 @@
 		el.mydegree = select( 'My highest degree', [ [ '', 'Any degree requirement' ], [ 'high_school', 'I have a high school diploma' ], [ 'associate', 'I have an associate degree' ], [ 'bachelor', 'I have a bachelor’s degree' ], [ 'master', 'I have a master’s degree' ] ], 'mydegree' );
 		el.license = licenseSelect();
 		el.pay = select( 'Pay', [ [ '', 'Any pay' ], [ 'listed', 'Pay amount listed' ], [ 'daily', 'Daily or hourly rate' ], [ 'salary', 'Annual salary' ] ], 'pay' );
+		el.fit = profile ? select( 'Your fit', [ [ '', 'Any fit' ], [ 'maybe', 'Fits me or might' ], [ 'yes', 'Only jobs I qualify for' ] ], 'fit' ) : null;
 		el.minday = h( 'input', { type: 'number', min: '0', step: '5', inputmode: 'numeric', class: 'mt-input mt-minday', placeholder: 'Min $/day', 'aria-label': 'Minimum pay per day (daily equivalent)' } );
 		el.minday.addEventListener( 'input', debounce( () => set( { minday: el.minday.value } ), 400 ) );
 		el.reset = h( 'button', { class: 'mt-btn mt-btn-ghost', type: 'button' }, 'Clear filters' );
@@ -202,7 +244,10 @@
 			syncControls();
 		} );
 		const filters = h( 'section', { class: 'mt-filters', 'aria-label': 'Filters' },
-			el.q, el.kind, el.county, el.mydegree, el.minday, el.moreBtn, el.employerChip, el.reset, el.moreBody );
+			el.q, el.kind, el.fit, el.county, profile ? '' : el.mydegree, el.minday, el.moreBtn, el.employerChip, el.reset, el.moreBody );
+		if ( profile ) {
+			el.moreBody.append( el.mydegree ); // The profile's degree already drives "Your fit".
+		}
 
 		el.subjectChart = h( 'div', { class: 'mt-chart' } );
 		el.employerChart = h( 'div', { class: 'mt-chart' } );
@@ -269,13 +314,15 @@
 		if ( document.activeElement !== el.q ) {
 			el.q.value = state.q;
 		}
-		[ 'kind', 'agency', 'mydegree', 'license', 'county', 'subject', 'band', 'appt', 'posted', 'pay' ].forEach( ( k ) => {
-			el[ k ].value = state[ k ];
+		[ 'kind', 'agency', 'mydegree', 'license', 'county', 'subject', 'band', 'appt', 'posted', 'pay', 'fit' ].forEach( ( k ) => {
+			if ( el[ k ] ) {
+				el[ k ].value = state[ k ];
+			}
 		} );
 		if ( document.activeElement !== el.minday ) {
 			el.minday.value = state.minday;
 		}
-		const more = MORE_KEYS.filter( ( k ) => state[ k ] ).length;
+		const more = MORE_KEYS.concat( profile ? [ 'mydegree' ] : [] ).filter( ( k ) => state[ k ] ).length;
 		el.moreBtn.textContent = 'More filters' + ( more ? ' (' + more + ')' : '' ) + ( el.moreBody.hidden ? ' ▾' : ' ▴' );
 		el.moreBtn.setAttribute( 'aria-expanded', String( ! el.moreBody.hidden ) );
 		syncView();
@@ -352,8 +399,13 @@
 				h( 'h2', {}, data.subKinds[ k ], ' ', pick ), h( 'p', {}, about[ k ] ) );
 		} );
 		const lead = h( 'p', { class: 'mt-intro-lead' }, h( 'strong', {}, 'Daily sub work is never posted publicly.' ), ' Once a district or agency hires you, it offers daily jobs in its absence system (Frontline or Red Rover). What you’ll find here are the ways in: ' );
-		el.intro.replaceChildren( lead, h( 'div', { class: 'mt-intro-kinds' }, ...kinds ),
-			cfg.pathway ? h( 'p', { class: 'mt-intro-next' }, 'New to subbing? ', h( 'a', { href: cfg.pathway }, 'See the license you need, the steps and where to apply' ), '.' ) : '' );
+		let next = '';
+		if ( profile ) {
+			next = h( 'p', { class: 'mt-intro-next' }, '“Your fit” uses your answers: ' + profile.licenseName + '. ', cfg.pathway ? h( 'a', { href: cfg.pathway + '#license' }, 'Change them' ) : '', '.' );
+		} else if ( cfg.pathway ) {
+			next = h( 'p', { class: 'mt-intro-next' }, 'New to subbing? ', h( 'a', { href: cfg.pathway }, 'Answer five questions' ), ' to see the license you need, where to apply and which of these postings fit you.' );
+		}
+		el.intro.replaceChildren( lead, h( 'div', { class: 'mt-intro-kinds' }, ...kinds ), next );
 	}
 
 	function renderFreshness() {
@@ -505,10 +557,12 @@
 				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, v.isSub ? h( 'span', { class: 'mt-badge mt-badge-sub' }, data.subKinds[ v.subKind ] ) : '', isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ),
 					// Phones show the row as a card: this summary stands in for the other cells, which are hidden there.
 					h( 'span', { class: 'mt-row-meta' },
+						v.fit ? h( 'span', {}, fitBadge( v ), ' ', v.fit.rank < 2 ? v.fit.text : '' ) : '',
 						h( 'span', {}, [ v.employer, v.county ? v.county + ' County' : '' ].filter( Boolean ).join( ' · ' ) ),
 						v.pay || closes ? h( 'span', {}, [ v.pay ? 'Pay ' + v.pay : '', closes ].filter( Boolean ).join( ' · ' ) ) : '',
 						v.reqSummary ? h( 'span', {}, 'Needs ' + v.reqSummary ) : '',
 						h( 'span', { class: 'mt-muted' }, [ v.id ? 'ID ' + v.id : '', v.postedTime ? 'Posted ' + fmtDate( parseDate( v.posted ) ) : '', v.agency !== 'direct' ? 'Agency: ' + v.agencyLabel : '' ].filter( Boolean ).join( ' · ' ) ) ) ),
+				v.fit ? h( 'td', { 'data-label': 'Your fit' }, h( 'span', {}, fitBadge( v ), v.fit.rank < 2 ? h( 'span', { class: 'mt-fit-why' }, v.fit.text ) : '' ) ) : '',
 				h( 'td', { 'data-label': 'Subject' }, v.subject ),
 				h( 'td', { 'data-label': 'Requirements', title: v.licenseText }, v.reqSummary || '—' ),
 				h( 'td', { 'data-label': 'Employer' }, v.employer ),
@@ -549,6 +603,9 @@
 				facts.append( h( 'dt', {}, k ), h( 'dd', {}, val ) );
 			}
 		};
+		if ( v.fit ) {
+			facts.append( h( 'dt', {}, 'Your fit' ), h( 'dd', {}, fitBadge( v ), ' ', v.fit.text, '. ', h( 'span', { class: 'mt-muted' }, 'From your answers on the Become a substitute page; check the posting before applying.' ) ) );
+		}
 		// Shown on phones only, where these table cells are folded into the card.
 		[ [ 'School', v.school ], [ 'Subject', v.subject ], [ 'Type', v.appt ], [ 'Starts', v.start ] ].forEach( ( [ k, val ] ) => {
 			if ( val ) {
@@ -629,6 +686,10 @@
 	 * Sources and how fresh they are. Readers see a plain note when a board hasn't updated in a
 	 * while; the error itself is for the settings screen (and signed-in managers here).
 	 */
+	function fitBadge( v ) {
+		return h( 'span', { class: 'mt-fit mt-fit-' + v.fit.rank }, FIT_LABELS[ v.fit.rank ] );
+	}
+
 	function renderFoot() {
 		const parts = [ 'Source: ' ];
 		const stale = [];
@@ -797,6 +858,16 @@
 		}
 		const hours = Math.round( mins / 60 );
 		return hours < 36 ? hours + ' hours ago' : Math.round( hours / 24 ) + ' days ago';
+	}
+
+	/** The saved answers, if they name a license the board knows. */
+	function readProfile() {
+		try {
+			const p = JSON.parse( window.localStorage.getItem( 'mmiTeachProfile' ) || 'null' );
+			return p && [ 'permit_a', 'permit_b', 'long_term' ].includes( p.license ) && typeof p.licenseName === 'string' ? p : null;
+		} catch ( e ) {
+			return null;
+		}
 	}
 
 	/** Browser storage can be off (private mode, blocked site data); these never throw. */

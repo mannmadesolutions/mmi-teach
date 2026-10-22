@@ -35,18 +35,26 @@ Racine counties, Wisconsin** and shows them on one filterable dashboard.
 
 ## Become a substitute teacher (front page)
 
-A public guide that removes the guesswork from becoming a sub in the three counties:
+A public guide in the order an applicant acts. Answers, picks and checklist ticks are saved in the
+reader's browser only (`mmiTeachProfile`, `mmiTeachSubChecklist`), with a "Forget them" button.
 
-1. **Find your license**: a short questionnaire names the DPI permit or license that fits, whether
+1. **Your situation**: a short questionnaire names the DPI permit or license that fits, whether
    training and fingerprints are needed, and flags employers with stricter rules (MPS requires a
-   bachelor's degree).
-2. **Get trained**: approved courses compared by format, length, cost and next start date.
-3. **Apply to DPI**: the exact ELO steps, fees and processing times.
-4. **Choose where to sub**: direct district hiring vs EDUStaff vs Kelly Education (who employs
-   you, retirement plan, process), and a live table of every employer with open sub postings and
-   their posted day rates.
-5. **Your plan**: total cost, a timeline showing how much sooner you start if you do employer
-   steps during the DPI wait, and a printable checklist (saved in your browser only).
+   bachelor's degree). It links to the substitute jobs that fit.
+2. **Your cost and timeline**: total cost and a timeline showing how much sooner you start if you
+   do employer steps during the DPI wait. Below them, **What slows this down**: each delay in the
+   process, what it costs you, how to get around it and what can't be avoided (`delays`).
+3. **Where to apply**: pick counties and the districts and schools you'd sub for; the planner
+   lists the fewest applications that cover them (one per agency, one per district that hires
+   directly, and "ask first" for unconfirmed routes), with posted pay, degree rules and retirement
+   plans. A folded table lists every employer hiring subs right now.
+4. **Your checklist**: tasks grouped by when to do them, dated from your timeline, with one task
+   per planned application; the training comparison and the ELO steps open inline (`checklist`).
+5. **Reference** (folded): every substitute license type, how each kind of employer works, and
+   every staffing agency placing school staff in Wisconsin.
+
+On the job board, saved answers add **Your fit** to each posting (You qualify, Might fit with the
+condition, or Not yet with what's missing), as a column, a filter and a line on phone cards.
 
 Facts live in `data/pathway.json`, each with a source URL and `verified_on` date; Settings →
 Teaching Vacancies lists any older than 120 days. Live numbers come from the job data.

@@ -43,6 +43,7 @@
 	"licenses": {
 		"permit_a": {
 			"name": "Three-Year Short-Term Substitute Teacher Permit — degree path",
+			"short": "Substitute permit (degree path)",
 			"who": "Associate degree or higher, plus a DPI-approved substitute teacher training course (a bachelor's degree doesn't exempt you from the training).",
 			"allows": "Any subject and grade, up to 45 consecutive days in one assignment. Valid 3 years.",
 			"training": true,
@@ -51,6 +52,7 @@
 		},
 		"permit_b": {
 			"name": "Three-Year Short-Term Substitute Teacher Permit — educator-program path",
+			"short": "Substitute permit (educator-program path)",
 			"who": "Age 20 or older, enrolled in a Wisconsin approved educator preparation program (junior standing if it leads to a bachelor's), with 15 hours of classroom observation. Your program confirms this on form PI-1975. No separate training course is required.",
 			"allows": "Any subject and grade, up to 45 consecutive days in one assignment. Valid 3 years.",
 			"training": false,
@@ -59,6 +61,7 @@
 		},
 		"long_term": {
 			"name": "Five-Year Long-Term Substitute License",
+			"short": "Five-year long-term substitute license",
 			"who": "Completed an approved educator preparation program and hold, or are eligible for, a Wisconsin (or equivalent) teaching license. Retired teachers whose license expired can use this route.",
 			"allows": "Long-term assignments in your license area, plus short-term (45 days or less) outside it. Valid 5 years.",
 			"training": false,
@@ -67,6 +70,7 @@
 		},
 		"none": {
 			"name": "Not eligible for a substitute teacher permit yet",
+			"short": "No substitute license yet",
 			"who": "DPI's permits need at least an associate degree, or enrollment in an educator preparation program.",
 			"allows": "Options: finish an associate degree (Wisconsin technical colleges offer Foundations of Teacher Education), or start as a paraprofessional or support-staff substitute, which many districts and EDUStaff also hire for.",
 			"training": false,
@@ -146,5 +150,197 @@
 			"verified_on": "2026-10-20",
 			"weeks": 2
 		}
-	]
+	],
+	"delays": [
+		{
+			"id": "dpi_wait",
+			"title": "DPI takes 6–8 weeks to issue a permit",
+			"cost": "Six to eight weeks before your first paid day; eight to twelve if you need fingerprints.",
+			"around": "Apply to employers the same week you apply to DPI. Their applications, interviews and onboarding don't need the permit; only your first day does. The timeline above shows the difference.",
+			"source": "https://dpi.wi.gov/licensing/check-my-license-application-status",
+			"verified_on": "2026-10-20"
+		},
+		{
+			"id": "repeat_onboarding",
+			"title": "Every employer onboards you from scratch",
+			"cost": "Each district or agency runs its own application, references, background check, TB test, orientation and I-9: a few hours to two weeks each.",
+			"around": "One EDUStaff or Kelly Education application covers every district that agency serves, so pick an agency that serves several of the districts you want (step 3 shows which). Gather your transcript, training certificate and reference letters once and reuse them everywhere.",
+			"nofix": "Districts that hire their own subs each need their own application.",
+			"source": "https://edustaff.org/k-12-education/requirements/",
+			"verified_on": "2026-10-21"
+		},
+		{
+			"id": "hidden_daily",
+			"title": "Daily sub jobs aren't posted anywhere public",
+			"cost": "You can't see the actual day-to-day work until you're onboarded, so it's hard to tell which employer will keep you busy.",
+			"around": "Treat substitute postings as pool openings and join the pools that cover your area. Once you're active, keep your availability current in Frontline or Red Rover so jobs are offered to you.",
+			"verified_on": "2026-10-21"
+		},
+		{
+			"id": "training_price",
+			"title": "The same training costs anywhere from $0 to $80",
+			"cost": "Up to $80 for a certificate that's free elsewhere.",
+			"around": "If you're applying to EDUStaff anyway, its free Guest Teacher Workshop counts. Some districts train their own subs for free and confirm it on form PI-1633.",
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit/degree-training",
+			"verified_on": "2026-10-20"
+		},
+		{
+			"id": "dpi_fee",
+			"title": "DPI's $135 fee is credit-card only and non-refundable",
+			"cost": "Apply for the wrong license and the $135 is gone. Debit cards are refused, and ELO is offline every Wednesday 10 pm to Thursday 2 am.",
+			"around": "Confirm which license fits (step 1) before you pay, and use a Mastercard, Visa or Discover credit card.",
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/fees",
+			"verified_on": "2026-10-20"
+		},
+		{
+			"id": "degree_rules",
+			"title": "Some employers ask for more than DPI does",
+			"cost": "An associate degree meets DPI's rule, but Milwaukee Public Schools requires a bachelor's degree for subs.",
+			"around": "Step 3 shows each employer's degree rule. With an associate degree, focus on employers that follow DPI's rule (EDUStaff and Kelly Education do).",
+			"source": "https://www.milwaukeepublicschools.org/about/employment/careers/substitute-teachers",
+			"verified_on": "2026-10-21"
+		},
+		{
+			"id": "cap_45",
+			"title": "A permit stops at 45 days in one classroom",
+			"cost": "Long-term assignments, often the best paid, end at day 45 for permit holders. Special-education ones longer than that need a special-education license.",
+			"around": "If you hold a bachelor's degree and want long-term work, ask the district about a One-Year License with Stipulations ($140, and you enroll in an educator program).",
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit",
+			"verified_on": "2026-10-20"
+		},
+		{
+			"id": "pay_retirement",
+			"title": "Each district sets its own pay, and who employs you decides your retirement plan",
+			"cost": "Posted day rates here run from {pay_min} to {pay_max}. Agency subs get a 401(k) instead of WRS, Wisconsin's public pension.",
+			"around": "Compare posted pay for each route in step 3. If WRS matters to you, apply directly to districts that hire their own subs: you join WRS if you're expected to work 880 or more hours a year.",
+			"nofix": "No one outside the district can change its pay rate.",
+			"source": "https://etf.wi.gov/",
+			"verified_on": "2026-10-20"
+		}
+	],
+	"checklist": {
+		"about": "Phases run on the reader's own timeline: training, then DPI, with employer steps during the DPI wait. 'if' limits a task to readers it applies to: training, prints, permit. 'how' names a how-to block in the template.",
+		"phases": [
+			{
+				"id": "today",
+				"title": "Today"
+			},
+			{
+				"id": "now",
+				"title": "While you train"
+			},
+			{
+				"id": "dpi",
+				"title": "When your training certificate arrives"
+			},
+			{
+				"id": "wait",
+				"title": "While DPI processes your application"
+			},
+			{
+				"id": "permit",
+				"title": "When your permit arrives"
+			},
+			{
+				"id": "later",
+				"title": "Later"
+			}
+		],
+		"tasks": [
+			{
+				"id": "transcript",
+				"phase": "today",
+				"text": "Order an official transcript, as an electronic PDF if your college offers one. DPI and most employers ask for it."
+			},
+			{
+				"id": "references",
+				"phase": "today",
+				"text": "Ask three people to be your references. MPS wants three letters under 3 years old; EDUStaff asks for at least one. Ask once and reuse the letters."
+			},
+			{
+				"id": "training_signup",
+				"phase": "today",
+				"if": "training",
+				"text": "Sign up for a DPI-approved substitute training course.",
+				"how": "training"
+			},
+			{
+				"id": "prints",
+				"phase": "today",
+				"if": "prints",
+				"text": "Book fingerprints with Fieldprint (code FPWIDPITeach, about $40)."
+			},
+			{
+				"id": "choose",
+				"phase": "today",
+				"text": "Pick where you want to sub (step 3) so you know which applications to file.",
+				"link": "#employers"
+			},
+			{
+				"id": "training",
+				"phase": "now",
+				"if": "training",
+				"text": "Finish the training course and save the completion certificate."
+			},
+			{
+				"id": "resume",
+				"phase": "now",
+				"text": "Update your resume."
+			},
+			{
+				"id": "apply",
+				"phase": "now",
+				"text": "Apply to the employers you picked now. They don't wait on your permit; only your first day does.",
+				"link": "#employers"
+			},
+			{
+				"id": "elo",
+				"phase": "dpi",
+				"text": "Apply in ELO and pay the $135 fee by credit card.",
+				"how": "dpi"
+			},
+			{
+				"id": "onboard",
+				"phase": "wait",
+				"text": "Finish each employer's onboarding: online modules, workshop or orientation, interview, background check."
+			},
+			{
+				"id": "tb",
+				"phase": "wait",
+				"text": "Get a TB test if an employer asks, and keep the receipt (some reimburse it)."
+			},
+			{
+				"id": "i9",
+				"phase": "wait",
+				"text": "Bring I-9 identity documents to onboarding in person. Don't email or upload them."
+			},
+			{
+				"id": "status",
+				"phase": "wait",
+				"text": "Check your application on DPI's status page every week or two.",
+				"link": "dpi_status"
+			},
+			{
+				"id": "lookup",
+				"phase": "permit",
+				"text": "Tell each employer your permit is issued; they confirm it on DPI's license lookup."
+			},
+			{
+				"id": "absence",
+				"phase": "permit",
+				"text": "Set up Frontline or Red Rover and enter your availability, so daily jobs are offered to you."
+			},
+			{
+				"id": "renew",
+				"phase": "later",
+				"text": "Put your license's expiry date in your calendar (a permit lasts 3 years, the long-term license 5) and renew in ELO before it lapses."
+			},
+			{
+				"id": "cap",
+				"phase": "later",
+				"if": "permit",
+				"text": "On a permit, keep any one assignment to 45 consecutive days or less."
+			}
+		]
+	}
 }

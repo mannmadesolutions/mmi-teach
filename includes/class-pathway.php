@@ -22,6 +22,7 @@ final class Pathway {
 
 	public static function register(): void {
 		add_filter( 'template_include', array( self::class, 'template' ), 99 );
+		add_action( 'template_redirect', array( self::class, 'no_cache' ) );
 		add_filter( 'wp_robots', array( self::class, 'robots' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'assets' ) );
 		add_filter( 'display_post_states', array( self::class, 'post_state' ), 10, 2 );
@@ -63,11 +64,20 @@ final class Pathway {
 		return $page_id ? (string) get_permalink( $page_id ) : '';
 	}
 
+	/**
+	 * Sent on template_redirect, which runs before WordPress ends HEAD requests: a HEAD response
+	 * without no-store would otherwise let Cloudflare's "Cache Everything" keep this page.
+	 */
+	public static function no_cache(): void {
+		if ( self::is_pathway() ) {
+			nocache_headers();
+		}
+	}
+
 	public static function template( string $template ): string {
 		if ( ! self::is_pathway() ) {
 			return $template;
 		}
-		nocache_headers();
 		return MMI_TEACH_DIR . 'templates/pathway.php';
 	}
 
@@ -99,6 +109,9 @@ final class Pathway {
 					'training'   => $data['training'],
 					'jobsUrl'    => Dashboard::url(),
 					'districts'  => Agencies::employer_notes(),
+					'planner'    => self::planner(),
+					'agencies'   => self::route_agencies(),
+					'checklist'  => $data['checklist'],
 				),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			) . ';',
@@ -144,6 +157,90 @@ final class Pathway {
 		return $rows;
 	}
 
+	/**
+	 * Every employer a sub in the three counties could work for, with how it hires daily subs:
+	 * the researched routes in data/agencies.json, every other public school district in NCES's
+	 * directory (route not yet confirmed), and any other employer with open sub postings. Live
+	 * postings add the count and posted day pay.
+	 *
+	 * @return array<int, array> name, county, public, route (agency key, 'direct' or 'unknown'),
+	 *                           likely, apply, degree, extras, source, open, payMin, payMax, board
+	 */
+	public static function planner(): array {
+		$places = Places::instance();
+		$live   = array();
+		foreach ( Snapshot::get()['subEmployers'] ?? array() as $e ) {
+			$live[ Places::normalize( $e['employer'] ) ] = $e;
+		}
+		$rows = array();
+		$add  = static function ( string $name, string $county, array $extra ) use ( &$rows, &$live ) {
+			$key = Places::normalize( $name );
+			if ( isset( $rows[ $key ] ) || '' === $county ) {
+				return;
+			}
+			$e            = $live[ $key ] ?? null;
+			$rows[ $key ] = $extra + array(
+				'name'   => $name,
+				'county' => $county,
+				'public' => 'public' === Places::instance()->sector( $name ),
+				'open'   => $e['count'] ?? 0,
+				'payMin' => $e['payMin'] ?? null,
+				'payMax' => $e['payMax'] ?? null,
+				'board'  => $e['employer'] ?? '',
+			);
+		};
+
+		foreach ( Agencies::employer_notes() as $note ) {
+			$route = Agencies::route( $note['name'], 'daily' );
+			$add(
+				$note['name'],
+				Plugin::COUNTIES[ $places->resolve( $note['name'], '' )['code'] ] ?? '',
+				array(
+					'route'  => $route['agency'] ?? Agencies::UNKNOWN,
+					'likely' => 'likely' === ( $route['confidence'] ?? '' ),
+					'apply'  => $note['apply_url'] ?? '',
+					'degree' => $note['degree'] ?? '',
+					'extras' => $note['extras'] ?? '',
+					'source' => $note['source'] ?? '',
+				)
+			);
+		}
+		$unconfirmed = array(
+			'route'  => Agencies::UNKNOWN,
+			'likely' => false,
+			'apply'  => '',
+			'degree' => '',
+			'extras' => '',
+			'source' => '',
+		);
+		foreach ( $places->districts_in( array_keys( Plugin::COUNTIES ) ) as $name => $code ) {
+			// Traditional districts only: independent charters ("… Inc") and the CESA aren't sub employers we can route.
+			if ( preg_match( '/\binc\b|cooperative ed/i', $name ) ) {
+				continue;
+			}
+			$add( $name, Plugin::COUNTIES[ $code ], $unconfirmed );
+		}
+		foreach ( $live as $e ) {
+			$named = array_values( array_diff( array_keys( $e['agencies'] ), array( Agencies::DIRECT, Agencies::UNKNOWN ) ) );
+			$add( $e['employer'], $e['county'], array( 'route' => 1 === count( $named ) ? $named[0] : Agencies::UNKNOWN ) + $unconfirmed );
+		}
+		$rows = array_values( $rows );
+		usort( $rows, static fn( $a, $b ) => strcmp( $a['county'], $b['county'] ) ?: strcasecmp( $a['name'], $b['name'] ) );
+		return $rows;
+	}
+
+	/** The facts the planner shows for each agency that some employer routes daily subs through. */
+	public static function route_agencies(): array {
+		$keys = array_unique( array_column( self::planner(), 'route' ) );
+		$out  = array();
+		foreach ( Agencies::all() as $key => $agency ) {
+			if ( in_array( $key, $keys, true ) ) {
+				$out[ $key ] = array_intersect_key( $agency, array_flip( array( 'name', 'apply_url', 'info_url', 'degree', 'retirement', 'process', 'sources', 'verified_on' ) ) );
+			}
+		}
+		return $out;
+	}
+
 	/** Every curated entry whose verified_on date is older than STALE_DAYS, for the settings screen. */
 	public static function stale_entries(): array {
 		$data   = self::data();
@@ -154,6 +251,9 @@ final class Pathway {
 		}
 		foreach ( $data['training'] ?? array() as $t ) {
 			$items[ 'Training: ' . $t['provider'] ] = $t['verified_on'] ?? '';
+		}
+		foreach ( $data['delays'] ?? array() as $d ) {
+			$items[ 'Delay: ' . $d['title'] ] = $d['verified_on'] ?? '';
 		}
 		return array_merge( array_filter( $items, static fn( $date ) => '' === $date || $date < $cutoff ), Agencies::stale( $cutoff ) );
 	}

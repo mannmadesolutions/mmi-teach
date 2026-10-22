@@ -1,4 +1,8 @@
-/* MMI Teach — "Become a substitute teacher" page: license finder, plan calculator, saved checklist, table sorting. */
+/*
+ * MMI Teach — "Become a substitute teacher" page: license finder, cost and timeline, the "where to
+ * apply" planner, the dated checklist and table sorting. Everything the reader enters stays in
+ * their browser (localStorage); the job board reads the same profile to mark postings that fit.
+ */
 ( function () {
 	'use strict';
 
@@ -8,21 +12,36 @@
 	}
 	// This page took over the front page in 1.5.0; job-board links saved before that ("/#kind=subs")
 	// carry board filters in the hash, so send them on to the board.
-	if ( /(^|&)(kind|county|subject|band|appt|posted|q|employer|agency|mydegree|license|pay|minday|sort|dir|subs)=/.test( location.hash.slice( 1 ) ) ) {
+	if ( /(^|&)(kind|county|subject|band|appt|posted|q|employer|agency|mydegree|license|fit|pay|minday|sort|dir|subs)=/.test( location.hash.slice( 1 ) ) ) {
 		location.replace( P.jobsUrl + location.hash );
 		return;
 	}
 	const WEEK = 7 * 864e5;
 	const today = new Date();
-	const STORE_KEY = 'mmiTeachSubChecklist';
-	const answers = {};
+	const CHECKS_KEY = 'mmiTeachSubChecklist';
+	// Shared with dashboard.js, which reads license, licenseName and degree.
+	const PROFILE_KEY = 'mmiTeachProfile';
+	const profile = Object.assign( { answers: {}, picks: [], counties: [], others: false, plan: {} }, load( PROFILE_KEY ) );
+	const answers = profile.answers;
+	const checks = load( CHECKS_KEY );
+	const el = {};
 	let licenseKey = '';
+	let timeline = null;
 
-	/* ---------- 1. License finder ---------- */
+	/* ---------- 1. Your situation: license finder ---------- */
 
 	const form = document.getElementById( 'mt-wizard' );
 	const result = document.getElementById( 'mt-result' );
+	const saved = document.getElementById( 'mt-saved' );
 	form.hidden = false;
+	Object.keys( answers ).forEach( ( name ) => {
+		const box = form.querySelector( '[name="' + CSS.escape( name ) + '"][value="' + CSS.escape( String( answers[ name ] ) ) + '"]' );
+		if ( box ) {
+			box.checked = true;
+		}
+	} );
+	showQuestions();
+	licenseKey = pickLicense();
 	form.addEventListener( 'change', ( e ) => {
 		answers[ e.target.name ] = e.target.value;
 		if ( e.target.name === 'licensed' ) {
@@ -35,12 +54,26 @@
 			delete answers.degree;
 			clear( 'degree' );
 		}
-		show( 'epp', answers.licensed === 'no' );
-		show( 'degree', answers.licensed === 'no' && answers.epp === 'no' );
+		showQuestions();
 		licenseKey = pickLicense();
+		saveProfile();
 		renderResult();
 		renderPlan();
 	} );
+	document.getElementById( 'mt-forget' ).addEventListener( 'click', () => {
+		try {
+			window.localStorage.removeItem( PROFILE_KEY );
+			window.localStorage.removeItem( CHECKS_KEY );
+		} catch ( e ) {
+			// Storage off: nothing was saved.
+		}
+		location.reload();
+	} );
+
+	function showQuestions() {
+		show( 'epp', answers.licensed === 'no' );
+		show( 'degree', answers.licensed === 'no' && answers.epp === 'no' );
+	}
 
 	function pickLicense() {
 		if ( answers.licensed === 'yes' ) {
@@ -55,7 +88,28 @@
 		return answers.degree === 'none' ? 'none' : '';
 	}
 
+	/** The highest degree, in the job board's terms (a posting's required degree is compared with it). */
+	function haveDegree() {
+		if ( answers.licensed === 'yes' ) {
+			return 'bachelor';
+		}
+		if ( answers.degree === 'associate' || answers.degree === 'bachelor' ) {
+			return answers.degree;
+		}
+		return answers.epp === 'yes' || answers.degree === 'none' ? 'high_school' : '';
+	}
+
+	function saveProfile() {
+		const usable = licenseKey && licenseKey !== 'none';
+		profile.license = usable ? licenseKey : '';
+		profile.licenseName = usable ? P.licenses[ licenseKey ].short : '';
+		profile.degree = haveDegree();
+		store( PROFILE_KEY, profile );
+		saved.hidden = false;
+	}
+
 	function renderResult() {
+		saved.hidden = ! Object.keys( answers ).length;
 		if ( ! licenseKey ) {
 			result.replaceChildren();
 			return;
@@ -67,7 +121,7 @@
 			h( 'p', {}, lic.allows ) );
 		if ( licenseKey !== 'none' ) {
 			const facts = h( 'ul', { class: 'mt-result-facts' } );
-			facts.append( h( 'li', {}, lic.training ? 'Training: one DPI-approved substitute course (step 2).' : 'Training: not required for this license.' ) );
+			facts.append( h( 'li', {}, lic.training ? 'Training: one DPI-approved substitute course (see your checklist).' : 'Training: not required for this license.' ) );
 			if ( answers.outside ) {
 				facts.append( h( 'li', {}, answers.outside === 'yes' ? 'Fingerprints: required — book Fieldprint (code FPWIDPITeach), about $' + P.dpi.fingerprint_fee_estimate + '.' : 'Fingerprints: not required.' ) );
 			}
@@ -81,11 +135,8 @@
 					facts.append( h( 'li', {}, 'Heads-up: ' + needBachelor.join( ', ' ) + ' ' + ( needBachelor.length === 1 ? 'requires' : 'require' ) + ' a bachelor’s degree for subs, even though DPI doesn’t. EDUStaff and Kelly Education follow DPI’s associate-degree rule.' ) );
 				}
 			}
-			// The job board filters by the degree a posting requires, so hand over what the reader has.
-			const have = answers.degree || ( licenseKey === 'long_term' ? 'bachelor' : '' );
-			const jobs = P.jobsUrl + '#kind=subs' + ( have ? '&mydegree=' + have : '' );
 			card.append( facts, h( 'p', { class: 'mt-links' },
-				h( 'a', { class: 'mt-btn mt-btn-primary', href: jobs }, 'See substitute jobs you qualify for' ),
+				h( 'a', { class: 'mt-btn mt-btn-primary', href: P.jobsUrl + '#kind=subs&fit=maybe' }, 'See substitute jobs that fit you' ),
 				h( 'a', { class: 'mt-btn', href: '#plan' }, 'Your cost and timeline' ) ) );
 		} else {
 			card.append( h( 'p', {}, lic.who ) );
@@ -104,12 +155,10 @@
 		} );
 	}
 
-	/* ---------- 5. Plan: cost, timeline, checklist ---------- */
+	/* ---------- 2. Cost and timeline ---------- */
 
 	const plan = document.getElementById( 'mt-plan' );
-	const el = {};
 	buildPlan();
-	renderPlan();
 
 	function buildPlan() {
 		el.path = h( 'select', { class: 'mt-input', id: 'mt-plan-path' },
@@ -118,17 +167,18 @@
 			h( 'option', { value: 'long_term' }, 'Five-year long-term license' ) );
 		el.training = h( 'select', { class: 'mt-input', id: 'mt-plan-training' } );
 		P.training.forEach( ( t ) => el.training.append( h( 'option', { value: String( t.id ) }, t.provider + ' — ' + t.cost_label ) ) );
-		el.training.value = '2';
+		el.training.value = P.training.some( ( t ) => String( t.id ) === profile.plan.training ) ? profile.plan.training : '2';
 		el.prints = h( 'input', { type: 'checkbox', id: 'mt-plan-prints' } );
 		el.tb = h( 'input', { type: 'number', min: '0', step: '1', class: 'mt-input mt-plan-tb', id: 'mt-plan-tb', placeholder: '0' } );
+		el.tb.value = profile.plan.tb || '';
 		[ el.path, el.training, el.prints, el.tb ].forEach( ( c ) => c.addEventListener( 'input', () => {
-			licenseKey = el.path.value;
+			profile.plan = { training: el.training.value, tb: el.tb.value };
+			store( PROFILE_KEY, profile );
 			renderPlan( true );
 		} ) );
 
 		el.costs = h( 'div', { class: 'mt-plan-costs' } );
 		el.timeline = h( 'div', { class: 'mt-plan-timeline' } );
-		el.checklist = h( 'div', { class: 'mt-checklist' } );
 		const controls = h( 'div', { class: 'mt-plan-controls' },
 			field( 'License', 'mt-plan-path', el.path ),
 			field( 'Training course', 'mt-plan-training', el.training ),
@@ -137,10 +187,7 @@
 		plan.replaceChildren( controls,
 			h( 'div', { class: 'mt-plan-grid' },
 				h( 'div', {}, h( 'h3', {}, 'What it costs you' ), el.costs ),
-				h( 'div', {}, h( 'h3', {}, 'How long until your first day' ), el.timeline ) ),
-			h( 'h3', {}, 'Your checklist' ),
-			h( 'p', { class: 'mt-muted' }, 'Gather each item once and reuse it for every employer. Ticks are saved in this browser only.' ),
-			el.checklist );
+				h( 'div', {}, h( 'h3', {}, 'How long until your first day' ), el.timeline ) ) );
 	}
 
 	function field( label, id, control ) {
@@ -187,7 +234,8 @@
 
 		// Timeline in weeks.
 		const train = needsTraining ? trainingWeeks( course ) : 0;
-		const dpi = prints ? P.dpi.processing_weeks_out_of_state[ 1 ] : P.dpi.processing_weeks[ 1 ];
+		const range = prints ? P.dpi.processing_weeks_out_of_state : P.dpi.processing_weeks;
+		const dpi = range[ 1 ];
 		const onboard = P.dpi.employer_onboarding_weeks;
 		const serial = [ [ 0, train, 0 ], [ train, train + dpi, 1 ], [ train + dpi, train + dpi + onboard, 2 ] ];
 		const parallel = [ [ 0, train, 0 ], [ train, train + dpi, 1 ], [ 0, onboard, 2 ] ];
@@ -198,7 +246,8 @@
 			h( 'p', {}, 'About ', h( 'strong', {}, weeks( parallelEnd ) ), ' to your first day if you start employer applications now, versus ', weeks( serialEnd ), ' doing one step at a time (DPI’s upper estimate of ' + dpi + ' weeks).' ),
 			h( 'p', { class: 'mt-muted' }, P.dpi.employer_onboarding_note ) );
 
-		renderChecklist( needsTraining, prints );
+		timeline = { path, needsTraining, prints, train, dpiMin: range[ 0 ], dpiMax: range[ 1 ] };
+		renderChecklist();
 	}
 
 	function trainingWeeks( course ) {
@@ -247,44 +296,278 @@
 		return fig;
 	}
 
-	function renderChecklist( needsTraining, prints ) {
-		let saved = {};
-		try {
-			saved = JSON.parse( window.localStorage.getItem( STORE_KEY ) || '{}' ) || {};
-		} catch ( e ) {
-			saved = {};
-		}
-		const items = [
-			[ 'transcript', 'Order an official transcript (DPI and most employers ask for it).' ],
-			needsTraining ? [ 'training', 'Finish a DPI-approved substitute training course and save the certificate.' ] : null,
-			prints ? [ 'prints', 'Get fingerprinted at Fieldprint (code FPWIDPITeach).' ] : null,
-			[ 'elo', 'Apply in ELO and pay the $' + P.dpi.fee + ' fee by credit card.' ],
-			[ 'references', 'Ask three people now to be references; MPS wants three letters under 3 years old.' ],
-			[ 'resume', 'Update your resume.' ],
-			[ 'apply', 'Apply to the employers you want, now, while DPI processes your permit.' ],
-			[ 'tb', 'Get a TB test if an employer asks (keep the receipt; some reimburse it).' ],
-			[ 'i9', 'Bring I-9 identity documents to onboarding in person. Don’t email or upload them.' ],
-			[ 'absence', 'Once hired, set up Frontline or Red Rover and enter your availability.' ],
-			[ 'renew', 'Put your permit’s expiry date in your calendar; it lasts 3 years.' ],
-		].filter( Boolean );
-		const list = h( 'ul', { class: 'mt-checks' } );
-		items.forEach( ( [ id, text ] ) => {
-			const box = h( 'input', { type: 'checkbox', id: 'mt-ck-' + id } );
-			box.checked = !! saved[ id ];
+
+	/* ---------- 3. Where to apply: the fewest applications that cover the reader's picks ---------- */
+
+	const planner = document.getElementById( 'mt-planner' );
+	const COUNTIES = [ ...new Set( P.planner.map( ( r ) => r.county ) ) ];
+	buildPlanner();
+
+	function buildPlanner() {
+		el.countyPick = h( 'fieldset', { class: 'mt-county-pick' }, h( 'legend', {}, 'Where would you sub?' ) );
+		COUNTIES.forEach( ( c ) => {
+			const box = h( 'input', { type: 'checkbox', value: c } );
+			box.checked = profile.counties.includes( c );
 			box.addEventListener( 'change', () => {
-				saved[ id ] = box.checked;
-				try {
-					window.localStorage.setItem( STORE_KEY, JSON.stringify( saved ) );
-				} catch ( e ) {
-					// Private mode or storage off: the checklist still works for this visit.
-				}
+				profile.counties = COUNTIES.filter( ( x ) => x === c ? box.checked : profile.counties.includes( x ) );
+				changed();
 			} );
-			list.append( h( 'li', {}, box, h( 'label', { for: 'mt-ck-' + id }, text ) ) );
+			el.countyPick.append( h( 'label', { class: 'mt-check' }, box, c + ' County' ) );
 		} );
-		const print = h( 'button', { type: 'button', class: 'mt-btn' }, 'Print checklist' );
-		print.addEventListener( 'click', () => window.print() );
-		el.checklist.replaceChildren( list, print );
+		el.others = h( 'input', { type: 'checkbox', id: 'mt-plan-others' } );
+		el.others.checked = !! profile.others;
+		el.others.addEventListener( 'change', () => {
+			profile.others = el.others.checked;
+			changed();
+		} );
+		el.list = h( 'div', { class: 'mt-employer-list' } );
+		el.apps = h( 'div', { class: 'mt-planner-plan', 'aria-live': 'polite' } );
+		planner.replaceChildren(
+			h( 'div', { class: 'mt-planner-pick' }, el.countyPick,
+				h( 'label', { class: 'mt-check', for: 'mt-plan-others' }, el.others, 'Also list private and charter schools with open sub postings' ),
+				el.list ),
+			el.apps );
 	}
+
+	function changed() {
+		store( PROFILE_KEY, profile );
+		renderPlanner();
+		renderChecklist();
+	}
+
+	function visible( r ) {
+		return profile.counties.includes( r.county ) && ( r.public || profile.others );
+	}
+
+	function renderPlanner() {
+		if ( ! profile.counties.length ) {
+			el.list.replaceChildren( h( 'p', { class: 'mt-muted' }, 'Choose a county to list its school districts and how each hires subs.' ) );
+		} else {
+			el.list.replaceChildren( ...profile.counties.map( ( c ) => {
+				const rows = P.planner.filter( ( r ) => r.county === c && visible( r ) );
+				const all = h( 'button', { type: 'button', class: 'mt-link-btn' }, rows.every( picked ) ? 'Clear all' : 'Pick all' );
+				all.addEventListener( 'click', () => {
+					const on = ! rows.every( picked );
+					const names = rows.map( ( r ) => r.name );
+					profile.picks = profile.picks.filter( ( n ) => ! names.includes( n ) ).concat( on ? names : [] );
+					changed();
+				} );
+				return h( 'div', { class: 'mt-county-group' },
+					h( 'h4', {}, c + ' County ', all ),
+					h( 'ul', { class: 'mt-employers' }, ...rows.map( employerRow ) ) );
+			} ) );
+		}
+		renderApplications();
+	}
+
+	function picked( r ) {
+		return profile.picks.includes( r.name );
+	}
+
+	function employerRow( r ) {
+		const id = 'mt-pick-' + slug( r.name );
+		const box = h( 'input', { type: 'checkbox', id } );
+		box.checked = picked( r );
+		box.addEventListener( 'change', () => {
+			profile.picks = profile.picks.filter( ( n ) => n !== r.name ).concat( box.checked ? [ r.name ] : [] );
+			changed();
+		} );
+		const meta = [];
+		if ( r.payMin !== null ) {
+			meta.push( payRange( [ r ] ) + ' posted' );
+		}
+		const posts = r.open ? h( 'a', { href: boardLink( r ) }, r.open + ' open sub posting' + ( r.open === 1 ? '' : 's' ) ) : '';
+		return h( 'li', {}, box,
+			h( 'label', { for: id }, h( 'span', { class: 'mt-emp-name' }, r.name ), ' ', routeBadge( r ) ),
+			meta.length || posts ? h( 'span', { class: 'mt-emp-meta' }, meta.join( ' · ' ), meta.length && posts ? ' · ' : '', posts ) : '' );
+	}
+
+	function routeBadge( r ) {
+		const name = P.agencies[ r.route ] ? P.agencies[ r.route ].name : ( r.route === 'direct' ? 'Hires directly' : 'Route not confirmed' );
+		return h( 'span', { class: 'mt-route mt-route-' + ( P.agencies[ r.route ] ? 'agency' : r.route ) }, name + ( r.likely ? ' (likely)' : '' ) );
+	}
+
+	/** Picks grouped by how each hires: one application per agency, one per direct employer, the rest to ask about. */
+	function groups() {
+		const out = { picks: [], agencies: {}, direct: [], unknown: [] };
+		P.planner.filter( ( r ) => picked( r ) && visible( r ) ).forEach( ( r ) => {
+			out.picks.push( r );
+			if ( P.agencies[ r.route ] ) {
+				( out.agencies[ r.route ] = out.agencies[ r.route ] || [] ).push( r );
+			} else if ( r.route === 'direct' ) {
+				out.direct.push( r );
+			} else {
+				out.unknown.push( r );
+			}
+		} );
+		return out;
+	}
+
+	function renderApplications() {
+		const g = groups();
+		const head = h( 'h3', {}, 'Your applications' );
+		if ( ! g.picks.length ) {
+			el.apps.replaceChildren( head, h( 'p', { class: 'mt-muted' }, 'Pick the districts and schools you’d sub for, and this lists the fewest applications that cover them.' ) );
+			return;
+		}
+		const n = Object.keys( g.agencies ).length + g.direct.length;
+		const covered = g.picks.length - g.unknown.length;
+		const lead = h( 'p', {}, h( 'strong', {}, n + ' application' + ( n === 1 ? '' : 's' ) ), ' cover ' + covered + ' of your ' + g.picks.length + ' pick' + ( g.picks.length === 1 ? '' : 's' ) + '.' + ( g.unknown.length ? ' Ask about the other ' + g.unknown.length + ' first (below).' : '' ) );
+		const cards = [];
+		Object.entries( g.agencies ).forEach( ( [ key, rows ] ) => {
+			const a = P.agencies[ key ];
+			const more = P.planner.filter( ( r ) => r.route === key && profile.counties.includes( r.county ) && r.public && ! picked( r ) );
+			const card = h( 'div', { class: 'mt-app-card' },
+				h( 'h4', {}, a.name ),
+				h( 'p', {}, h( 'strong', {}, 'One application covers: ' ), rows.map( ( r ) => r.name + ( r.likely ? ' (likely)' : '' ) ).join( ', ' ) ),
+				a.process ? h( 'p', { class: 'mt-muted' }, a.process ) : '',
+				h( 'p', {}, a.degree ? 'Degree: ' + a.degree + '. ' : '', a.retirement ? 'Retirement: ' + a.retirement + '.' : '' ),
+				payLine( rows ) );
+			if ( more.length ) {
+				const add = h( 'button', { type: 'button', class: 'mt-link-btn' }, 'add ' + ( more.length === 1 ? 'it' : 'them' ) );
+				add.addEventListener( 'click', () => {
+					profile.picks = profile.picks.concat( more.map( ( r ) => r.name ) );
+					changed();
+				} );
+				card.append( h( 'p', {}, 'The same application also covers ' + more.map( ( r ) => r.name ).join( ', ' ) + ' — ', add, '.' ) );
+			}
+			card.append( links( [ [ a.apply_url, 'Apply with ' + a.name, true ] ], a.sources, a.verified_on ) );
+			cards.push( card );
+		} );
+		g.direct.forEach( ( r ) => {
+			cards.push( h( 'div', { class: 'mt-app-card' },
+				h( 'h4', {}, r.name ),
+				h( 'p', {}, 'Hires its own subs: apply to the district.' + ( r.degree ? ' ' + r.degree + '.' : '' ) + ' You join WRS, Wisconsin’s public pension, if you’re expected to work 880 or more hours a year.' ),
+				r.extras ? h( 'p', { class: 'mt-muted' }, r.extras ) : '',
+				payLine( [ r ] ),
+				links( [ [ r.apply, 'Apply directly', true ], [ r.open ? boardLink( r ) : '', 'Its sub postings' ], [ ! r.apply && ! r.open ? 'https://wecan.waspa.org/' : '', 'Look for its sub pool on WECAN' ] ], r.source ? [ r.source ] : [], '' ) ) );
+		} );
+		if ( g.unknown.length ) {
+			cards.push( h( 'div', { class: 'mt-app-card is-ask' },
+				h( 'h4', {}, 'Ask first' ),
+				h( 'p', {}, 'We haven’t confirmed who employs subs here. Call or email each one’s HR office and ask whether to apply to them directly, through EDUStaff or through Kelly Education.' ),
+				h( 'ul', {}, ...g.unknown.map( ( r ) => h( 'li', {}, r.name, r.open ? h( 'span', { class: 'mt-muted' }, ' · ', h( 'a', { href: boardLink( r ) }, r.open + ' open sub posting' + ( r.open === 1 ? '' : 's' ) ) ) : '' ) ) ) ) );
+		}
+		el.apps.replaceChildren( head, lead, ...cards, h( 'p', { class: 'mt-muted' }, 'Your applications are added to your checklist below.' ) );
+	}
+
+	function payLine( rows ) {
+		const paid = rows.filter( ( r ) => r.payMin !== null );
+		return paid.length ? h( 'p', {}, 'Posted pay: ' + payRange( paid ) + ' (each district sets its own rate).' ) : '';
+	}
+
+	function payRange( rows ) {
+		const lo = Math.min( ...rows.map( ( r ) => r.payMin ) );
+		const hi = Math.max( ...rows.map( ( r ) => r.payMax ) );
+		return money( Math.round( lo ) ) + ( hi > lo ? '–' + money( Math.round( hi ) ) : '' ) + '/day';
+	}
+
+	function links( buttons, sources, verified ) {
+		const p = h( 'p', { class: 'mt-links' } );
+		buttons.forEach( ( [ url, text, primary ] ) => {
+			if ( safeUrl( url ) ) {
+				p.append( h( 'a', { class: 'mt-btn' + ( primary ? ' mt-btn-primary' : '' ), href: url, target: url.startsWith( P.jobsUrl ) ? '_self' : '_blank', rel: 'noopener' }, text ) );
+			}
+		} );
+		const src = h( 'span', { class: 'mt-src' } );
+		( sources || [] ).forEach( ( u, i ) => safeUrl( u ) && src.append( i ? ' ' : '', h( 'a', { href: u, target: '_blank', rel: 'noopener' }, 'source' + ( sources.length > 1 ? ' ' + ( i + 1 ) : '' ) ) ) );
+		if ( verified ) {
+			src.append( ' · checked ' + fmtDate( parseDate( verified ) ) );
+		}
+		p.append( src );
+		return p;
+	}
+
+	function boardLink( r ) {
+		return P.jobsUrl + '#kind=subs&employer=' + encodeURIComponent( r.board || r.name );
+	}
+
+	function shortName( name ) {
+		return name.replace( /^School District of /, '' ).replace( / (School District|Public Schools|Schools)$/, '' );
+	}
+
+	/* ---------- 4. The dated checklist ---------- */
+
+	const tasks = [ ...document.querySelectorAll( '.mt-task' ) ];
+	const phase = ( id ) => document.querySelector( '.mt-phase[data-phase="' + id + '"]' );
+	const appTasks = document.getElementById( 'mt-app-tasks' );
+	const eloTask = document.querySelector( '.mt-task[data-id="elo"]' );
+	const eloHome = eloTask.parentNode;
+	tasks.forEach( wireTask );
+	document.getElementById( 'mt-print' ).addEventListener( 'click', () => window.print() );
+
+	function wireTask( li ) {
+		const box = li.querySelector( 'input' );
+		box.checked = !! checks[ li.dataset.id ];
+		box.addEventListener( 'change', () => {
+			checks[ li.dataset.id ] = box.checked;
+			store( CHECKS_KEY, checks );
+		} );
+	}
+
+	function renderChecklist() {
+		if ( ! timeline ) {
+			return;
+		}
+		const t = timeline;
+		const when = { training: t.needsTraining, prints: t.prints, permit: t.path !== 'long_term' };
+		tasks.forEach( ( li ) => {
+			li.hidden = !! li.dataset.if && ! when[ li.dataset.if ];
+		} );
+		// With no course to wait for, applying to DPI happens this week.
+		( t.needsTraining ? eloHome : phase( 'now' ).querySelector( '.mt-tasks' ) ).append( eloTask );
+
+		// One task per application from the planner, replacing the generic "apply" task.
+		const g = groups();
+		const items = [];
+		Object.entries( g.agencies ).forEach( ( [ key, rows ] ) => items.push( [ 'app-' + key, 'Apply to ' + P.agencies[ key ].name + ' (covers ' + rows.map( ( r ) => shortName( r.name ) ).join( ', ' ) + ').', P.agencies[ key ].apply_url ] ) );
+		g.direct.forEach( ( r ) => items.push( [ 'app-' + slug( r.name ), 'Apply to ' + r.name + '.', r.apply || ( r.open ? boardLink( r ) : '' ) ] ) );
+		g.unknown.forEach( ( r ) => items.push( [ 'ask-' + slug( r.name ), 'Ask ' + r.name + '’s HR office who employs its subs, then apply there.', '' ] ) );
+		appTasks.replaceChildren( ...items.map( ( [ id, text, url ] ) => {
+			const li = h( 'li', { class: 'mt-task', 'data-id': id },
+				h( 'input', { type: 'checkbox', id: 'mt-ck-' + id } ),
+				h( 'div', {}, h( 'label', { for: 'mt-ck-' + id }, text ), safeUrl( url ) ? h( 'a', { class: 'mt-task-link', href: url, target: url.startsWith( P.jobsUrl ) ? '_self' : '_blank', rel: 'noopener' }, 'Apply →' ) : '' ) );
+			wireTask( li );
+			return li;
+		} ) );
+		document.querySelector( '.mt-task[data-id="apply"]' ).hidden = items.length > 0;
+
+		// Phase headings and dates from the reader's timeline.
+		const at = ( w ) => new Date( today.getTime() + w * WEEK );
+		const renew = at( t.train + t.dpiMax );
+		renew.setFullYear( renew.getFullYear() + ( t.path === 'long_term' ? 5 : 3 ) );
+		phase( 'now' ).querySelector( 'h3' ).firstChild.textContent = ( t.needsTraining ? 'While you train' : 'This week' ) + ' ';
+		phase( 'permit' ).querySelector( 'h3' ).firstChild.textContent = ( t.path === 'long_term' ? 'When your license arrives' : 'When your permit arrives' ) + ' ';
+		const dates = {
+			today: fmtDate( today ),
+			now: t.needsTraining ? 'now to about ' + fmtDate( at( t.train ) ) : 'by ' + fmtDate( at( 1 ) ),
+			dpi: 'about ' + fmtDate( at( t.train ) ),
+			wait: 'about ' + fmtDate( at( t.train ) ) + ' to ' + fmtDate( at( t.train + t.dpiMax ) ),
+			permit: 'expected ' + fmtDate( at( t.train + t.dpiMin ) ) + '–' + fmtDate( at( t.train + t.dpiMax ) ),
+			later: 'renew by about ' + fmtDate( renew ),
+		};
+		document.querySelectorAll( '.mt-phase' ).forEach( ( ph ) => {
+			ph.querySelector( '.mt-phase-date' ).textContent = dates[ ph.dataset.phase ] || '';
+			ph.hidden = ! ph.querySelector( '.mt-task:not([hidden])' );
+		} );
+	}
+
+	/* ---------- Links into folded how-tos (#training, #dpi) open them ---------- */
+
+	function openFromHash() {
+		const target = location.hash.length > 1 && document.getElementById( location.hash.slice( 1 ) );
+		if ( target && target.tagName === 'DETAILS' ) {
+			target.open = true;
+			target.scrollIntoView();
+		}
+	}
+	window.addEventListener( 'hashchange', openFromHash );
+	openFromHash();
+
+	renderResult();
+	renderPlan();
+	renderPlanner();
+	saved.hidden = ! Object.keys( answers ).length;
 
 	/* ---------- Sortable tables ---------- */
 
@@ -361,5 +644,31 @@
 
 	function fmtDate( d ) {
 		return d.toLocaleDateString( undefined, { month: 'short', day: 'numeric', year: 'numeric' } );
+	}
+
+	/** Browser storage can be off (private mode, blocked site data); these never throw. */
+	function load( key ) {
+		try {
+			const v = JSON.parse( window.localStorage.getItem( key ) || '{}' );
+			return v && typeof v === 'object' ? v : {};
+		} catch ( e ) {
+			return {};
+		}
+	}
+
+	function store( key, value ) {
+		try {
+			window.localStorage.setItem( key, JSON.stringify( value ) );
+		} catch ( e ) {
+			// The page works the same; it just won't remember.
+		}
+	}
+
+	function slug( s ) {
+		return String( s ).toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
+	}
+
+	function safeUrl( u ) {
+		return typeof u === 'string' && /^https?:\/\//i.test( u );
 	}
 }() );

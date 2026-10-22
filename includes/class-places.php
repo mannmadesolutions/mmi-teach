@@ -31,6 +31,8 @@ final class Places {
 
 	/** @var array<string, string> normalized district name => county code */
 	private array $districts = array();
+	/** @var array<string, string> district name as NCES writes it => county code */
+	private array $district_names = array();
 	/** @var array<string, array<string, true>> normalized school name => county codes */
 	private array $schools = array();
 	/** @var array<string, true> normalized names of private schools (NCES Private School Survey) */
@@ -62,6 +64,7 @@ final class Places {
 		$data = self::read_json( MMI_TEACH_DIR . 'data/places.json' );
 		foreach ( $data['districts'] ?? array() as [ $name, $code ] ) {
 			$this->districts[ self::normalize( $name ) ] = $code;
+			$this->district_names[ $name ]               = $code;
 		}
 		foreach ( $data['schools'] ?? array() as [ $name, $code, $district ] ) {
 			$key                               = self::normalize( $name );
@@ -135,6 +138,12 @@ final class Places {
 			return 'public';
 		}
 		return isset( $this->private[ $key ] ) ? 'private' : 'other';
+	}
+
+	/** @return array<string, string> NCES district name => county code, for districts in the given counties. */
+	public function districts_in( array $codes ): array {
+		$codes = array_map( 'strval', $codes ); // County codes arrive as integer array keys.
+		return array_filter( $this->district_names, static fn( $code ) => in_array( (string) $code, $codes, true ) );
 	}
 
 	public function county_name( string $code ): string {

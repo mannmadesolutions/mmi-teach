@@ -322,7 +322,6 @@ th[aria-sort="descending"] .mt-sort::after { content: "↓"; opacity: 1; }
 /* Phone: rows become cards */
 @media (max-width: 760px) {
 	.mt-head h1 { font-size: 1.4rem; }
-	.mt-nav { gap: 4px 12px; font-size: 0.85rem; }
 	.mt-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.mt-intro { padding: 12px; }
 	.mt-intro-kinds { gap: 6px; }
@@ -351,6 +350,9 @@ th[aria-sort="descending"] .mt-sort::after { content: "↓"; opacity: 1; }
 .mt-nav a { color: var(--mt-ink-2); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
 .mt-nav a:hover { color: var(--mt-ink); }
 .mt-nav a[aria-current="page"] { color: var(--mt-ink); border-bottom-color: var(--mt-accent); font-weight: 600; }
+@media (max-width: 760px) {
+	.mt-nav { gap: 4px 10px; font-size: 0.8rem; } /* All three tabs on one line at phone width. */
+}
 a.mt-kpi { text-decoration: none; }
 a.mt-kpi:hover { background: var(--mt-accent-wash); }
 
@@ -400,10 +402,64 @@ a.mt-kpi:hover { background: var(--mt-accent-wash); }
 .mt-gantt-title { fill: var(--mt-ink-2); font-size: 11px; paint-order: stroke; stroke: var(--mt-surface); stroke-width: 4px; stroke-linejoin: round; }
 .mt-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; list-style: none; padding: 0; margin: 6px 0; font-size: 0.8rem; color: var(--mt-ink-2); }
 .mt-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-.mt-checks { list-style: none; padding: 0; display: grid; gap: 6px; }
-.mt-checks li { display: flex; gap: 8px; align-items: flex-start; }
-.mt-checks input { margin-top: 3px; }
+
+/* What slows this down */
+.mt-delays { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.mt-delay { border: 1px solid var(--mt-border); border-radius: 8px; padding: 10px 14px; }
+.mt-delay h4 { margin: 0 0 6px; font-size: 0.95rem; }
+.mt-delay p { margin: 4px 0; font-size: 0.875rem; }
+
+/* Where to apply: pick districts on the left, the applications they need on the right */
+.mt-planner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; margin: 12px 0; }
+.mt-county-pick { border: 0; padding: 0; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.mt-county-pick legend { font-weight: 600; margin-bottom: 6px; padding: 0; }
+.mt-county-group h4 { margin: 14px 0 4px; font-size: 0.95rem; display: flex; gap: 10px; align-items: baseline; }
+.mt-employers { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+.mt-employers li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 8px; padding: 4px 0; border-bottom: 1px solid var(--mt-grid); font-size: 0.875rem; }
+.mt-employers input { margin-top: 3px; }
+.mt-employers label { cursor: pointer; }
+.mt-emp-meta { grid-column: 2; font-size: 0.8rem; color: var(--mt-muted); }
+.mt-route { display: inline-block; white-space: nowrap; padding: 0 6px; border-radius: 999px; font-size: 0.72rem; border: 1px solid var(--mt-border); color: var(--mt-ink-2); }
+.mt-route-agency { border-color: var(--mt-accent); color: var(--mt-accent-strong); }
+.mt-route-unknown { border-style: dashed; }
+.mt-planner-plan { position: sticky; top: 12px; border: 1px solid var(--mt-accent); border-radius: var(--mt-radius); background: var(--mt-accent-wash); padding: 12px 14px; }
+.mt-planner-plan h3 { margin: 0 0 6px; }
+.mt-app-card { background: var(--mt-surface); border: 1px solid var(--mt-border); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+.mt-app-card h4 { margin: 0 0 4px; font-size: 0.95rem; }
+.mt-app-card p { margin: 4px 0; font-size: 0.85rem; max-width: none; }
+.mt-app-card ul { margin: 4px 0; padding-left: 18px; font-size: 0.85rem; }
+.mt-app-card.is-ask { border-style: dashed; }
+.mt-app-card .mt-links { margin-top: 8px; align-items: center; }
+
+/* Folded sections (who's hiring, reference) and how-tos inside checklist tasks */
+.mt-fold { margin: 12px 0 0; }
+.mt-fold > summary, .mt-how > summary { cursor: pointer; font-weight: 600; }
+.mt-fold[open] > summary { margin-bottom: 8px; }
+.mt-how { margin: 6px 0 4px; }
+.mt-how > summary { font-size: 0.85rem; color: var(--mt-accent-strong); }
+.mt-how[open] { padding: 8px 10px; border: 1px solid var(--mt-border); border-radius: 8px; background: var(--mt-surface); }
+
+/* The dated checklist */
+.mt-phases { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 14px; }
+.mt-phase h3 { margin: 0 0 6px; font-size: 1rem; }
+.mt-phase-date { font-weight: 400; font-size: 0.85rem; color: var(--mt-muted); }
+.mt-tasks { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.mt-task { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; }
+.mt-task input { margin-top: 4px; }
+.mt-task label { cursor: pointer; }
+.mt-task-link { margin-left: 6px; font-size: 0.85rem; white-space: nowrap; }
+#mt-app-tasks:not(:empty) { margin-top: 6px; }
+
+/* Your fit, on the job board */
+.mt-fit { display: inline-block; white-space: nowrap; padding: 1px 7px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+.mt-fit-2 { background: #006300; color: #fff; } /* Fixed in both themes: white on the dark theme’s brighter green is under 4.5:1. */
+.mt-fit-1 { border: 1px solid var(--mt-ink-2); color: var(--mt-ink); }
+.mt-fit-0 { border: 1px dashed var(--mt-border); color: var(--mt-muted); }
+.mt-fit-why { display: block; margin-top: 2px; font-size: 0.75rem; color: var(--mt-ink-2); min-width: 150px; }
+.mt-saved { font-size: 0.85rem; }
 @media (max-width: 760px) {
+	.mt-planner { grid-template-columns: minmax(0, 1fr); }
+	.mt-planner-plan { position: static; }
 	.mt-section .mt-table thead { display: none; }
 	.mt-section .mt-table, .mt-section .mt-table tbody, .mt-section .mt-table tr, .mt-section .mt-table td { display: block; width: 100%; }
 	.mt-section .mt-table tr { padding: 10px 12px; border-bottom: 1px solid var(--mt-grid); }
@@ -413,7 +469,7 @@ a.mt-kpi:hover { background: var(--mt-accent-wash); }
 	.mt-cost-table td::before { content: none !important; }
 }
 @media print {
-	.mt-nav, .mt-steps-nav, .mt-kpis, #license, #training, #dpi, #employers, .mt-plan-controls, .mt-plan-grid, .mt-foot, .mt-checklist .mt-btn, #wpadminbar { display: none !important; }
+	.mt-nav, .mt-steps-nav, .mt-kpis, .mt-head, #license, #plan, #employers, #reference, .mt-how, #mt-print, .mt-task-link, .mt-foot, #wpadminbar { display: none !important; }
 	.mt-card { border: 0; }
 }
 .mt-lic-list { margin: 0 0 2px; padding-left: 18px; }

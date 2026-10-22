@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.6.0 — 2026-10-22
+
+The substitute page now runs in the order an applicant acts, remembers their answers, and
+plans their applications.
+- **Page order:** your situation → your cost and timeline → where to apply → your checklist,
+  with the reference tables (license types, how each kind of employer works, every agency) folded
+  at the end.
+- **What slows this down, and how to get around it:** eight delays, each with what it costs the
+  applicant, the workaround, what can't be avoided, and a source: the DPI wait, onboarding
+  repeated per employer, daily jobs that are never posted, training prices, the card-only
+  non-refundable fee, stricter degree rules, the 45-day cap, and pay and retirement. They live in
+  data/pathway.json `delays`.
+- **Where to apply:** pick counties, then the districts and schools you'd sub for, and the page
+  lists the fewest applications that cover them. Each agency application names every pick it
+  covers (and offers to add the agency's other districts); direct employers show their degree
+  rule, WRS and an apply link; unconfirmed routes get an "Ask first" card. Built from the 45
+  researched routes, every other public district in NCES's directory, and employers with open
+  sub postings, with posted pay and posting counts (`Pathway::planner()`).
+- **Dated checklist:** phases Today → While you train → When the certificate arrives → While DPI
+  processes → When the permit arrives → Later, dated from the reader's timeline and filtered to
+  their path. One task per planned application. The training comparison and the ELO steps open
+  inline. Tasks and phases live in data/pathway.json `checklist`, and printing prints just the
+  checklist.
+- **Remembered in the browser only:** answers, picks and ticks (`mmiTeachProfile`), with a
+  "Forget them" button.
+- **Job board — Your fit:** with saved answers, each posting is marked You qualify, Might fit
+  (with the condition: the 45-day permit cap, a license in the subject) or Not yet (with what's
+  missing: a stated degree, a special-education license, a teaching license). It's a sortable
+  column, a filter, a line on phone cards and a row in the detail. The license finder links
+  straight to substitute jobs that fit.
+- **No-store on HEAD too:** both pages send no-store on `template_redirect` instead of
+  `template_include`. WordPress ends HEAD requests between those two hooks, so HEAD responses
+  went out cacheable and Cloudflare's "Cache Everything" could keep them.
+
 ## 1.5.0 — 2026-10-22
 
 Built around the applicant instead of the analyst.
