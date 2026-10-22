@@ -36,6 +36,16 @@ final class Wecan implements Source {
 	}
 
 	public function fetch(): array {
+		try {
+			return $this->read_grid();
+		} catch ( \UnexpectedValueException $e ) {
+			// A posting opened or closed between pages shifts the paging; one fresh read settles it.
+			return $this->read_grid();
+		}
+	}
+
+	/** Every page of the grid, de-duplicated by vacancy ID; throws when the count doesn't add up. */
+	private function read_grid(): array {
 		$rows  = array();
 		$total = null;
 		$page  = 1;
@@ -52,14 +62,16 @@ final class Wecan implements Source {
 			if ( ! $batch ) {
 				break;
 			}
-			array_push( $rows, ...$batch );
+			foreach ( $batch as $row ) {
+				$rows[ $row['source_id'] ] = $row;
+			}
 			++$page;
 		} while ( count( $rows ) < $total && $page <= 20 );
 
 		if ( count( $rows ) !== $total ) {
-			throw new \RuntimeException( sprintf( 'WECAN said %d vacancies but %d were read.', $total, count( $rows ) ) );
+			throw new \UnexpectedValueException( sprintf( 'WECAN said %d vacancies but %d were read.', $total, count( $rows ) ) );
 		}
-		return $rows;
+		return array_values( $rows );
 	}
 
 	public function fetch_details( string $source_id ): array {

@@ -6,6 +6,12 @@
 	if ( ! P ) {
 		return;
 	}
+	// This page took over the front page in 1.5.0; job-board links saved before that ("/#kind=subs")
+	// carry board filters in the hash, so send them on to the board.
+	if ( /(^|&)(kind|county|subject|band|appt|posted|q|employer|agency|mydegree|license|pay|minday|sort|dir|subs)=/.test( location.hash.slice( 1 ) ) ) {
+		location.replace( P.jobsUrl + location.hash );
+		return;
+	}
 	const WEEK = 7 * 864e5;
 	const today = new Date();
 	const STORE_KEY = 'mmiTeachSubChecklist';

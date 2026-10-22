@@ -25,12 +25,14 @@ $mmi_teach_counties = implode( ', ', $mmi_teach_names ) . ' & ' . $mmi_teach_las
 	<?php require MMI_TEACH_DIR . 'templates/partials/nav.php'; ?>
 	<header class="mt-head">
 		<div>
-			<h1><?php esc_html_e( 'Teaching vacancies', 'mmi-teach' ); ?></h1>
+			<h1 id="mt-title"><?php esc_html_e( 'Teaching jobs', 'mmi-teach' ); ?></h1>
 			<p class="mt-sub">
+				<span id="mt-scope" data-counties="<?php echo esc_attr( $mmi_teach_counties ); ?>">
 				<?php
 				/* translators: %s: county names */
 				echo esc_html( sprintf( __( 'Open K-12 teaching positions in %s counties, Wisconsin.', 'mmi-teach' ), $mmi_teach_counties ) );
 				?>
+				</span>
 				<span id="mt-freshness"></span>
 			</p>
 		</div>

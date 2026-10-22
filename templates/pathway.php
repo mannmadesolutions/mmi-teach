@@ -53,7 +53,7 @@ $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s:
 	<?php else : ?>
 
 	<section class="mt-kpis" aria-label="<?php esc_attr_e( 'Substitute jobs right now', 'mmi-teach' ); ?>">
-		<a class="mt-kpi" href="<?php echo esc_url( home_url( '/#kind=subs' ) ); ?>">
+		<a class="mt-kpi" href="<?php echo esc_url( MMI_Teach\Dashboard::url() . '#kind=subs' ); ?>">
 			<span class="mt-kpi-label"><?php esc_html_e( 'Open substitute postings', 'mmi-teach' ); ?></span>
 			<span class="mt-kpi-value"><?php echo esc_html( number_format_i18n( count( $mmi_teach_subs ) ) ); ?></span>
 			<span class="mt-kpi-note"><?php esc_html_e( 'See them on the job board →', 'mmi-teach' ); ?></span>
@@ -307,7 +307,7 @@ $mmi_teach_checked  = static fn( $date ) => $date ? sprintf( /* translators: %s:
 					?>
 					<tr>
 						<td class="mt-num" data-label="ID"><?php echo esc_html( $mmi_teach_i + 1 ); ?></td>
-						<td data-label="<?php esc_attr_e( 'Employer', 'mmi-teach' ); ?>"><a href="<?php echo esc_url( home_url( '/#kind=subs&employer=' . rawurlencode( $mmi_teach_e['employer'] ) ) ); ?>"><?php echo esc_html( $mmi_teach_e['employer'] ); ?></a></td>
+						<td data-label="<?php esc_attr_e( 'Employer', 'mmi-teach' ); ?>"><a href="<?php echo esc_url( MMI_Teach\Dashboard::url() . '#kind=subs&employer=' . rawurlencode( $mmi_teach_e['employer'] ) ); ?>"><?php echo esc_html( $mmi_teach_e['employer'] ); ?></a></td>
 						<td data-label="<?php esc_attr_e( 'County', 'mmi-teach' ); ?>"><?php echo esc_html( $mmi_teach_e['county'] ); ?></td>
 						<td class="mt-num" data-label="<?php esc_attr_e( 'Open sub postings', 'mmi-teach' ); ?>" data-value="<?php echo esc_attr( $mmi_teach_e['count'] ); ?>"><span><?php echo esc_html( $mmi_teach_e['count'] ); ?> <span class="mt-muted">(<?php echo esc_html( implode( ', ', $mmi_teach_kinds ) ); ?>)</span></span></td>
 						<td class="mt-num" data-label="<?php esc_attr_e( 'Posted pay per day', 'mmi-teach' ); ?>" data-value="<?php echo esc_attr( (string) ( $mmi_teach_e['payMin'] ?? '' ) ); ?>"><?php echo esc_html( $mmi_teach_pay ?: '—' ); ?></td>

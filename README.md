@@ -3,24 +3,37 @@
 A WordPress plugin that collects every open K-12 teaching vacancy in **Milwaukee, Waukesha and
 Racine counties, Wisconsin** and shows them on one filterable dashboard.
 
-## What it shows
+## Pages
 
-- Open teaching postings: totals per county, new in the last 7 days, closing within 14 days.
-- Charts: postings by subject, top employers, and open postings by week posted. Click a bar to filter.
-- A sortable table of every posting. Click a row for salary, openings, required licenses,
-  contact, a summary and links to apply.
-- Filters for county, subject, grade level, full or part time, posting date, keyword, and
-  substitute postings (hidden by default). The filters live in the URL, so a filtered view can be
-  bookmarked or shared.
+- **Become a substitute** (the front page): the applicant's route, below.
+- **Substitute jobs** and **Teaching jobs** (`/vacancies/`, with `#kind=subs` for the first):
+  one job board, two tabs. The tab, heading and summary follow the Job type filter, which lives
+  in the URL hash with every other filter, so a view can be bookmarked or shared. Links saved
+  before 1.5.0 (`/#kind=subs…`) are forwarded from the front page to the board.
+
+## Job board
+
+- Listings come first: four summary tiles (open, new this week, closing in 14 days, and median
+  sub pay or postings that list pay), then filters, then the table.
+- Filters in view: keyword, job type, county, highest degree and minimum pay per day. Staffing
+  agency, license area, subject, grade level, full or part time, posting date and pay type sit
+  under **More filters**, which shows how many of them are set.
+- The substitute tabs open with a short explainer: daily sub work is never posted publicly (it
+  is offered in each district's Frontline or Red Rover system after onboarding), so the postings
+  here are the ways in: pool openings, building subs and long-term assignments.
+- **Market overview** (closed by default, remembered per browser): postings by subject, top
+  employers and open postings by week posted. Click a bar to filter.
+- A sortable table of every posting. Click a row for pay as posted, what it takes to qualify,
+  openings, contact, a summary and links to apply. On phones each row is a short card (title,
+  employer and county, pay and closing, requirements) and the rest moves into the detail.
 - Pay: every posting's pay text is parsed into an amount, a unit (hour, day, year, stipend) and a
   daily equivalent (hourly × 7, annual ÷ 180) for sorting and filtering. "Salary schedule" and
   "depends on experience" postings are labeled as such; the posted wording is kept in the row details.
-- Substitute jobs: postings are tagged daily/on-call, building or long-term sub. The **Substitute
-  jobs** button and the Job type filter switch between teaching and substitute postings, and a tile
-  shows the median sub pay per day.
-- CSV download of the current view.
+- Freshness: readers see "Updated … ago" and, if a source hasn't refreshed in 9 hours, a plain note
+  naming it. Refresh errors themselves show only to signed-in managers and on the settings screen.
+- CSV download of the current view (footer).
 
-## Become a substitute teacher (/substitute/)
+## Become a substitute teacher (front page)
 
 A public guide that removes the guesswork from becoming a sub in the three counties:
 
@@ -98,7 +111,7 @@ that ship with the plugin.
 ## Running it
 
 ```sh
-wp plugin activate mmi-teach            # creates the table and the dashboard page (front page on an empty site)
+wp plugin activate mmi-teach            # creates the table, the job board page and the substitute page (front page on an empty site)
 wp mmi-teach refresh                    # read every source; --details=<n> caps detail-page reads (default 200)
 wp mmi-teach status                     # counts per county, source health
 wp mmi-teach unplaced                   # employers not placed in any county

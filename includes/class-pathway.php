@@ -30,6 +30,7 @@ final class Pathway {
 		}
 	}
 
+	/** Creates the page and makes it the front page of a site that has none (applicants come first). */
 	public static function ensure_page(): void {
 		$page_id = (int) get_option( self::OPTION_PAGE );
 		if ( $page_id && get_post( $page_id ) ) {
@@ -45,6 +46,10 @@ final class Pathway {
 		);
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
 			update_option( self::OPTION_PAGE, $page_id, false );
+			if ( 'posts' === get_option( 'show_on_front' ) ) {
+				update_option( 'show_on_front', 'page' );
+				update_option( 'page_on_front', $page_id );
+			}
 		}
 	}
 
@@ -92,7 +97,7 @@ final class Pathway {
 					'licenses'   => $data['licenses'],
 					'longTerm'   => $data['long_term_note'],
 					'training'   => $data['training'],
-					'jobsUrl'    => home_url( '/' ),
+					'jobsUrl'    => Dashboard::url(),
 					'districts'  => Agencies::employer_notes(),
 				),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE

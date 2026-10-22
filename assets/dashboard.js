@@ -29,11 +29,27 @@
 	// Lowest to highest; a posting's required degree is compared against the reader's own.
 	const DEGREE_ORDER = [ 'none', 'high_school', 'associate', 'bachelor', 'master', 'doctorate' ];
 	const DEFAULTS = { county: '', subject: '', band: '', appt: '', posted: '', q: '', employer: '', agency: '', mydegree: '', license: '', kind: 'jobs', pay: '', minday: '', sort: 'posted', dir: 'desc' };
+	// Filters folded under "More filters".
+	const MORE_KEYS = [ 'agency', 'license', 'subject', 'band', 'appt', 'posted', 'pay' ];
+	const OVERVIEW_KEY = 'mmiTeachOverview';
+	// A source that hasn't refreshed in this long (three missed runs) gets a note in the footer.
+	const STALE_MS = 9 * 36e5;
 
 	let data = null;
 	let state = readHash();
 	let openKey = '';
 	const el = {};
+	syncView();
+	// The nav's two job tabs only change the hash on this page; back and forward do too.
+	window.addEventListener( 'hashchange', () => {
+		state = readHash();
+		if ( data ) {
+			syncControls();
+			render();
+		} else {
+			syncView();
+		}
+	} );
 
 	fetch( cfg.endpoint, { headers: { 'X-WP-Nonce': cfg.nonce }, credentials: 'same-origin' } )
 		.then( ( r ) => {
@@ -46,11 +62,6 @@
 			data = prepare( snapshot );
 			build();
 			render();
-			window.addEventListener( 'hashchange', () => {
-				state = readHash();
-				syncControls();
-				render();
-			} );
 		} )
 		.catch( ( err ) => {
 			root.replaceChildren( h( 'p', { class: 'mt-card mt-error' }, 'Couldn’t load vacancies. ' + err.message ) );
@@ -157,21 +168,16 @@
 
 	function build() {
 		el.freshness = document.getElementById( 'mt-freshness' );
-		const actions = document.getElementById( 'mt-head-actions' );
-		el.csv = h( 'button', { class: 'mt-btn', type: 'button' }, 'Download CSV' );
-		el.csv.addEventListener( 'click', downloadCsv );
-		el.subsBtn = h( 'button', { class: 'mt-btn', type: 'button' } );
-		el.subsBtn.addEventListener( 'click', () => set( { kind: state.kind === 'jobs' ? 'subs' : 'jobs' } ) );
-		actions.replaceChildren( el.subsBtn, el.csv );
 		if ( cfg.settings ) {
-			actions.append( h( 'a', { class: 'mt-btn', href: cfg.settings }, 'Settings' ) );
+			document.getElementById( 'mt-head-actions' ).replaceChildren( h( 'a', { class: 'mt-btn', href: cfg.settings }, 'Settings' ) );
 		}
 
+		el.intro = h( 'section', { class: 'mt-card mt-intro', 'aria-label': 'How substitute jobs work' } );
 		el.kpis = h( 'section', { class: 'mt-kpis', 'aria-label': 'Summary' } );
 
 		el.q = h( 'input', { type: 'search', class: 'mt-input mt-search', placeholder: 'Search title, school, employer, license…', 'aria-label': 'Search' } );
 		el.q.addEventListener( 'input', debounce( () => set( { q: el.q.value } ), 250 ) );
-		el.county = select( 'County', [ [ '', 'All counties' ] ].concat( data.counties.map( ( c ) => [ c, c ] ) ), 'county' );
+		el.county = select( 'County', [ [ '', 'All counties' ] ].concat( data.counties.map( ( c ) => [ c, c + ' County' ] ) ), 'county' );
 		el.subject = select( 'Subject', [ [ '', 'All subjects' ] ].concat( data.subjects.map( ( s ) => [ s, s ] ) ), 'subject' );
 		el.band = select( 'Grade level', [ [ '', 'All grade levels' ], [ 'Early Childhood', 'Early childhood' ], [ 'Elementary', 'Elementary' ], [ 'Middle', 'Middle' ], [ 'High School', 'High school' ], [ 'K-12', 'K-12 / district-wide' ], [ 'Unspecified', 'Not stated' ] ], 'band' );
 		el.appt = select( 'Type', [ [ '', 'Full & part time' ] ].concat( unique( data.vacancies.map( ( v ) => v.appt ) ).map( ( a ) => [ a, a ] ) ), 'appt' );
@@ -184,20 +190,36 @@
 		el.minday = h( 'input', { type: 'number', min: '0', step: '5', inputmode: 'numeric', class: 'mt-input mt-minday', placeholder: 'Min $/day', 'aria-label': 'Minimum pay per day (daily equivalent)' } );
 		el.minday.addEventListener( 'input', debounce( () => set( { minday: el.minday.value } ), 400 ) );
 		el.reset = h( 'button', { class: 'mt-btn mt-btn-ghost', type: 'button' }, 'Clear filters' );
-		el.reset.addEventListener( 'click', () => set( Object.assign( {}, DEFAULTS, { sort: state.sort, dir: state.dir } ) ) );
+		el.reset.addEventListener( 'click', () => set( Object.assign( {}, DEFAULTS, { kind: state.kind, sort: state.sort, dir: state.dir } ) ) );
 		el.employerChip = h( 'span', { class: 'mt-chips' } );
 
+		// The filters most people use stay in view; the rest fold away, with a count of the ones set.
+		el.moreBody = h( 'div', { class: 'mt-more-body', id: 'mt-more-filters' }, el.agency, el.license, el.subject, el.band, el.appt, el.posted, el.pay );
+		el.moreBody.hidden = ! MORE_KEYS.some( ( k ) => state[ k ] );
+		el.moreBtn = h( 'button', { type: 'button', class: 'mt-btn mt-more', 'aria-controls': 'mt-more-filters' } );
+		el.moreBtn.addEventListener( 'click', () => {
+			el.moreBody.hidden = ! el.moreBody.hidden;
+			syncControls();
+		} );
 		const filters = h( 'section', { class: 'mt-filters', 'aria-label': 'Filters' },
-			el.q, el.kind, el.agency, el.mydegree, el.license, el.county, el.subject, el.band, el.appt, el.posted, el.pay, el.minday,
-			el.employerChip, el.reset );
+			el.q, el.kind, el.county, el.mydegree, el.minday, el.moreBtn, el.employerChip, el.reset, el.moreBody );
 
 		el.subjectChart = h( 'div', { class: 'mt-chart' } );
 		el.employerChart = h( 'div', { class: 'mt-chart' } );
 		el.weekChart = h( 'div', { class: 'mt-chart' } );
-		const charts = h( 'section', { class: 'mt-charts' },
-			card( 'By subject', 'Click a bar to filter', el.subjectChart ),
-			card( 'Top employers', 'Click a bar to filter', el.employerChart ),
-			card( 'Open postings by week posted', 'Last 12 weeks; older postings that are still open sit in the first column', el.weekChart ) );
+		el.overview = h( 'details', { class: 'mt-overview' },
+			h( 'summary', {}, 'Market overview', h( 'span', { class: 'mt-muted' }, ' — postings by subject, employer and week posted' ) ),
+			h( 'div', { class: 'mt-charts' },
+				card( 'By subject', 'Click a bar to filter', el.subjectChart ),
+				card( 'Top employers', 'Click a bar to filter', el.employerChart ),
+				card( 'Open postings by week posted', 'Last 12 weeks; older postings that are still open sit in the first column', el.weekChart ) ) );
+		el.overview.open = remembered( OVERVIEW_KEY ) === '1';
+		el.overview.addEventListener( 'toggle', () => {
+			remember( OVERVIEW_KEY, el.overview.open ? '1' : '0' );
+			if ( el.overview.open ) {
+				renderCharts( filtered() );
+			}
+		} );
 
 		el.count = h( 'p', { class: 'mt-count' } );
 		el.thead = h( 'tr' );
@@ -211,8 +233,10 @@
 			el.count,
 			h( 'div', { class: 'mt-table-wrap' }, h( 'table', { class: 'mt-table' }, h( 'thead', {}, el.thead ), el.tbody ) ) );
 
+		el.csv = h( 'button', { class: 'mt-btn mt-btn-ghost', type: 'button' }, 'Download these postings (CSV)' );
+		el.csv.addEventListener( 'click', downloadCsv );
 		el.foot = h( 'footer', { class: 'mt-foot' } );
-		root.replaceChildren( el.kpis, filters, charts, table, el.foot );
+		root.replaceChildren( el.intro, el.kpis, filters, el.overview, table, el.foot );
 		syncControls();
 	}
 
@@ -251,8 +275,36 @@
 		if ( document.activeElement !== el.minday ) {
 			el.minday.value = state.minday;
 		}
-		el.subsBtn.textContent = state.kind === 'jobs' ? 'Substitute jobs' : 'Teaching jobs';
-		el.subsBtn.setAttribute( 'aria-pressed', String( state.kind !== 'jobs' ) );
+		const more = MORE_KEYS.filter( ( k ) => state[ k ] ).length;
+		el.moreBtn.textContent = 'More filters' + ( more ? ' (' + more + ')' : '' ) + ( el.moreBody.hidden ? ' ▾' : ' ▴' );
+		el.moreBtn.setAttribute( 'aria-expanded', String( ! el.moreBody.hidden ) );
+		syncView();
+	}
+
+	/** Which nav tab is current, and the heading, follow the job type in the hash. */
+	function syncView() {
+		const view = state.kind === 'jobs' ? 'jobs' : ( state.kind === 'all' ? 'all' : 'subs' );
+		document.querySelectorAll( '.mt-nav a[data-view]' ).forEach( ( a ) => {
+			if ( a.dataset.view === view ) {
+				a.setAttribute( 'aria-current', 'page' );
+			} else {
+				a.removeAttribute( 'aria-current' );
+			}
+		} );
+		const title = document.getElementById( 'mt-title' );
+		const scope = document.getElementById( 'mt-scope' );
+		const counties = scope ? scope.dataset.counties : '';
+		const text = {
+			jobs: [ 'Teaching jobs', 'Open K-12 teaching positions in ' + counties + ' counties, Wisconsin.' ],
+			subs: [ 'Substitute teaching jobs', 'Open substitute postings in ' + counties + ' counties, Wisconsin.' ],
+			all: [ 'Teaching and substitute jobs', 'Every open K-12 teaching and substitute posting in ' + counties + ' counties, Wisconsin.' ],
+		}[ view ];
+		if ( title ) {
+			title.textContent = text[ 0 ];
+		}
+		if ( scope ) {
+			scope.textContent = text[ 1 ];
+		}
 	}
 
 	/* ---------- render ---------- */
@@ -260,13 +312,48 @@
 	function render() {
 		const rows = filtered();
 		renderFreshness();
-		renderKpis();
+		renderIntro();
+		renderKpis( rows );
 		renderEmployerChip();
+		if ( el.overview.open ) {
+			renderCharts( rows );
+		}
+		renderTable( rows );
+		renderFoot();
+	}
+
+	/** Charts are drawn only while the overview is open. */
+	function renderCharts( rows ) {
 		barChart( el.subjectChart, countBy( filtered( 'subject' ), 'subject' ), state.subject, ( v ) => set( { subject: state.subject === v ? '' : v } ), 'subject' );
 		barChart( el.employerChart, countBy( filtered( 'employer' ), 'employer' ).slice( 0, 10 ), state.employer, ( v ) => set( { employer: state.employer === v ? '' : v } ), 'employer' );
 		weekChart( el.weekChart, rows );
-		renderTable( rows );
-		renderFoot();
+	}
+
+	/**
+	 * In the substitute views: what the three kinds of postings are, and that daily sub work itself
+	 * is never posted publicly, so a reader doesn't take this list for all the work there is.
+	 */
+	function renderIntro() {
+		el.intro.hidden = state.kind === 'jobs' || state.kind === 'all';
+		if ( el.intro.hidden ) {
+			return;
+		}
+		const base = filtered( 'kind' );
+		const about = {
+			daily: 'Join a district’s or agency’s sub pool; the daily jobs come after you’re onboarded.',
+			building: 'One school, every day, usually all year.',
+			long_term: 'One classroom for weeks or months. A permit covers 45 consecutive days; longer needs a license in the subject.',
+		};
+		const kinds = Object.keys( about ).map( ( k ) => {
+			const n = base.filter( ( v ) => v.subKind === k ).length;
+			const pick = h( 'button', { type: 'button', class: 'mt-link-btn', 'aria-pressed': String( state.kind === k ) }, state.kind === k ? 'show all subs' : 'show ' + n );
+			pick.addEventListener( 'click', () => set( { kind: state.kind === k ? 'subs' : k } ) );
+			return h( 'div', { class: 'mt-intro-kind' + ( state.kind === k ? ' is-active' : '' ) },
+				h( 'h2', {}, data.subKinds[ k ], ' ', pick ), h( 'p', {}, about[ k ] ) );
+		} );
+		const lead = h( 'p', { class: 'mt-intro-lead' }, h( 'strong', {}, 'Daily sub work is never posted publicly.' ), ' Once a district or agency hires you, it offers daily jobs in its absence system (Frontline or Red Rover). What you’ll find here are the ways in: ' );
+		el.intro.replaceChildren( lead, h( 'div', { class: 'mt-intro-kinds' }, ...kinds ),
+			cfg.pathway ? h( 'p', { class: 'mt-intro-next' }, 'New to subbing? ', h( 'a', { href: cfg.pathway }, 'See the license you need, the steps and where to apply' ), '.' ) : '' );
 	}
 
 	function renderFreshness() {
@@ -274,40 +361,29 @@
 		el.freshness.textContent = ok ? ' Updated ' + ago( new Date( ok ) ) + '.' : '';
 	}
 
-	function renderKpis() {
-		const base = filtered( 'county' );
+	function renderKpis( rows ) {
 		const weekAgo = today.getTime() - 6 * DAY;
 		const soon = today.getTime() + 14 * DAY;
 		const tiles = [
-			{ label: state.county ? 'Open positions, ' + state.county + ' County' : 'Open positions', value: filtered().length, hero: true },
+			{ label: 'Open postings', value: rows.length, hero: true },
+			{ label: 'Posted in the last 7 days', value: rows.filter( ( v ) => v.postedTime >= weekAgo ).length },
+			{ label: 'Closing within 14 days', value: rows.filter( ( v ) => v.closeTime && v.closeTime >= today.getTime() && v.closeTime <= soon ).length },
 		];
-		data.counties.forEach( ( c ) => {
-			tiles.push( { label: c + ' County', value: base.filter( ( v ) => v.county === c ).length, county: c } );
-		} );
-		const rows = filtered();
-		tiles.push( { label: 'Posted in last 7 days', value: rows.filter( ( v ) => v.postedTime >= weekAgo ).length } );
-		tiles.push( { label: 'Closing within 14 days', value: rows.filter( ( v ) => v.closeTime && v.closeTime >= today.getTime() && v.closeTime <= soon ).length } );
-		// Median daily-equivalent pay of substitute postings that state an amount, under the other filters.
-		const subPay = filtered( 'kind' ).filter( ( v ) => v.isSub && v.payDay !== null ).map( ( v ) => v.payDay ).sort( ( a, b ) => a - b );
-		tiles.push( {
-			label: 'Median sub pay per day',
-			value: subPay.length ? '$' + Math.round( subPay.length % 2 ? subPay[ ( subPay.length - 1 ) / 2 ] : ( subPay[ subPay.length / 2 - 1 ] + subPay[ subPay.length / 2 ] ) / 2 ) : '—',
-			note: subPay.length ? 'from ' + subPay.length + ' sub posting' + ( subPay.length === 1 ? '' : 's' ) + ' that list pay' : 'no sub postings list pay',
-		} );
-
-		el.kpis.replaceChildren( ...tiles.map( ( t ) => {
-			const attrs = { class: 'mt-kpi' + ( t.hero ? ' mt-kpi-hero' : '' ) + ( t.county && state.county === t.county ? ' is-active' : '' ) };
-			const inner = [ h( 'span', { class: 'mt-kpi-label' }, t.label ), h( 'span', { class: 'mt-kpi-value' }, t.value.toLocaleString() ), t.note ? h( 'span', { class: 'mt-kpi-note' }, t.note ) : '' ];
-			if ( ! t.county ) {
-				return h( 'div', attrs, ...inner );
-			}
-			attrs.type = 'button';
-			attrs[ 'aria-pressed' ] = String( state.county === t.county );
-			attrs.title = state.county === t.county ? 'Show all counties' : 'Show only ' + t.county + ' County';
-			const b = h( 'button', attrs, ...inner );
-			b.addEventListener( 'click', () => set( { county: state.county === t.county ? '' : t.county } ) );
-			return b;
-		} ) );
+		if ( state.kind === 'jobs' ) {
+			tiles.push( { label: 'List their pay', value: rows.filter( ( v ) => v.payBasis === 'posted' ).length, note: 'the rest point to a salary schedule or say nothing' } );
+		} else {
+			// Median daily-equivalent pay of substitute postings that state an amount, under the other filters.
+			const subPay = rows.filter( ( v ) => v.isSub && v.payDay !== null ).map( ( v ) => v.payDay ).sort( ( a, b ) => a - b );
+			tiles.push( {
+				label: 'Median sub pay per day',
+				value: subPay.length ? '$' + Math.round( subPay.length % 2 ? subPay[ ( subPay.length - 1 ) / 2 ] : ( subPay[ subPay.length / 2 - 1 ] + subPay[ subPay.length / 2 ] ) / 2 ) : '—',
+				note: subPay.length ? 'from ' + subPay.length + ' posting' + ( subPay.length === 1 ? '' : 's' ) + ' that list pay; each district sets its own rate' : 'none of these postings list pay',
+			} );
+		}
+		el.kpis.replaceChildren( ...tiles.map( ( t ) => h( 'div', { class: 'mt-kpi' + ( t.hero ? ' mt-kpi-hero' : '' ) },
+			h( 'span', { class: 'mt-kpi-label' }, t.label ),
+			h( 'span', { class: 'mt-kpi-value' }, t.value.toLocaleString() ),
+			t.note ? h( 'span', { class: 'mt-kpi-note' }, t.note ) : '' ) ) );
 	}
 
 	function renderEmployerChip() {
@@ -422,10 +498,17 @@
 		const frag = document.createDocumentFragment();
 		sorted( rows ).forEach( ( v ) => {
 			const isNew = v.postedTime >= today.getTime() - 6 * DAY;
+			const closes = v.closeDate ? 'Closes ' + fmtDate( parseDate( v.closeDate ) ) : ( v.close ? 'Open ' + v.close.toLowerCase() : '' );
 			const tr = h( 'tr', { class: 'mt-row' + ( openKey === v.key ? ' is-open' : '' ), tabindex: '0', 'aria-expanded': String( openKey === v.key ) },
 				h( 'td', { 'data-label': 'ID', class: 'mt-num' }, v.id || '—' ),
 				h( 'td', { 'data-label': 'Posted', class: 'mt-num', title: v.postedSeen ? 'The board shows no posting date; this is when the dashboard first saw it' : '' }, v.postedTime ? fmtDate( parseDate( v.posted ) ) + ( v.postedSeen ? '*' : '' ) : '—' ),
-				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, v.isSub ? h( 'span', { class: 'mt-badge mt-badge-sub' }, data.subKinds[ v.subKind ] ) : '', isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ) ),
+				h( 'td', { 'data-label': 'Position', class: 'mt-title' }, h( 'span', {}, v.title, v.isSub ? h( 'span', { class: 'mt-badge mt-badge-sub' }, data.subKinds[ v.subKind ] ) : '', isNew ? h( 'span', { class: 'mt-badge' }, 'New' ) : '' ),
+					// Phones show the row as a card: this summary stands in for the other cells, which are hidden there.
+					h( 'span', { class: 'mt-row-meta' },
+						h( 'span', {}, [ v.employer, v.county ? v.county + ' County' : '' ].filter( Boolean ).join( ' · ' ) ),
+						v.pay || closes ? h( 'span', {}, [ v.pay ? 'Pay ' + v.pay : '', closes ].filter( Boolean ).join( ' · ' ) ) : '',
+						v.reqSummary ? h( 'span', {}, 'Needs ' + v.reqSummary ) : '',
+						h( 'span', { class: 'mt-muted' }, [ v.id ? 'ID ' + v.id : '', v.postedTime ? 'Posted ' + fmtDate( parseDate( v.posted ) ) : '', v.agency !== 'direct' ? 'Agency: ' + v.agencyLabel : '' ].filter( Boolean ).join( ' · ' ) ) ) ),
 				h( 'td', { 'data-label': 'Subject' }, v.subject ),
 				h( 'td', { 'data-label': 'Requirements', title: v.licenseText }, v.reqSummary || '—' ),
 				h( 'td', { 'data-label': 'Employer' }, v.employer ),
@@ -466,6 +549,12 @@
 				facts.append( h( 'dt', {}, k ), h( 'dd', {}, val ) );
 			}
 		};
+		// Shown on phones only, where these table cells are folded into the card.
+		[ [ 'School', v.school ], [ 'Subject', v.subject ], [ 'Type', v.appt ], [ 'Starts', v.start ] ].forEach( ( [ k, val ] ) => {
+			if ( val ) {
+				facts.append( h( 'dt', { class: 'mt-phone-only' }, k ), h( 'dd', { class: 'mt-phone-only' }, val ) );
+			}
+		} );
 		add( 'Staffing agency', v.agencyBasis === 'direct' ? '' : v.agencyLabel + ( v.agencyNote ? ' — ' + v.agencyNote : '' ) );
 		add( 'Pay as posted', v.payText );
 		qualify( v, facts );
@@ -536,22 +625,33 @@
 		}
 	}
 
+	/**
+	 * Sources and how fresh they are. Readers see a plain note when a board hasn't updated in a
+	 * while; the error itself is for the settings screen (and signed-in managers here).
+	 */
 	function renderFoot() {
 		const parts = [ 'Source: ' ];
+		const stale = [];
 		data.sources.forEach( ( src, i ) => {
 			if ( i ) {
 				parts.push( ', ' );
 			}
 			parts.push( safeUrl( src.url ) ? h( 'a', { href: src.url, target: '_blank', rel: 'noopener' }, src.label ) : src.label );
-			if ( src.lastError ) {
+			if ( src.lastError && cfg.settings ) {
 				parts.push( h( 'span', { class: 'mt-warn' }, ' (last refresh failed: ' + src.lastError + ' — showing the last good list)' ) );
+			}
+			if ( ! src.lastOk || Date.now() - new Date( src.lastOk ).getTime() > STALE_MS ) {
+				stale.push( src.label + ( src.lastOk ? ' last updated ' + ago( new Date( src.lastOk ) ) : ' not read yet' ) );
 			}
 		} );
 		parts.push( '. Counties are matched from NCES district and school directories. Always confirm details on the original posting before applying.' );
 		if ( cfg.settings && data.unplaced ) {
 			parts.push( ' ', h( 'a', { href: cfg.settings }, data.unplaced + ' employer' + ( data.unplaced === 1 ? '' : 's' ) + ' statewide couldn’t be placed in a county' ), '.' );
 		}
-		el.foot.replaceChildren( h( 'p', {}, ...parts ) );
+		el.foot.replaceChildren(
+			stale.length ? h( 'p', { class: 'mt-stale' }, 'Some listings may be out of date: ' + stale.join( '; ' ) + '. Open the posting to check it’s still listed.' ) : '',
+			h( 'p', {}, ...parts ),
+			el.csv );
 	}
 
 	/* ---------- CSV ---------- */
@@ -697,6 +797,23 @@
 		}
 		const hours = Math.round( mins / 60 );
 		return hours < 36 ? hours + ' hours ago' : Math.round( hours / 24 ) + ' days ago';
+	}
+
+	/** Browser storage can be off (private mode, blocked site data); these never throw. */
+	function remembered( key ) {
+		try {
+			return window.localStorage.getItem( key );
+		} catch ( e ) {
+			return null;
+		}
+	}
+
+	function remember( key, value ) {
+		try {
+			window.localStorage.setItem( key, value );
+		} catch ( e ) {
+			// Nothing to do: the page works the same, it just won't remember.
+		}
 	}
 
 	function debounce( fn, ms ) {

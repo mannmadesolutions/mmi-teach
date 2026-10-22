@@ -77,6 +77,7 @@ body.mmi-teach-body {
 	box-sizing: border-box;
 }
 .mt-app *, .mt-app *::before, .mt-app *::after { box-sizing: border-box; }
+.mt-app [hidden] { display: none !important; } /* Our display rules must never override the hidden attribute. */
 .mt-app a { color: var(--mt-accent-strong); }
 
 .mt-head {
@@ -126,7 +127,8 @@ body.mmi-teach-body {
 .mt-btn-primary, .mt-app a.mt-btn-primary { background: var(--mt-accent); border-color: var(--mt-accent); color: #fff; }
 .mt-btn-primary:hover { background: var(--mt-accent-strong); }
 .mt-btn-ghost { border-color: transparent; background: transparent; color: var(--mt-ink-2); }
-.mt-btn:focus-visible, .mt-input:focus-visible, .mt-bar:focus-visible, .mt-kpi:focus-visible, .mt-row:focus-visible, .mt-sort:focus-visible, .mt-col:focus-visible {
+.mt-link-btn { padding: 0; border: 0; background: none; color: var(--mt-accent-strong); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
+.mt-btn:focus-visible, .mt-link-btn:focus-visible, .mt-overview > summary:focus-visible, .mt-input:focus-visible, .mt-bar:focus-visible, .mt-kpi:focus-visible, .mt-row:focus-visible, .mt-sort:focus-visible, .mt-col:focus-visible {
 	outline: 2px solid var(--mt-accent);
 	outline-offset: 2px;
 }
@@ -190,12 +192,30 @@ button.mt-kpi:hover { background: var(--mt-accent-wash); }
 	cursor: pointer;
 }
 
+/* "More filters" folds the less-used filters under one button */
+.mt-more-body { display: flex; flex-wrap: wrap; gap: 8px; flex-basis: 100%; }
+
+/* Substitute views: what the three kinds of postings are */
+.mt-intro { margin-bottom: 16px; }
+.mt-intro-lead { margin: 0 0 10px; color: var(--mt-ink-2); }
+.mt-intro-kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.mt-intro-kind { padding: 10px 12px; border: 1px solid var(--mt-border); border-radius: 8px; }
+.mt-intro-kind.is-active { border-color: var(--mt-accent); background: var(--mt-accent-wash); }
+.mt-intro-kind h2 { margin: 0 0 2px; font-size: 0.95rem; }
+.mt-intro-kind h2 .mt-link-btn { margin-left: 4px; font-weight: 400; }
+.mt-intro-kind p { margin: 0; font-size: 0.85rem; color: var(--mt-ink-2); }
+.mt-intro-next { margin: 10px 0 0; font-size: 0.9rem; }
+
+/* Market overview: charts, folded by default */
+.mt-overview { margin-bottom: 16px; }
+.mt-overview > summary { cursor: pointer; padding: 8px 2px; font-weight: 600; font-size: 0.9rem; }
+.mt-overview[open] > summary { margin-bottom: 8px; }
+
 /* Charts */
 .mt-charts {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	gap: 12px;
-	margin-bottom: 16px;
 }
 .mt-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .mt-bar {
@@ -294,20 +314,31 @@ th[aria-sort="descending"] .mt-sort::after { content: "↓"; opacity: 1; }
 .mt-links { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
 
 .mt-foot { margin-top: 16px; font-size: 0.8rem; color: var(--mt-muted); }
+.mt-foot .mt-btn { padding-left: 0; }
+.mt-stale { color: var(--mt-ink-2); }
+.mt-row-meta, .mt-phone-only { display: none; }
 .mt-warn { color: var(--mt-critical); }
 
 /* Phone: rows become cards */
 @media (max-width: 760px) {
 	.mt-head h1 { font-size: 1.4rem; }
-	.mt-kpi-hero { grid-column: 1 / -1; }
-	.mt-kpi-hero .mt-kpi-value { font-size: 2.5rem; }
+	.mt-nav { gap: 4px 12px; font-size: 0.85rem; }
+	.mt-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.mt-intro { padding: 12px; }
+	.mt-intro-kinds { gap: 6px; }
+	.mt-intro-kind { padding: 6px 10px; }
+	.mt-filters .mt-input, .mt-filters .mt-more { flex: 1 1 calc(50% - 4px); min-width: 0; }
+	.mt-filters .mt-search { flex-basis: 100%; }
+	.mt-kpi-hero .mt-kpi-value { font-size: 1.75rem; }
 	.mt-table-wrap { max-height: none; }
 	.mt-table thead { display: none; }
 	.mt-table, .mt-table tbody, .mt-table tr, .mt-table td { display: block; width: 100%; }
-	.mt-row { padding: 10px 14px; border-bottom: 1px solid var(--mt-grid); }
-	.mt-table .mt-row td { border: 0; padding: 2px 0; display: flex; gap: 8px; }
-	.mt-table .mt-row td::before { content: attr(data-label); flex: 0 0 92px; color: var(--mt-muted); font-size: 0.75rem; padding-top: 2px; }
-	.mt-table .mt-row td.mt-title { font-size: 0.95rem; }
+	/* Each posting is a short card: title, then the summary line; other cells live in the detail. */
+	.mt-row { padding: 12px 14px; border-bottom: 1px solid var(--mt-grid); }
+	.mt-table .mt-row td { display: none; border: 0; padding: 0; }
+	.mt-table .mt-row td.mt-title { display: block; min-width: 0; font-size: 0.95rem; }
+	.mt-row-meta { display: grid; gap: 2px; margin-top: 4px; font-size: 0.85rem; font-weight: 400; color: var(--mt-ink-2); }
+	.mt-phone-only { display: block; }
 	.mt-facts { grid-template-columns: 1fr; }
 	.mt-facts dd { margin-bottom: 6px; }
 }
@@ -325,7 +356,6 @@ a.mt-kpi:hover { background: var(--mt-accent-wash); }
 
 /* Substitute pathway */
 .mt-pathway .mt-sub { max-width: 72ch; }
-.mt-pathway [hidden] { display: none !important; } /* Our display rules must never override the hidden attribute. */
 .mt-steps-nav { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; counter-reset: step; padding: 0; margin: 0 0 16px; }
 .mt-steps-nav li { counter-increment: step; }
 .mt-steps-nav a { display: inline-block; padding: 6px 12px; border: 1px solid var(--mt-border); border-radius: 999px; background: var(--mt-surface); color: var(--mt-ink); text-decoration: none; font-size: 0.85rem; }

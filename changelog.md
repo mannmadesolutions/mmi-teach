@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.5.0 — 2026-10-22
+
+Built around the applicant instead of the analyst.
+- **Front page and nav:** "Become a substitute" is now the front page, and the job board moves to
+  /vacancies/. The nav reads Become a substitute · Substitute jobs · Teaching jobs, and the job
+  board's two tabs follow the Job type filter, including back and forward. Before, "Substitute
+  jobs" never showed as current. The duplicate header toggle is gone. Old `/#kind=…` links are
+  forwarded to the board.
+- **Listings first:** four summary tiles replace seven, and the charts fold into a closed "Market
+  overview". Seven less-used filters sit under "More filters" with a count of those set. Desktop
+  listings now start above the fold.
+- **Substitute tabs:** each opens by saying daily sub work is never posted publicly, and
+  explains the three kinds of postings with one-click filters.
+- **Phone cards:** each posting is a short card instead of 14 labeled fields. Cards drop from
+  476 px to 178 px, and the substitute tab is half as long.
+- **Refresh errors:** readers no longer see raw refresh errors. A plain note appears only when a
+  source is more than 9 hours old.
+- **CSV:** download moves to the footer.
+- **WECAN:** a posting opening or closing mid-read no longer fails a refresh. Rows are
+  de-duplicated by vacancy ID, and a count mismatch triggers one fresh read before giving up.
+
 ## 1.4.4 — 2026-10-21
 
 Qualification requirements for every posting. Each posting now carries the minimum degree, the

@@ -22,7 +22,7 @@ final class Dashboard {
 		add_filter( 'display_post_states', array( self::class, 'post_state' ), 10, 2 );
 	}
 
-	/** Creates the dashboard page on activation and makes it the front page of an empty site. */
+	/** Creates the dashboard page on activation. The substitute pathway is the front page (Pathway::ensure_page). */
 	public static function ensure_page(): void {
 		$page_id = (int) get_option( self::OPTION_PAGE );
 		if ( $page_id && get_post( $page_id ) ) {
@@ -41,10 +41,11 @@ final class Dashboard {
 			return;
 		}
 		update_option( self::OPTION_PAGE, $page_id, false );
-		if ( 'posts' === get_option( 'show_on_front' ) ) {
-			update_option( 'show_on_front', 'page' );
-			update_option( 'page_on_front', $page_id );
-		}
+	}
+
+	public static function url(): string {
+		$page_id = (int) get_option( self::OPTION_PAGE );
+		return $page_id ? (string) get_permalink( $page_id ) : home_url( '/' );
 	}
 
 	public static function is_dashboard(): bool {
@@ -104,6 +105,7 @@ final class Dashboard {
 				'endpoint' => esc_url_raw( rest_url( self::REST_NS . '/snapshot' ) ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'settings' => current_user_can( Plugin::manage_cap() ) ? esc_url_raw( admin_url( 'options-general.php?page=mmi-teach' ) ) : '',
+				'pathway'  => esc_url_raw( Pathway::url() ),
 			)
 		);
 	}
