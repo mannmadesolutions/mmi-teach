@@ -30,7 +30,7 @@ final class Lever extends Board {
 			$cat   = (array) ( $job['categories'] ?? array() );
 			$where = (string) ( $cat['location'] ?? '' );
 			$title = (string) ( $job['text'] ?? '' );
-			if ( ! str_contains( $where, 'Milwaukee' ) || ! self::is_teaching( $title ) ) {
+			if ( ! str_contains( $where, 'Milwaukee' ) || '' === self::role( $title ) ) {
 				continue;
 			}
 			$rows[] = $this->row(

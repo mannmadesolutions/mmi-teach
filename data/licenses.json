@@ -1,6 +1,6 @@
 {
 	"about": "Wisconsin DPI license areas for cross-referencing postings: official titles, ELO subject codes, current (2018 PI 34) and legacy grade levels, minimum degree, tests, regex aliases for posting text, and the WECAN license names that map to each. 'infer' rules (first match wins) name the usual licenses when a posting lists none; 'routes' and 'rules' hold the plain-language alternatives and degree rules. Built 2026-10-21 from PI 34 (via Cornell LII, amended through CR 24-077), DPI testing and add-on guidance, the 2026-27 WISEstaff assignment list and DPI Choice Bulletin 05-01. Entries marked verified:false rest on secondary sources.",
-	"verified_on": "2026-10-21",
+	"verified_on": "2026-11-24",
 	"licenses": {
 		"ec_regular": {
 			"title": "Early Childhood - Regular Education",
@@ -1678,6 +1678,49 @@
 			"verified": false,
 			"notes": "Head Start and Early Head Start teachers are covered by federal staff-qualification rules (an associate or bachelor’s degree in early childhood education, or a CDA credential for infant/toddler teachers), not a DPI license.",
 			"wecan": []
+		},
+		"sepa": {
+			"title": "Special Education Program Aide license (DPI)",
+			"short": "Special Education Program Aide license",
+			"category": "aide",
+			"codes": [],
+			"levels": "PK–12 special education",
+			"legacy": "",
+			"degree": "high_school",
+			"tests": [],
+			"aliases": [
+				"special education program aide",
+				"program aide licen[cs]e",
+				"sepa licen[cs]e"
+			],
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/other/special-ed-aide",
+			"verified": true,
+			"notes": "Required for aides working in public-school special-education programs unless they hold another DPI license. Valid 5 years, $110, applied for in ELO. Hiring standards beyond that are set by each district.",
+			"wecan": []
+		},
+		"title1_para": {
+			"title": "Title I paraprofessional qualification (ESSA)",
+			"short": "Title I paraprofessional standard",
+			"category": "aide",
+			"codes": [],
+			"levels": "Title I schools and programs",
+			"legacy": "",
+			"degree": "high_school",
+			"tests": [
+				"ETS ParaPro",
+				"ACT WorkKeys",
+				"ParaEducator Master Teacher",
+				"district portfolio"
+			],
+			"aliases": [
+				"parapro",
+				"title i para",
+				"48 (college )?credits"
+			],
+			"source": "https://dpi.wi.gov/title-i/teacher-and-paraprofessional-qualifications",
+			"verified": true,
+			"notes": "Paraprofessionals in Title I schoolwide buildings, or working with Title I students, need a high-school diploma plus 48 college credits, an associate degree, or a passing score on an approved assessment.",
+			"wecan": []
 		}
 	},
 	"infer": {
@@ -2289,7 +2332,8 @@
 		"substitute": "DPI’s short-term substitute permit needs at least an associate degree plus approved training, or enrollment in an educator-preparation program at junior standing.",
 		"long_term": "Assignments over 45 consecutive days need a license for the assignment (or a Five-Year Long-Term Substitute License), and every Wisconsin teaching license requires a bachelor’s degree.",
 		"teacher": "Every Wisconsin teaching license requires a bachelor’s degree.",
-		"pupil_services": "School counselor, speech-language pathologist and social worker licenses require a master’s degree; school psychologists need an Ed.S. or doctorate."
+		"pupil_services": "School counselor, speech-language pathologist and social worker licenses require a master’s degree; school psychologists need an Ed.S. or doctorate.",
+		"aide": "Aide jobs need a high-school diploma. Special-education aides in public schools also need DPI’s Special Education Program Aide license, and aides in Title I schools need 48 college credits, an associate degree or a passing ParaPro-type assessment."
 	},
 	"routes": {
 		"substitute": [
@@ -2309,12 +2353,18 @@
 			"other": [
 				"Charter schools can use the Tier I Charter School License: a bachelor’s degree plus a major or minor in the subject, or a passing content test."
 			]
-		}
+		},
+		"aide": [
+			"No college credits yet? Approved assessments such as the ETS ParaPro meet the Title I standard without a degree.",
+			"Special-education aides apply for DPI’s Special Education Program Aide license in ELO ($110, valid 5 years)."
+		]
 	},
 	"sources": [
 		"https://dpi.wi.gov/licensing/general/what-can-i-teach",
 		"https://dpi.wi.gov/licensing/general/legacy-licenses-codes-assignments",
 		"https://dpi.wi.gov/sites/default/files/imce/licensing/pdf/Out_of_State_Testing_Guidance.pdf",
-		"https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-PI-34"
+		"https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-PI-34",
+		"https://dpi.wi.gov/licensing/apply-educator-license/other/special-ed-aide",
+		"https://dpi.wi.gov/title-i/teacher-and-paraprofessional-qualifications"
 	]
 }

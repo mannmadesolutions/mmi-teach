@@ -1,0 +1,47 @@
+{
+	"about": "Sample people for testers. Choosing one shows the whole site as that person would see it, without touching the visitor's own answers. Fictional; no real person's data.",
+	"personas": {
+		"licensed": {
+			"name": "Dana, licensed teacher",
+			"blurb": "Wisconsin license in elementary and middle grades; wants a teaching job or long-term sub work.",
+			"profile": { "edu": "bachelor", "cred": "wi_license", "areas": [ "elem_middle" ], "epp": 0, "age": "20", "outside_wi": 0, "roles": [ "teacher", "substitute" ] },
+			"tasks": { "mandated_reporter": [ "done", "-400", "+1425", "district" ], "transcript": [ "done", "-30", "", "" ] }
+		},
+		"retired": {
+			"name": "Ray, retired teacher",
+			"blurb": "Taught math for 30 years; his Wisconsin license lapsed. Wants to substitute.",
+			"profile": { "edu": "master", "cred": "expired", "areas": [ "math" ], "epp": 0, "age": "20", "outside_wi": 0, "roles": [ "substitute" ] },
+			"tasks": {}
+		},
+		"permit": {
+			"name": "Priya, permit holder",
+			"blurb": "Associate degree and a substitute permit; looking for daily or building sub jobs.",
+			"profile": { "edu": "associate", "cred": "permit", "areas": [], "epp": 0, "age": "20", "outside_wi": 0, "roles": [ "substitute", "aide" ] },
+			"tasks": { "sub_training": [ "done", "-120", "", "online" ], "sub_permit": [ "done", "-60", "+1035", "dpi" ], "grooming_boundaries": [ "done", "-20", "+345", "agency" ] }
+		},
+		"bachelor": {
+			"name": "Marcus, career changer",
+			"blurb": "Bachelor's degree in business, no teaching license yet. Open to subbing or teaching.",
+			"profile": { "edu": "bachelor", "cred": "none", "areas": [], "epp": 0, "age": "20", "outside_wi": 0, "roles": [ "substitute", "teacher" ] },
+			"tasks": {}
+		},
+		"student": {
+			"name": "Sofia, education student",
+			"blurb": "Junior in a Wisconsin teacher-prep program, age 21. Wants to sub between classes.",
+			"profile": { "edu": "some_college", "cred": "none", "areas": [], "epp": 1, "age": "20", "outside_wi": 0, "roles": [ "substitute", "aide" ] },
+			"tasks": {}
+		},
+		"highschool": {
+			"name": "Jordan, high-school graduate",
+			"blurb": "High-school diploma, no college yet. Wants to work in schools now.",
+			"profile": { "edu": "high_school", "cred": "none", "areas": [], "epp": 0, "age": "18", "outside_wi": 0, "roles": [ "aide", "substitute" ] },
+			"tasks": {}
+		},
+		"outofstate": {
+			"name": "Alex, moving from Illinois",
+			"blurb": "Licensed special-education teacher in Illinois, just moved to Milwaukee.",
+			"profile": { "edu": "bachelor", "cred": "oos", "areas": [ "cross_cat" ], "epp": 0, "age": "20", "outside_wi": 1, "roles": [ "teacher", "substitute" ] },
+			"tasks": {}
+		}
+	}
+}

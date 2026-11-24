@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Store {
 
-	private const DB_VERSION        = '4';
+	private const DB_VERSION        = '5';
 	private const OPTION_DB_VERSION = 'mmi_teach_db_version';
 
 	public static function table(): string {
@@ -33,6 +33,7 @@ final class Store {
 				employer varchar(255) NOT NULL DEFAULT '',
 				location varchar(255) NOT NULL DEFAULT '',
 				position_type varchar(64) NOT NULL DEFAULT '',
+				role varchar(12) NOT NULL DEFAULT '',
 				appointment varchar(64) NOT NULL DEFAULT '',
 				posted_date date DEFAULT NULL,
 				updated_date date DEFAULT NULL,
@@ -248,6 +249,6 @@ final class Store {
 
 	/** Columns this plugin works out from the source columns. */
 	private static function derived_columns(): array {
-		return array( 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day', 'agency', 'agency_basis', 'req_degree', 'req_licenses', 'requirements' );
+		return array( 'role', 'county_code', 'county_method', 'subject', 'grade_band', 'sub_kind', 'pay_min', 'pay_max', 'pay_unit', 'pay_basis', 'pay_day', 'agency', 'agency_basis', 'req_degree', 'req_licenses', 'requirements' );
 	}
 }

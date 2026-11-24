@@ -28,7 +28,7 @@ final class Breezy extends Board {
 		$rows = array();
 		foreach ( Http::get_json( self::BASE . '/json' ) as $job ) {
 			$title = (string) ( $job['name'] ?? '' );
-			if ( empty( $job['id'] ) || ! self::is_teaching( $title ) ) {
+			if ( empty( $job['id'] ) || '' === self::role( $title ) ) {
 				continue;
 			}
 			$campus = preg_match( '/\s[-–]\s*([^-–]*\bCampus)\s*$/i', $title, $m ) ? $m[1] : '';

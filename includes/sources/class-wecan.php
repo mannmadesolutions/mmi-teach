@@ -20,8 +20,15 @@ final class Wecan implements Source {
 	private const BASE      = 'https://wecan.waspa.org';
 	private const PAGE_SIZE = 500;
 
-	/** WECAN position types read: Teacher, Teacher Leader, Substitute Teachers. */
-	private const POSITION_TYPES = array( 2, 21, 17 );
+	/**
+	 * WECAN position types read: Teacher, Teacher Leader, Substitute Teachers, Assistant/Aide
+	 * (5, read off the public search form 2026-11-24). Type 5 also holds bus, health-room,
+	 * recess and clerical aides; Board::is_aide() keeps only classroom aides.
+	 */
+	private const POSITION_TYPES = array( 2, 21, 17, 5 );
+
+	/** WECAN's label for type 5. */
+	private const AIDE_TYPE = 'Assistant/Aide';
 
 	public function id(): string {
 		return 'wecan';
@@ -71,7 +78,13 @@ final class Wecan implements Source {
 		if ( count( $rows ) !== $total ) {
 			throw new \UnexpectedValueException( sprintf( 'WECAN said %d vacancies but %d were read.', $total, count( $rows ) ) );
 		}
-		return array_values( $rows );
+		// Filtered only after the count check, so a short read still throws.
+		return array_values(
+			array_filter(
+				$rows,
+				static fn( $row ) => self::AIDE_TYPE !== $row['position_type'] || Board::is_aide( $row['title'] )
+			)
+		);
 	}
 
 	public function fetch_details( string $source_id ): array {

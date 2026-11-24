@@ -40,7 +40,7 @@ final class Archdiocese extends Board {
 			$heading = preg_match( '#<h6[^>]*>(.*?)</h6>#s', $body, $m ) ? self::clean( $m[1] ) : '';
 			$type    = preg_match( '#class="job-category">(.*?)</span>#s', $body, $m ) ? self::clean( $m[1] ) : '';
 			// Parish, cemetery and charity jobs share the page; only school categories count.
-			if ( '' === $text || ! in_array( $type, array( '', 'Education', 'Teaching' ), true ) || ! self::is_teaching( $text ) ) {
+			if ( '' === $text || ! in_array( $type, array( '', 'Education', 'Teaching' ), true ) || '' === self::role( $text ) ) {
 				continue;
 			}
 			$url = str_starts_with( $href, 'http' ) ? $href : 'https://www.archmil.org' . $href;

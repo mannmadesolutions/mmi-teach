@@ -117,9 +117,25 @@ final class Classifier {
 		return 'daily';
 	}
 
+	/** Roles a posting can have, in the order the site lists them. */
+	public const ROLES = array(
+		'teacher'    => 'Teacher',
+		'substitute' => 'Substitute teacher',
+		'aide'       => 'Aide / paraprofessional',
+	);
+
+	/** Aide (WECAN type "Assistant/Aide" or an aide title), substitute teacher, or teacher. */
+	public static function role( string $title, string $position_type, string $sub_kind ): string {
+		if ( 'Assistant/Aide' === $position_type || Sources\Board::is_aide( $title ) ) {
+			return 'aide';
+		}
+		return '' === $sub_kind ? 'teacher' : 'substitute';
+	}
+
 	/**
-	 * Every column this plugin works out for a posting: county, subject, grade band, substitute
-	 * kind and normalized pay. Pay comes from the board's own pay field, else the detail page.
+	 * Every column this plugin works out for a posting: role, county, subject, grade band,
+	 * substitute kind and normalized pay. Pay comes from the board's own pay field, else the
+	 * detail page.
 	 *
 	 * @param array $row     Posting with at least title, employer, location, position_type, pay_text.
 	 * @param array $details Decoded detail-page data (may be empty).
@@ -131,17 +147,24 @@ final class Classifier {
 		if ( 'daily' === $kind && 'year' === $pay['unit'] ) {
 			$kind = 'building'; // A salaried "district substitute" is a full-time, every-day sub.
 		}
-		$agency = Agencies::for_posting(
-			$row['employer'],
-			$kind,
-			implode( ' ', array( $row['title'], $row['url'] ?? '', $row['apply_url'] ?? '', $details['summary'] ?? '', $details['agency_text'] ?? '' ) )
-		);
+		$role = self::role( $row['title'], $row['position_type'], $kind );
+		$said = implode( ' ', array( $row['title'], $row['url'] ?? '', $row['apply_url'] ?? '', $details['summary'] ?? '', $details['agency_text'] ?? '' ) );
+		if ( 'aide' === $role ) {
+			// Employer routes in agencies.json are for substitute teachers; for aides only the posting's own words count.
+			$named  = Agencies::mentioned( $said );
+			$agency = 1 === count( $named )
+				? array( 'agency' => $named[0], 'basis' => 'posting' )
+				: ( '' === $kind ? array( 'agency' => Agencies::DIRECT, 'basis' => 'direct' ) : array( 'agency' => Agencies::UNKNOWN, 'basis' => 'unknown' ) );
+		} else {
+			$agency = Agencies::for_posting( $row['employer'], $kind, $said );
+		}
 		$subject = self::subject( $row['title'], $row['position_type'], $details['licenses'] ?? array() );
 		$band    = self::grade_band( $row['title'], $row['location'] );
 		$req     = Requirements::for_posting(
 			array_merge(
 				$row,
 				array(
+					'role'       => $role,
 					'sub_kind'   => $kind,
 					'subject'    => $subject,
 					'grade_band' => $band,
@@ -150,6 +173,7 @@ final class Classifier {
 			$details
 		);
 		return array(
+			'role'          => $role,
 			'county_code'   => $county['code'],
 			'county_method' => $county['method'],
 			'subject'       => $subject,

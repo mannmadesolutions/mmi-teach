@@ -34,7 +34,7 @@ final class Paycor extends Board {
 		foreach ( $jobs as [ , $href, $title, $where ] ) {
 			$href  = html_entity_decode( $href, ENT_QUOTES );
 			$title = self::clean( $title );
-			if ( ! preg_match( '/[?&]id=([a-z0-9]+)/i', $href, $m ) || ! self::is_teaching( $title ) ) {
+			if ( ! preg_match( '/[?&]id=([a-z0-9]+)/i', $href, $m ) || '' === self::role( $title ) ) {
 				continue;
 			}
 			$rows[] = $this->row(

@@ -79,7 +79,7 @@ final class Paycom extends Board {
 			foreach ( $data['jobPostingPreviews'] as $job ) {
 				$title = (string) ( $job['jobTitle'] ?? '' );
 				$id    = (string) ( $job['jobId'] ?? '' );
-				if ( '' === $id || ! self::is_teaching( $title ) ) {
+				if ( '' === $id || '' === self::role( $title ) ) {
 					continue;
 				}
 				$url    = 'https://www.paycomonline.net/v4/ats/web.php/jobs/ViewJobDetails?job=' . rawurlencode( $id ) . '&clientkey=' . $key;

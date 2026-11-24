@@ -46,7 +46,7 @@ final class Mps extends Board {
 		foreach ( $fields as $f ) {
 			$title = $f['SCH_JOB_TITLE'] ?? '';
 			$id    = $f['HRS_APP_JBSCH_I_HRS_JOB_OPENING_ID'] ?? '';
-			if ( '' === $id || ! self::is_teaching( $title ) ) {
+			if ( '' === $id || '' === self::role( $title ) ) {
 				continue;
 			}
 			$rows[] = $this->row(

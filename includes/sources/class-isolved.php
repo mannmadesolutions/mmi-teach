@@ -33,7 +33,7 @@ final class Isolved extends Board {
 		foreach ( $data['data']['jobs'] as $job ) {
 			$title = (string) ( $job['title'] ?? '' );
 			$fac   = 'Faculty' === ( $job['classification'] ?? '' );
-			if ( empty( $job['id'] ) || ! ( $fac ? ! self::is_excluded( $title ) : self::is_teaching( $title ) ) ) {
+			if ( empty( $job['id'] ) || ! ( $fac ? ( ! self::is_excluded( $title ) || self::is_aide( $title ) ) : '' !== self::role( $title ) ) ) {
 				continue;
 			}
 			$rows[] = $this->row(

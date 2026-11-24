@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.0.0 — 2026-11-24 (in progress)
+
+Rebuilds the site as a job search, eligibility check, checklist and application flow on Bricks.
+
+**Phase 1 — data (no visible change yet):**
+- **Aides:** WECAN's Assistant/Aide position type (5) is read too. `Board::role()` sorts every
+  board's titles into teacher, aide or neither, keeping classroom aides and paraprofessionals and
+  dropping bus, health-room, recess, clerical and interpreter roles. The table has a `role` column
+  (DB version 5). Aide subs get an agency only when the posting names one. The old dashboard stays
+  teaching-only.
+- **Aide requirements:** `licenses.json` adds DPI's Special Education Program Aide license and the
+  ESSA Title I paraprofessional standard, with an aide degree rule and routes.
+- **`data/rules.json`:** every Wisconsin requirement between a person and a school job, each with
+  why (statute or rule), time, cost and payer, where, proof, validity, what it blocks (applying vs
+  the first day), a public source, check date and confidence; disputed facts carry a `conflict`.
+  Nothing is collected beyond done/date/expiry; ID, tax, bank and medical items carry a warning.
+- **`Profile`:** answers and checklist state in whitelisted cookies for guests, user meta for
+  accounts, merged on sign-in; sample personas (`data/personas.json`) are a read-only overlay.
+- **`Eligibility`:** per job, now / check / steps / later with reasons, missing items, and the
+  combined time (critical path) and cost; per person, the fastest route into each role.
+- **`Checklist`:** one ordered list per person or per job, including employer-only steps.
+- **Tests:** `tests/eligibility.php` (fixed cases plus every open posting × every persona).
+
 ## 1.6.0 — 2026-10-22
 
 The substitute page now runs in the order an applicant acts, remembers their answers, and

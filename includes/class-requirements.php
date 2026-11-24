@@ -167,6 +167,12 @@ final class Requirements {
 	 */
 	private static function degree_rule( array $row, string $sub_kind ): array {
 		$tax      = self::taxonomy();
+		if ( 'aide' === ( $row['role'] ?? '' ) ) {
+			return array(
+				'degree' => 'high_school',
+				'note'   => $tax['rules']['aide'] ?? 'Aide jobs need a high-school diploma.',
+			);
+		}
 		$employer = Agencies::employer_notes()[ Places::normalize( (string) $row['employer'] ) ] ?? array();
 		if ( 'daily' === $sub_kind || 'building' === $sub_kind ) {
 			if ( preg_match( '/bachelor/i', $employer['degree'] ?? '' ) ) {
@@ -274,6 +280,13 @@ final class Requirements {
 	 */
 	private static function inferred_licenses( array $row, string $sub_kind ): array {
 		$tax = self::taxonomy();
+		if ( 'aide' === ( $row['role'] ?? '' ) ) {
+			// Public special-education aides need DPI's program-aide license; other aides need no DPI license.
+			$special = 'Special Education' === ( $row['subject'] ?? '' ) || preg_match( '/special|sped|\biep\b|autism|cross[- ]?cat/i', (string) $row['title'] );
+			return $special && isset( $tax['licenses']['sepa'] ) && 'private' !== self::sector( (string) $row['employer'] )
+				? array( self::entry( 'sepa', $tax['licenses']['sepa'] ) )
+				: array();
+		}
 		if ( 'daily' === $sub_kind || 'building' === $sub_kind ) {
 			$keys = $tax['infer']['substitute'] ?? array();
 		} else {
@@ -317,6 +330,9 @@ final class Requirements {
 	/** Other ways in, when the license isn't held yet (teaching jobs only; pupil services have none). */
 	private static function routes( array $row, string $sub_kind, array $licenses ): array {
 		$tax = self::taxonomy();
+		if ( 'aide' === ( $row['role'] ?? '' ) ) {
+			return $tax['routes']['aide'] ?? array();
+		}
 		$cats = array_unique( array_column( $licenses, 'category' ) );
 		if ( $cats && ! array_diff( $cats, array( 'pupil_services', 'other' ) ) && 'daily' !== $sub_kind && 'building' !== $sub_kind ) {
 			return array();

@@ -34,7 +34,8 @@ final class Snapshot {
 			);
 		}
 
-		$rows = Store::open_rows( array_keys( Plugin::COUNTIES ) );
+		// Aides are listed by the Bricks job pages only; this legacy dashboard stays teaching-only.
+		$rows = array_values( array_filter( Store::open_rows( array_keys( Plugin::COUNTIES ) ), static fn( $r ) => 'aide' !== ( $r['role'] ?? '' ) ) );
 		// Boards earlier in the source list win when the same job is listed twice.
 		usort( $rows, static fn( $a, $b ) => ( $priority[ $a['source'] ] ?? 99 ) <=> ( $priority[ $b['source'] ] ?? 99 ) );
 
