@@ -1,8 +1,11 @@
 # Changelog
 
-## 2.0.0 — 2026-11-24 (in progress)
+## 2.0.0 — 2026-11-24
 
-Rebuilds the site as a job search, eligibility check, checklist and application flow on Bricks.
+Rebuilds the site as a job search, eligibility check, checklist and application flow on Bricks,
+for licensed teachers, substitutes and aides, and for people with no license or degree yet. Grounded
+in ten staffing agencies' applicant flows (none shows a public checklist), a real agency
+application's paper trail, and Wisconsin DPI, DHS and statute requirements.
 
 **Phase 1 — data (no visible change yet):**
 - **Aides:** WECAN's Assistant/Aide position type (5) is read too. `Board::role()` sorts every

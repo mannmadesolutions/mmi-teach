@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * One refresh: read every source, store what changed, read detail pages for new postings in
- * the covered counties, then rebuild the dashboard snapshot.
+ * the covered counties, then mirror the open postings into job posts.
  */
 final class Refresher {
 
@@ -71,7 +71,6 @@ final class Refresher {
 			}
 			$summary['finished'] = current_time( 'mysql', true );
 			$this->save_status( $summary );
-			Snapshot::rebuild();
 			$summary['jobs'] = Jobs::sync( (int) ( $opts['sync_limit'] ?? 0 ) );
 			$this->say( vsprintf( 'Jobs: %d created, %d updated, %d closed, %d reopened, %d unchanged, %d deferred.', array( $summary['jobs']['created'], $summary['jobs']['updated'], $summary['jobs']['closed'], $summary['jobs']['reopened'], $summary['jobs']['same'], $summary['jobs']['deferred'] ) ) );
 			return $summary;

@@ -94,11 +94,6 @@ final class Classifier {
 			?: 'Unspecified';
 	}
 
-	/** Every subject label in display order, for the dashboard's filter list. */
-	public static function subjects(): array {
-		return array_merge( array_keys( self::SUBJECTS ), array( self::OTHER ) );
-	}
-
 	/**
 	 * Which kind of substitute job this is, or '' for a regular teaching job. Long-term subs are
 	 * often posted as type "Teacher" with the term in the title, so the title counts too.

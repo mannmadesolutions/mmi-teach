@@ -114,16 +114,6 @@ final class Requirements {
 		);
 	}
 
-	/** Compact one-line form for tables and CSV: "Bachelor’s · Cross-Categorical SpEd +3". */
-	public static function summary( array $req ): string {
-		$parts = array( self::DEGREES[ $req['degree'] ] ?? '' );
-		if ( $req['licenses'] ) {
-			$first   = $req['licenses'][0]['short'] ?? $req['licenses'][0]['title'];
-			$parts[] = $first . ( count( $req['licenses'] ) > 1 ? ' +' . ( count( $req['licenses'] ) - 1 ) : '' );
-		}
-		return implode( ' · ', array_filter( $parts ) );
-	}
-
 	/** WECAN's Degree field: Associate, Bachelor, Master, Doctorate; "Other" says nothing. */
 	private static function posted_degree( string $value ): string {
 		$map = array(

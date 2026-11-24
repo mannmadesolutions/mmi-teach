@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Settings → Teaching Vacancies: who can see the dashboard, source health, a manual refresh,
- * and placing employers the county matcher couldn't place.
+ * Settings → Teaching Vacancies: source health, a manual refresh, facts to re-check, and
+ * placing employers the county matcher couldn't place.
  */
 final class Admin {
 
@@ -47,18 +47,16 @@ final class Admin {
 		}
 		$settings  = Plugin::settings();
 		$status    = get_option( Refresher::OPTION_STATUS, array() );
-		$snapshot  = Snapshot::get();
 		$unplaced  = Store::unmapped_employers();
 		$overrides = $settings['employer_overrides'];
 		$choices   = self::choices();
-		$page_id   = (int) get_option( Dashboard::OPTION_PAGE );
 		$queued    = (bool) wp_next_scheduled( Plugin::CRON_HOOK . '_now' );
 		$notice    = isset( $_GET['mmi_teach'] ) ? sanitize_key( wp_unslash( $_GET['mmi_teach'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flag.
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Teaching Vacancies', 'mmi-teach' ); ?></h1>
 			<?php if ( 'saved' === $notice ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved. The dashboard has been rebuilt.', 'mmi-teach' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved. Job pages have been updated.', 'mmi-teach' ); ?></p></div>
 			<?php elseif ( 'queued' === $notice ) : ?>
 				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'Refresh queued. It runs in the background within a minute or two; reload this page to see the result.', 'mmi-teach' ); ?></p></div>
 			<?php endif; ?>
@@ -66,10 +64,10 @@ final class Admin {
 			<p>
 				<?php
 				printf(
-					/* translators: 1: number of vacancies, 2: dashboard link */
-					esc_html__( '%1$s open teaching postings on the %2$s.', 'mmi-teach' ),
-					esc_html( number_format_i18n( count( $snapshot['vacancies'] ) ) ),
-					$page_id ? '<a href="' . esc_url( get_permalink( $page_id ) ) . '">' . esc_html__( 'dashboard', 'mmi-teach' ) . '</a>' : esc_html__( 'dashboard', 'mmi-teach' )
+					/* translators: 1: number of jobs, 2: jobs page link */
+					esc_html__( '%1$s open jobs on the %2$s.', 'mmi-teach' ),
+					esc_html( number_format_i18n( count( Jobs::open_ids() ) ) ),
+					'<a href="' . esc_url( Pages::url( 'jobs' ) ) . '">' . esc_html__( 'jobs page', 'mmi-teach' ) . '</a>'
 				);
 				?>
 			</p>
@@ -114,13 +112,13 @@ final class Admin {
 				<p><?php esc_html_e( 'Every license name on open postings is mapped to a DPI license area.', 'mmi-teach' ); ?></p>
 			<?php endif; ?>
 
-			<h2><?php esc_html_e( 'Substitute page facts to re-check', 'mmi-teach' ); ?></h2>
-			<?php $stale = Pathway::stale_entries(); ?>
+			<h2><?php esc_html_e( 'Requirement facts to re-check', 'mmi-teach' ); ?></h2>
+			<?php $stale = Rules::stale_with_agencies(); ?>
 			<?php if ( $stale ) : ?>
 				<p class="description">
 					<?php
 					/* translators: %d: number of days */
-					echo esc_html( sprintf( __( 'These facts on the "Become a substitute" page were last checked more than %d days ago. Check each source, update data/pathway.json and its verified_on date.', 'mmi-teach' ), Pathway::STALE_DAYS ) );
+					echo esc_html( sprintf( __( 'These requirements and agency notes were last checked more than %d days ago. Check each source, then update data/rules.json or data/agencies.json and its verified_on date.', 'mmi-teach' ), Rules::STALE_DAYS ) );
 					?>
 				</p>
 				<table class="widefat striped" style="max-width:900px">
@@ -135,11 +133,9 @@ final class Admin {
 				<p>
 					<?php
 					/* translators: %d: number of days */
-					echo esc_html( sprintf( __( 'Every fact was checked within the last %d days.', 'mmi-teach' ), Pathway::STALE_DAYS ) );
+					echo esc_html( sprintf( __( 'Every fact was checked within the last %d days.', 'mmi-teach' ), Rules::STALE_DAYS ) );
 					?>
-					<?php if ( Pathway::url() ) : ?>
-						<a href="<?php echo esc_url( Pathway::url() ); ?>"><?php esc_html_e( 'View the page', 'mmi-teach' ); ?></a>
-					<?php endif; ?>
+					<a href="<?php echo esc_url( Pages::url( 'guides/wisconsin-requirements' ) ); ?>"><?php esc_html_e( 'View every requirement', 'mmi-teach' ); ?></a>
 				</p>
 			<?php endif; ?>
 
@@ -147,14 +143,9 @@ final class Admin {
 				<input type="hidden" name="action" value="mmi_teach_save">
 				<?php wp_nonce_field( 'mmi_teach_save' ); ?>
 
-				<h2><?php esc_html_e( 'Who can see the dashboard', 'mmi-teach' ); ?></h2>
-				<fieldset>
-					<label><input type="radio" name="visibility" value="login" <?php checked( $settings['visibility'], 'login' ); ?>> <?php esc_html_e( 'Signed-in users only (hidden from search engines)', 'mmi-teach' ); ?></label><br>
-					<label><input type="radio" name="visibility" value="public" <?php checked( $settings['visibility'], 'public' ); ?>> <?php esc_html_e( 'Everyone', 'mmi-teach' ); ?></label>
-				</fieldset>
 
 				<h2><?php esc_html_e( 'Employers not placed in a county', 'mmi-teach' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'These employers have open postings, but their names match no district or school in the NCES directories, so their postings are left off the dashboard. Pick a county for any that belong in it. Most are outside the area and can stay as they are.', 'mmi-teach' ); ?></p>
+				<p class="description"><?php esc_html_e( 'These employers have open postings, but their names match no district or school in the NCES directories, so their postings are left off the jobs pages. Pick a county for any that belong in it. Most are outside the area and can stay as they are.', 'mmi-teach' ); ?></p>
 				<?php if ( $unplaced ) : ?>
 					<table class="widefat striped" style="max-width:900px">
 						<thead><tr>
@@ -218,7 +209,6 @@ final class Admin {
 		}
 		check_admin_referer( 'mmi_teach_save' );
 
-		$visibility = sanitize_key( wp_unslash( $_POST['visibility'] ?? 'login' ) );
 		$overrides  = Plugin::settings()['employer_overrides'];
 		$valid      = array_keys( self::choices() );
 		$posted     = isset( $_POST['place'] ) && is_array( $_POST['place'] ) ? wp_unslash( $_POST['place'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each key/value is checked below.
@@ -237,13 +227,11 @@ final class Admin {
 
 		Plugin::update_settings(
 			array(
-				'visibility'         => in_array( $visibility, array( 'login', 'public' ), true ) ? $visibility : 'login',
 				'employer_overrides' => $overrides,
 			)
 		);
 		Places::reset();
 		Store::reclassify_open();
-		Snapshot::rebuild();
 		Jobs::sync( 50 );
 
 		wp_safe_redirect( admin_url( 'options-general.php?page=' . self::SLUG . '&mmi_teach=saved' ) );

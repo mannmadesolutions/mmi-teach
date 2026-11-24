@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * A job board the dashboard reads from.
+ * A job board the site reads from.
  *
  * fetch() returns every open teaching posting the board lists, as rows with these keys:
  * source, source_id, title, employer, location, position_type, appointment, posted_date,

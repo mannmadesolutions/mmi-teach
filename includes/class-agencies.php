@@ -138,17 +138,6 @@ final class Agencies {
 		);
 	}
 
-	/** Labels for every value a posting's agency can take, for filters and tables. */
-	public static function labels(): array {
-		$labels = array();
-		foreach ( self::all() as $key => $agency ) {
-			$labels[ $key ] = $agency['name'];
-		}
-		$labels[ self::DIRECT ]  = __( 'None — employer hires directly', 'mmi-teach' );
-		$labels[ self::UNKNOWN ] = __( 'Not confirmed', 'mmi-teach' );
-		return $labels;
-	}
-
 	/** Entries whose verified_on is older than the cutoff (Y-m-d), for the settings screen. */
 	public static function stale( string $cutoff ): array {
 		$items = array();

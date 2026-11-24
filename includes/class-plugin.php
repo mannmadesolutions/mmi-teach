@@ -13,7 +13,7 @@ final class Plugin {
 	public const OPTION_SETTINGS = 'mmi_teach_settings';
 	public const CRON_HOOK       = 'mmi_teach_refresh';
 
-	/** Counties the dashboard covers, keyed by 5-digit county FIPS code. */
+	/** Counties the site covers, keyed by 5-digit county FIPS code. */
 	public const COUNTIES = array(
 		'55079' => 'Milwaukee',
 		'55133' => 'Waukesha',
@@ -22,8 +22,13 @@ final class Plugin {
 
 	public static function boot(): void {
 		Jobs::register();
-		Dashboard::register();
-		Pathway::register();
+		Applications::register();
+		Accounts::register();
+		Mail::register();
+		Front::register();
+		Bricks\Tags::register();
+		Bricks\Queries::register();
+		Bricks\Actions::register();
 		Admin::register();
 		add_action( self::CRON_HOOK, array( self::class, 'run_cron_refresh' ) );
 		add_action( self::CRON_HOOK . '_now', array( self::class, 'run_cron_refresh' ) ); // "Refresh now" on the settings screen.
@@ -35,8 +40,7 @@ final class Plugin {
 
 	public static function activate(): void {
 		Store::install();
-		Dashboard::ensure_page();
-		Pathway::ensure_page();
+		Accounts::ensure_role();
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			// Fallback only: the system crontab runs `wp mmi-teach refresh` with no time limit.
 			wp_schedule_event( time() + 300, 'twicedaily', self::CRON_HOOK );
@@ -65,7 +69,6 @@ final class Plugin {
 		$saved = get_option( self::OPTION_SETTINGS, array() );
 		return array_merge(
 			array(
-				'visibility'         => 'login', // 'login' | 'public'.
 				'employer_overrides' => array(), // normalized employer key => county code | 'out'.
 			),
 			is_array( $saved ) ? $saved : array()

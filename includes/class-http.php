@@ -52,7 +52,7 @@ final class Http {
 		$args = array(
 			'method'     => $method,
 			'timeout'    => $timeout,
-			'user-agent' => 'MMI-Teach/' . MMI_TEACH_VERSION . ' (teaching-vacancy dashboard; +' . home_url( '/' ) . ')',
+			'user-agent' => 'MMI-Teach/' . MMI_TEACH_VERSION . ' (school jobs site; +' . home_url( '/' ) . ')',
 			'headers'    => array( 'Accept' => 'text/html,application/json;q=0.9,*/*;q=0.8' ),
 		);
 		if ( null !== $body ) {

@@ -25,6 +25,9 @@ final class Rules {
 		'none'     => 'Free',
 	);
 
+	/** Facts older than this are listed for re-checking on the settings screen. */
+	public const STALE_DAYS = 120;
+
 	private static ?array $data = null;
 
 	/** @return array<string, array> id => item */
@@ -88,6 +91,12 @@ final class Rules {
 			}
 		}
 		return $out;
+	}
+
+	/** Stale rules plus stale agency and employer notes: label => last checked. */
+	public static function stale_with_agencies(): array {
+		$cutoff = gmdate( 'Y-m-d', time() - self::STALE_DAYS * DAY_IN_SECONDS );
+		return array_merge( self::stale( $cutoff ), Agencies::stale( $cutoff ) );
 	}
 
 	private static function data(): array {

@@ -40,6 +40,70 @@ final class Jobs {
 
 	public static function register(): void {
 		add_action( 'init', array( self::class, 'register_types' ) );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( self::class, 'columns' ) );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( self::class, 'column' ), 10, 2 );
+		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( self::class, 'sortable' ) );
+		add_action( 'pre_get_posts', array( self::class, 'admin_sort' ) );
+	}
+
+	/** Staff list columns: ID first, every one sortable (meta, not taxonomies, so they can sort). */
+	private const ADMIN_COLUMNS = array(
+		'mt_employer' => array( 'Employer', '_mt_employer' ),
+		'mt_role'     => array( 'Role', '_mt_role' ),
+		'mt_county'   => array( 'County', '_mt_county' ),
+		'mt_pay'      => array( 'Pay per day', '_mt_pay_day' ),
+		'mt_open'     => array( 'Open', '_mt_open' ),
+	);
+
+	public static function columns( array $cols ): array {
+		$out = array(
+			'cb'    => $cols['cb'] ?? '',
+			'mt_id' => __( 'ID', 'mmi-teach' ),
+			'title' => __( 'Job', 'mmi-teach' ),
+		);
+		foreach ( self::ADMIN_COLUMNS as $key => [ $label ] ) {
+			$out[ $key ] = $label;
+		}
+		$out['date'] = __( 'Posted', 'mmi-teach' );
+		return $out;
+	}
+
+	public static function column( string $col, int $id ): void {
+		if ( 'mt_id' === $col ) {
+			echo (int) $id;
+			return;
+		}
+		if ( isset( self::ADMIN_COLUMNS[ $col ] ) ) {
+			$v = (string) get_post_meta( $id, self::ADMIN_COLUMNS[ $col ][1], true );
+			if ( 'mt_open' === $col ) {
+				$v = '1' === $v ? __( 'Open', 'mmi-teach' ) : __( 'Closed', 'mmi-teach' );
+			} elseif ( 'mt_role' === $col ) {
+				$v = Classifier::ROLES[ $v ] ?? $v;
+			} elseif ( 'mt_pay' === $col && '' !== $v ) {
+				$v = '$' . $v;
+			}
+			echo esc_html( '' === $v ? '—' : $v );
+		}
+	}
+
+	public static function sortable( array $cols ): array {
+		$cols['mt_id'] = 'ID';
+		$cols['title'] = 'title';
+		foreach ( array_keys( self::ADMIN_COLUMNS ) as $key ) {
+			$cols[ $key ] = $key;
+		}
+		return $cols;
+	}
+
+	public static function admin_sort( \WP_Query $q ): void {
+		if ( ! is_admin() || ! $q->is_main_query() || self::POST_TYPE !== $q->get( 'post_type' ) ) {
+			return;
+		}
+		$by = (string) $q->get( 'orderby' );
+		if ( isset( self::ADMIN_COLUMNS[ $by ] ) ) {
+			$q->set( 'meta_key', self::ADMIN_COLUMNS[ $by ][1] );
+			$q->set( 'orderby', 'mt_pay' === $by ? 'meta_value_num' : 'meta_value' );
+		}
 	}
 
 	public static function register_types(): void {
@@ -82,7 +146,7 @@ final class Jobs {
 					'publicly_queryable' => false,
 					'show_ui'            => true,
 					'show_in_menu'       => true,
-					'show_admin_column'  => in_array( $tax, array( 'mt_role', 'mt_job_type', 'mt_county' ), true ),
+					'show_admin_column'  => false,
 					'show_in_rest'       => false,
 					'hierarchical'       => false,
 					'rewrite'            => false,

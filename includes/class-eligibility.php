@@ -287,6 +287,75 @@ final class Eligibility {
 		return array( $status, $reasons, $gaps, $maybe );
 	}
 
+	/* ---------- one job, requirement by requirement ---------- */
+
+	/** How each part of a job's requirements is known, for the "what this job needs" list. */
+	private const BASIS = array(
+		'posted'   => 'The posting lists it',
+		'text'     => 'The posting’s description says so',
+		'rule'     => 'Wisconsin’s rule for this kind of job',
+		'inferred' => 'Usual for jobs like this; the posting doesn’t say',
+	);
+
+	/**
+	 * The job's requirements as have / need / maybe rows for this person ('unknown' before the
+	 * check). Credentials first, then anything else missing, then a pointer to the onboarding.
+	 *
+	 * @return array[] each: id, title, state, note, detail
+	 */
+	public static function needs( array $job, ?array $p, ?array $tasks = null ): array {
+		$tasks = $tasks ?? array();
+		$fit   = $p ? self::for_job( $job, $p, $tasks ) : null;
+		$rows  = array();
+		$state = static fn( bool $have ) => null === $p ? 'unknown' : ( $have ? 'have' : 'need' );
+
+		$edu       = $p ? self::EDU_RANK[ $p['edu'] ] : 0;
+		$need      = self::NEED_RANK[ $job['degree'] ] ?? 0;
+		$epp_ok    = $p && $p['epp'] && '20' === $p['age'] && 'substitute' === $job['role'] && 'associate' === $job['degree'];
+		$rows[]    = array(
+			'id'     => 'degree',
+			'title'  => Requirements::DEGREES[ $job['degree'] ] ?? __( 'Degree', 'mmi-teach' ),
+			'state'  => $state( $edu >= $need || $epp_ok ),
+			'note'   => trim( ( self::BASIS[ $job['degree_basis'] ] ?? '' ) . ( $epp_ok && $edu < $need ? ' ' . __( 'Teacher-prep students qualify through their program instead.', 'mmi-teach' ) : '' ) ),
+			'detail' => $job['degree_note'],
+		);
+
+		$areas = self::job_areas( $job );
+		$names = implode( ', ', array_slice( array_map( static fn( $l ) => $l['short'] ?? $l['title'], $areas ), 0, 3 ) );
+		$cred  = $p['cred'] ?? 'none';
+		if ( 'aide' === $job['role'] ) {
+			$sepa   = in_array( 'sepa', array_column( $job['licenses'], 'key' ), true );
+			$rows[] = $sepa
+				? array( 'id' => 'license', 'title' => __( 'Special Education Program Aide license', 'mmi-teach' ), 'state' => $state( in_array( $cred, array( 'sepa', 'wi_license', 'long_term' ), true ) || 'done' === Profile::task( 'sepa_license', $tasks )[0] ), 'note' => self::BASIS[ $job['license_basis'] ] ?? '', 'detail' => '' )
+				: array( 'id' => 'license', 'title' => __( 'No DPI license needed', 'mmi-teach' ), 'state' => null === $p ? 'unknown' : 'have', 'note' => '', 'detail' => '' );
+		} elseif ( 'substitute' === $job['role'] && 'long_term' !== $job['sub_kind'] ) {
+			$rows[] = array( 'id' => 'license', 'title' => __( 'Substitute permit or any Wisconsin teaching license', 'mmi-teach' ), 'state' => $state( in_array( $cred, array( 'permit', 'long_term', 'wi_license' ), true ) || 'done' === Profile::task( 'sub_permit', $tasks )[0] ), 'note' => __( 'Wisconsin’s rule for substitute teachers', 'mmi-teach' ), 'detail' => '' );
+		} else {
+			$title  = 'substitute' === $job['role']
+				? ( $names ? sprintf( __( 'License in %s (a permit covers up to 45 days)', 'mmi-teach' ), $names ) : __( 'Teaching license for the assignment (a permit covers up to 45 days)', 'mmi-teach' ) )
+				: ( 'private' === $job['sector'] ? __( 'DPI license or a bachelor’s degree (private school)', 'mmi-teach' ) : ( $names ? sprintf( __( 'Wisconsin license in %s', 'mmi-teach' ), $names ) : __( 'Wisconsin teaching license', 'mmi-teach' ) ) );
+			$have   = in_array( $cred, array( 'wi_license', 'long_term' ), true ) && ( ! $areas || ( $p && self::areas_overlap( $areas, $p ) ) );
+			$have   = $have || ( 'private' === $job['sector'] && 'teacher' === $job['role'] && $edu >= 5 );
+			$maybe  = ! $have && in_array( $fit['status'] ?? '', array( self::CHECK ), true );
+			$rows[] = array( 'id' => 'license', 'title' => $title, 'state' => null === $p ? 'unknown' : ( $have ? 'have' : ( $maybe ? 'maybe' : 'need' ) ), 'note' => self::BASIS[ $job['license_basis'] ] ?? '', 'detail' => '' );
+		}
+
+		foreach ( $fit['gaps'] ?? array() as $id ) {
+			$item = Rules::item( $id );
+			if ( ! $item || in_array( $id, array( 'sub_permit', 'teaching_license', 'sepa_license', 'associate_degree', 'bachelor_degree', 'high_school' ), true ) ) {
+				continue; // Already shown as the degree or license row.
+			}
+			$rows[] = array( 'id' => $id, 'title' => $item['title'], 'state' => 'need', 'note' => $item['time']['label'] ?? '', 'detail' => $item['cost']['label'] ?? '' );
+		}
+		foreach ( $fit['maybe'] ?? array() as $id ) {
+			$item = Rules::item( $id );
+			if ( $item ) {
+				$rows[] = array( 'id' => $id, 'title' => $item['title'], 'state' => 'maybe', 'note' => __( 'Ask the employer whether this applies', 'mmi-teach' ), 'detail' => $item['why'] ?? '' );
+			}
+		}
+		return $rows;
+	}
+
 	/* ---------- per person: one line per role ---------- */
 
 	/**
@@ -360,7 +429,11 @@ final class Eligibility {
 	}
 
 	private static function cred_name( string $cred ): string {
-		return strtolower( Profile::CRED[ $cred ] ?? $cred );
+		return array(
+			'permit'     => __( 'substitute permit', 'mmi-teach' ),
+			'long_term'  => __( 'long-term substitute license', 'mmi-teach' ),
+			'wi_license' => __( 'Wisconsin teaching license', 'mmi-teach' ),
+		)[ $cred ] ?? $cred;
 	}
 
 	/**
@@ -394,15 +467,19 @@ final class Eligibility {
 		$blocks_apply = array_filter( $gaps, static fn( $id ) => 'apply' === ( Rules::item( $id )['blocks'] ?? '' ) );
 		$can_apply    = in_array( $status, array( self::NOW, self::CHECK ), true ) || ( self::STEPS === $status && ! $blocks_apply );
 
-		$summary = self::LABELS[ $status ] ?? '';
+		$summary = '';
 		if ( $gaps && self::NOW !== $status ) {
-			$summary .= ': ' . sprintf(
-				/* translators: 1: number of steps, 2: time span, 3: cost */
-				_n( '%1$d step, %2$s, %3$s', '%1$d steps, %2$s, %3$s', count( $gaps ), 'mmi-teach' ),
-				count( $gaps ),
-				Rules::span_label( $days[0], $days[1] ),
-				Rules::cost_label( $cost[0], $cost[1] )
-			);
+			$degree  = array_intersect( $gaps, array( 'high_school', 'associate_degree', 'bachelor_degree' ) );
+			$summary = ( self::LABELS[ $status ] ?? '' ) . ': ' . ( $degree
+				// Tuition isn't a fee: a degree route shows its length only.
+				? sprintf( __( 'needs a degree first, %s', 'mmi-teach' ), Rules::span_label( $days[0], $days[1] ) )
+				: sprintf(
+					/* translators: 1: number of steps, 2: time span, 3: cost */
+					_n( '%1$d step, %2$s, %3$s', '%1$d steps, %2$s, %3$s', count( $gaps ), 'mmi-teach' ),
+					count( $gaps ),
+					Rules::span_label( $days[0], $days[1] ),
+					Rules::cost_label( $cost[0], $cost[1] )
+				) );
 		}
 		return array(
 			'status'    => $status,

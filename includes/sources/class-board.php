@@ -21,10 +21,10 @@ abstract class Board implements Source {
 	private const AIDE = '/\b(para[- ]?(professional|educator)s?|paras?|(teacher|teaching|instructional|educational|education|classroom|special education|sped|program|student|bilingual|learning|resource|4k|5k|preschool|kindergarten|title i)\s*(assistants?|aides?)|aides?|educational support (professional|personnel)s?|ESP)\b/i';
 
 	/** …but not health, transport, supervision, clerical, interpreting or care roles that WECAN files as aides too. */
-	private const NOT_AIDE = '/\b(health|cna|nurs\w*|medical|bus|transport\w*|driver|recess|lunch|cafeteria|playground|supervis\w*|monitor|clerk|secretar\w*|office|custod\w*|food|kitchen|after[- ]?school|kids club|extended (day|care)|before[- ]?(and[- ]?after[- ]?)?school|child ?care|daycare|interpreter|coach|library|media|family engagement|technology|security|behavior technician|rbt)\b/i';
+	private const NOT_AIDE = '/\b(health|residential|aoda|attendance|cna|nurs\w*|medical|bus|transport\w*|driver|recess|lunch|cafeteria|playground|supervis\w*|monitor|clerk|secretar\w*|office|custod\w*|food|kitchen|after[- ]?school|kids club|extended (day|care)|before[- ]?(and[- ]?after[- ]?)?school|child ?care|daycare|interpreter|coach|library|media|family engagement|technology|security|behavior technician|rbt)\b/i';
 
 	public function fetch_details( string $source_id ): array {
-		return array(); // These boards' list data is all the dashboard uses.
+		return array(); // These boards' list data is all the site uses.
 	}
 
 	/** 'teacher' (including substitute teachers), 'aide', or '' for a posting this site doesn't list. */

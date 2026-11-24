@@ -128,7 +128,9 @@ foreach ( Profile::personas() as $key => $persona ) {
 	foreach ( $rows as $row ) {
 		$r = Eligibility::for_job( Eligibility::job_from_row( $row ), $p, array() );
 		$ok( isset( $count[ $r['status'] ] ), "$key / {$row['id']}: known status" );
-		$ok( '' !== $r['summary'] && $r['reasons'], "$key / {$row['id']}: has a summary and reasons" );
+		$ok( (bool) $r['reasons'], "$key / {$row['id']}: has reasons" );
+		$ok( ( '' !== $r['summary'] ) === ( $r['gaps'] && 'now' !== $r['status'] ), "$key / {$row['id']}: summary only when something is missing" );
+		$ok( ! preg_match( '/\$[\d,]{5,}/', $r['summary'] ), "$key / {$row['id']}: no tuition-sized totals in the summary" );
 		foreach ( $r['gaps'] as $gap ) {
 			$ok( null !== Rules::item( $gap ), "$key / {$row['id']}: gap $gap exists in rules.json" );
 		}

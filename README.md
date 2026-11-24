@@ -1,149 +1,135 @@
-# MMI Teach — Teaching Vacancies Dashboard
+# MMI Teach — School Jobs, Eligibility and Applications
 
-A WordPress plugin that collects every open K-12 teaching vacancy in **Milwaukee, Waukesha and
-Racine counties, Wisconsin** and shows them on one filterable dashboard.
+A WordPress plugin, built for Bricks Builder, that collects every open K-12 **teacher, substitute
+teacher and aide** job in **Milwaukee, Waukesha and Racine counties, Wisconsin**, tells each
+visitor which jobs they qualify for, lists every Wisconsin requirement between them and their
+first day, and lets them save applications before finishing each one on the employer's own site.
 
-## Pages
+Live demo: teach.mannmade.us. Applications are saved on the site and **not sent to employers**.
 
-- **Become a substitute** (the front page): the applicant's route, below.
-- **Substitute jobs** and **Teaching jobs** (`/vacancies/`, with `#kind=subs` for the first):
-  one job board, two tabs. The tab, heading and summary follow the Job type filter, which lives
-  in the URL hash with every other filter, so a view can be bookmarked or shared. Links saved
-  before 1.5.0 (`/#kind=subs…`) are forwarded from the front page to the board.
+## What a visitor gets
 
-## Job board
+Primary flow, one action per screen:
 
-- Listings come first: four summary tiles (open, new this week, closing in 14 days, and median
-  sub pay or postings that list pay), then filters, then the table.
-- Filters in view: keyword, job type, county, highest degree and minimum pay per day. Staffing
-  agency, license area, subject, grade level, full or part time, posting date and pay type sit
-  under **More filters**, which shows how many of them are set.
-- The substitute tabs open with a short explainer: daily sub work is never posted publicly (it
-  is offered in each district's Frontline or Red Rover system after onboarding), so the postings
-  here are the ways in: pool openings, building subs and long-term assignments.
-- **Market overview** (closed by default, remembered per browser): postings by subject, top
-  employers and open postings by week posted. Click a bar to filter.
-- A sortable table of every posting. Click a row for pay as posted, what it takes to qualify,
-  openings, contact, a summary and links to apply. On phones each row is a short card (title,
-  employer and county, pay and closing, requirements) and the rest moves into the detail.
-- Pay: every posting's pay text is parsed into an amount, a unit (hour, day, year, stipend) and a
-  daily equivalent (hourly × 7, annual ÷ 180) for sorting and filtering. "Salary schedule" and
-  "depends on experience" postings are labeled as such; the posted wording is kept in the row details.
-- Freshness: readers see "Updated … ago" and, if a source hasn't refreshed in 9 hours, a plain note
-  naming it. Refresh errors themselves show only to signed-in managers and on the settings screen.
-- CSV download of the current view (footer).
+| Page | What it does |
+|---|---|
+| `/` | What the site is, three steps, sample people to try it as, newest jobs |
+| `/check/` | Six questions (education, license held, license areas, teacher-prep program, age band, lived outside Wisconsin), then the quickest route into each role: open now, probably (one thing to confirm), reachable in weeks (with time and cost), or not yet (with the route, never a bare "no") |
+| `/jobs/` | Every open job with Bricks filters (search, role, job type, county, subject, grade, minimum degree, employer, posted pay) and, once the check is done, a fit badge on every card and a "jobs I can apply to now" switch |
+| `/job/{slug}/` | The job, **what this job needs** (have / need for this person, with how each requirement is known), your fit, and Apply |
+| `/checklist/` | One list of everything between you and your first day (`?job=ID` for one job): what, why (the law), time, cost and who pays, where, proof to keep, how long it lasts, and whether it blocks applying or only the first day. Mark each done (with date and expiry), not needed, or to do |
+| `/my-applications/` | Saved applications with status; the applicant updates it as they hear back |
+| `/join/`, `/sign-in/`, `/reset-password/`, `/account/` | Accounts, asked for only when saving an application; account deletion removes everything |
+| `/guides/…`, `/privacy/` | Substitute permits, aide jobs, teaching licenses, every requirement at a glance; privacy notice |
 
-## Become a substitute teacher (front page)
+Old URLs redirect: `/vacancies/` → `/jobs/`, `/substitute/` → `/guides/substitute-teaching/`.
 
-A public guide in the order an applicant acts. Answers, picks and checklist ticks are saved in the
-reader's browser only (`mmiTeachProfile`, `mmiTeachSubChecklist`), with a "Forget them" button.
+**Guest first.** Answers and checklist ticks live in first-party cookies (whitelisted values,
+no free text) until the visitor creates an account; then they move into user meta. **Sample
+people** (`data/personas.json`) are a read-only overlay: `?mt_persona=<key>` shows the whole site
+as that person, `?mt_persona=off` goes back.
 
-1. **Your situation**: a short questionnaire names the DPI permit or license that fits, whether
-   training and fingerprints are needed, and flags employers with stricter rules (MPS requires a
-   bachelor's degree). It links to the substitute jobs that fit.
-2. **Your cost and timeline**: total cost and a timeline showing how much sooner you start if you
-   do employer steps during the DPI wait. Below them, **What slows this down**: each delay in the
-   process, what it costs you, how to get around it and what can't be avoided (`delays`).
-3. **Where to apply**: pick counties and the districts and schools you'd sub for; the planner
-   lists the fewest applications that cover them (one per agency, one per district that hires
-   directly, and "ask first" for unconfirmed routes), with posted pay, degree rules and retirement
-   plans. A folded table lists every employer hiring subs right now.
-4. **Your checklist**: tasks grouped by when to do them, dated from your timeline, with one task
-   per planned application; the training comparison and the ELO steps open inline (`checklist`).
-5. **Reference** (folded): every substitute license type, how each kind of employer works, and
-   every staffing agency placing school staff in Wisconsin.
+**Apply here, then hand off.** Saving an application records the job, availability, start date
+and the checklist items still missing; the applicant then continues to the employer's own
+application link from the job board. Applicant and staff each get one email (`wp_mail`).
 
-On the job board, saved answers add **Your fit** to each posting (You qualify, Might fit with the
-condition, or Not yet with what's missing), as a column, a filter and a line on phone cards.
+**Never collected:** Social Security numbers, ID or I-9 documents, bank or tax details, medical
+or TB results, criminal history (Wis. Stat. 111.335), uploaded files.
 
-Facts live in `data/pathway.json`, each with a source URL and `verified_on` date; Settings →
-Teaching Vacancies lists any older than 120 days. Live numbers come from the job data.
+## Data
 
-## Qualification requirements
+- **`data/rules.json`** — every requirement (licenses and degrees, application, background and
+  health checks, trainings, hiring paperwork, after starting), each with its statute or rule,
+  time, cost and payer, where to do it, proof, validity, what it blocks, a public source, the date
+  it was checked and a confidence. Facts sources disagree on carry a `conflict` and show as
+  "confirm with the employer". Settings → Teaching Vacancies lists entries older than 120 days.
+- **`data/licenses.json`** — 69 DPI license areas (including the Special Education Program Aide
+  license and the Title I paraprofessional standard) with codes, levels, degree, aliases and the
+  WECAN license names mapped to each; `infer` rules, degree rules and routes.
+- **`data/agencies.json`** — staffing agencies placing school staff in Wisconsin and how each
+  employer fills substitute jobs.
+- **`data/places.json`, `data/employers.json`** — county matching (NCES directories).
 
-Every posting carries what it takes to qualify, each part labeled with where it came from:
+## How it works
 
-| Part | From the posting | When the posting doesn't say |
-|---|---|---|
-| Minimum degree | WECAN's Degree field, or the description ("Bachelor's degree required") | Wisconsin rule: substitute permit = associate; teaching license = bachelor's; pupil services = master's; Head Start = associate |
-| DPI license areas | WECAN's Licenses list (any one qualifies), or license areas / DPI codes the description names | The licenses a job with that title, subject and grade level normally needs (`data/licenses.json` → `infer.rules`) |
-| Experience, what to submit | WECAN's Years of Experience and Additional Requirements | — |
-| Other ways in | — | One-Year License with Stipulations, License Based on Equivalency, Choice-school (bachelor's accepted) and charter-license rules |
+- **`Refresher`** reads every source (cron every 3 hours), **`Classifier`** works out role
+  (teacher, substitute, aide), county, subject, grade, sub kind, pay and requirements, and
+  **`Jobs::sync()`** mirrors the open, in-area, de-duplicated postings into `mt_job` posts with
+  seven taxonomies, writing only what changed. Closed jobs keep their post (`_mt_open = 0`).
+- **`Eligibility`** judges a person against a job (now / check / steps / later, with reasons,
+  missing items and the combined time and cost); **`Checklist`** turns that and the onboarding
+  steps into one list; **`Profile`** keeps answers and ticks.
+- **Bricks integration** (`includes/bricks/`): dynamic tags (`{mt_*}`, `{mt_job_*}`,
+  `{mt_row_<field>}`), query loop types for non-post lists (`mt_task_groups`, `mt_tasks`,
+  `mt_needs`, `mt_paths`, `mt_my_apps`, `mt_personas`, all scoped to the current visitor in PHP)
+  and named form actions (`mt_profile`, `mt_task`, `mt_apply`, `mt_app_status`, `mt_delete_me`,
+  `mt_redirect`). Visibility uses Bricks' native conditions on those tags. No custom elements.
+- **`Build\Site`** writes the whole Bricks site: palette, theme style, 87 global classes in the
+  "MMI Teach" category, header, footer, job and 404 templates, pages and menu. A page or template
+  edited in the builder is skipped on a rebuild unless forced.
 
-`data/licenses.json` holds 66 DPI license areas with official titles, ELO subject codes, current
-(2018 PI 34) and legacy grade levels, minimum degree, required tests, regex aliases, and the 87
-WECAN license names mapped to them. The job board filters by "My highest degree" (shows jobs whose
-required degree you meet) and by license area.
+## Setting it up
 
-## Staffing agencies
+```sh
+# Bricks 2.4.6 + a near-empty bricks-child theme must be active (enter the license key in wp-admin to use the builder).
+wp plugin activate mmi-teach
+wp mmi-teach refresh                                # read every source and create the job posts
+wp --user=1 mmi-teach build-site --step=settings    # Bricks settings: query filters, palette, theme style (own process)
+wp --user=1 mmi-teach build-site                    # classes, templates, pages, menu
+wp --user=1 mmi-teach build-site --step=live        # front page; old pages drafted, their URLs redirect
+```
 
-Every posting shows which staffing agency, if any, fills it (job board column and filter):
+Other commands:
 
-1. **Named in the posting**: the posting itself says so ("Employer: Edustaff", "employed through
-   Kelly Education", a mykelly.com link). A short quote is kept as evidence.
-2. **The employer's route**: for substitute jobs, `data/agencies.json` records how each employer
-   fills them: through an agency, or directly. A route covers daily subs; agency districts often
-   hire building and long-term subs themselves, so those show "Not confirmed" unless researched.
-   Routes resting on an agency ad or board discussion are labeled "likely".
-3. **Regular teaching jobs** are hired directly by the employer.
+```sh
+wp mmi-teach status                   # open jobs by county and role, source health
+wp mmi-teach sync-jobs [--dry-run]    # mirror postings into job posts (runs after every refresh)
+wp mmi-teach reclassify               # re-run classification after editing data/*.json
+wp mmi-teach unplaced                 # employers not placed in any county
+wp mmi-teach build-places             # rebuild data/places.json from NCES
+wp --user=1 mmi-teach build-site --force=jobs,header   # overwrite pages edited in the builder
+```
 
-`data/agencies.json` also lists every agency found placing school staff in Wisconsin, with the
-regex aliases used to recognize it in posting text, its clients and sources.
+Every page sends `no-store`: pages are personalised and the zone caches HTML.
 
-## Where the data comes from
+## Tests
+
+```sh
+wp eval-file wp-content/plugins/mmi-teach/tests/eligibility.php        # fixed cases + every open job × every sample person
+node wp-content/plugins/mmi-teach/tests/e2e/flow.js chromium 1440       # guest → check → jobs → checklist → join → apply → hand-off → status → persona → delete
+node wp-content/plugins/mmi-teach/tests/e2e/flow.js webkit 390
+```
+
+The browser test creates one `@example.invalid` account (its mail is recorded, not sent) and
+deletes it through the site's own Delete my account.
+
+## Where the jobs come from
 
 | Source | What it covers | How it's read |
 |---|---|---|
-| [WECAN](https://wecan.waspa.org/) | The statewide K-12 application system. Nearly every public district in the three counties posts here, plus many charter and private schools | Public vacancy search grid (Teacher, Teacher Leader and Substitute types), plus each in-area posting's detail page |
-| Milwaukee Public Schools careers | MPS's full external list (only some MPS jobs reach WECAN) | PeopleSoft Candidate Gateway list page |
-| Archdiocese of Milwaukee careers | Catholic school openings across the archdiocese | Public careers page, placed by the city in each card |
+| [WECAN](https://wecan.waspa.org/) | The statewide K-12 application system: nearly every public district in the three counties, plus many charter and private schools | Public search grid (Teacher, Teacher Leader, Substitute Teachers and Assistant/Aide types), plus each in-area posting's detail page |
+| Milwaukee Public Schools careers | MPS's full external list | PeopleSoft Candidate Gateway list page |
+| Archdiocese of Milwaukee careers | Catholic school openings | Public careers page |
 | Paycom | Milwaukee College Prep, UCC/Bruce-Guadalupe, Next Door, Penfield, Messmer | Public job page → search API |
 | Paycor | HOPE Christian Schools | Public career page |
 | Lever | Rocketship (Milwaukee schools only) | Public postings API |
 | Breezy HR | Carmen Schools of Science & Technology | Public JSON feed |
 | iSolved Hire | Cristo Rey Jesuit High School | Public jobs API |
 
-None of these needs an account or key. Every request identifies the plugin in its User-Agent
-and waits at least 2 seconds between requests to the same host.
-
-When a school lists the same job on WECAN and its own board, the dashboard shows it once (the
-WECAN copy, which has the most detail) and links the other listing.
-
-**County matching.** WECAN covers the whole state, so each posting is placed in a county from
-its employer and school names, using `data/places.json`. That file holds every Wisconsin public
-district and school (NCES Common Core of Data) and every private school (NCES Private School
-Survey) with its county. Employers that match nothing there are listed under **Settings →
-Teaching Vacancies**, where you can place them; `data/employers.json` holds the checked answers
-that ship with the plugin.
-
-## Running it
-
-```sh
-wp plugin activate mmi-teach            # creates the table, the job board page and the substitute page (front page on an empty site)
-wp mmi-teach refresh                    # read every source; --details=<n> caps detail-page reads (default 200)
-wp mmi-teach status                     # counts per county, source health
-wp mmi-teach unplaced                   # employers not placed in any county
-wp mmi-teach reclassify                 # re-run county, subject, sub-kind and pay parsing after editing data/*.json or rules
-wp mmi-teach build-places               # rebuild data/places.json from NCES (when a new year is published)
-```
-
-On the server, cron runs `wp mmi-teach refresh` every 3 hours. A twice-daily WP-Cron event and
-the **Refresh now** button are fallbacks; they cap detail-page reads to stay inside WP-Cron's
-time budget.
+None needs an account or key. Requests identify the plugin and wait 2 seconds between requests
+to the same host. Aide postings keep classroom aides and paraprofessionals only (`Board::role()`);
+bus, health-room, recess, clerical, interpreter and residential-program roles are left out.
 
 ## Safety
 
 - A source that fails, or lists fewer than half the postings it had last time, keeps its last
-  good list, and the dashboard footer says so. Postings are never deleted: one that leaves its
-  board gets a `removed_at` date, so history survives.
-- The dashboard defaults to **signed-in users only** and is hidden from search engines until
-  you switch it to public in Settings.
-- Data reaches the page through one REST route (`/wp-json/mmi-teach/v1/snapshot`) that checks
-  the same visibility rule. All posting text is inserted with `textContent`; links must be http(s).
-- Page views read a stored snapshot built at refresh time; nothing is fetched or classified per view.
+  good list. Postings are never deleted: one that leaves its board gets a `removed_at` date.
+- Applications are a private post type; applicants see only their own through a PHP-scoped loop,
+  never a Bricks post loop. IDs that arrive from forms are validated against the visitor.
+- Applicants have no capabilities, no admin bar and no access to wp-admin.
 
 ## Adding a source
 
-Implement `MMI_Teach\Sources\Source` (or extend `Sources\Board` for a single-employer ATS), and
-add it to `Refresher::sources()` or the `mmi_teach_sources` filter. `fetch()` must throw rather
-than return a partial list.
+Implement `MMI_Teach\Sources\Source` (or extend `Sources\Board` for a single-employer ATS) and add
+it to `Refresher::sources()` or the `mmi_teach_sources` filter. `fetch()` must throw rather than
+return a partial list.
