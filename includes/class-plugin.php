@@ -21,6 +21,7 @@ final class Plugin {
 	);
 
 	public static function boot(): void {
+		Jobs::register();
 		Dashboard::register();
 		Pathway::register();
 		Admin::register();
@@ -52,7 +53,12 @@ final class Plugin {
 	 * the CLI run picks up whatever is left.
 	 */
 	public static function run_cron_refresh(): void {
-		( new Refresher() )->run( array( 'detail_limit' => 8 ) );
+		( new Refresher() )->run(
+			array(
+				'detail_limit' => 8,
+				'sync_limit'   => 50,
+			)
+		);
 	}
 
 	public static function settings(): array {

@@ -244,6 +244,7 @@ final class Admin {
 		Places::reset();
 		Store::reclassify_open();
 		Snapshot::rebuild();
+		Jobs::sync( 50 );
 
 		wp_safe_redirect( admin_url( 'options-general.php?page=' . self::SLUG . '&mmi_teach=saved' ) );
 		exit;

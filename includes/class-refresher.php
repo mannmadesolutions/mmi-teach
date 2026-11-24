@@ -49,7 +49,8 @@ final class Refresher {
 	}
 
 	/**
-	 * @param array{detail_limit?: int} $opts detail_limit caps detail-page reads this run.
+	 * @param array{detail_limit?: int, sync_limit?: int} $opts detail_limit caps detail-page reads this run;
+	 *                                                     sync_limit caps job posts written (0 = all).
 	 * @return array Run summary (also kept in the status option).
 	 */
 	public function run( array $opts = array() ): array {
@@ -71,6 +72,8 @@ final class Refresher {
 			$summary['finished'] = current_time( 'mysql', true );
 			$this->save_status( $summary );
 			Snapshot::rebuild();
+			$summary['jobs'] = Jobs::sync( (int) ( $opts['sync_limit'] ?? 0 ) );
+			$this->say( vsprintf( 'Jobs: %d created, %d updated, %d closed, %d reopened, %d unchanged, %d deferred.', array( $summary['jobs']['created'], $summary['jobs']['updated'], $summary['jobs']['closed'], $summary['jobs']['reopened'], $summary['jobs']['same'], $summary['jobs']['deferred'] ) ) );
 			return $summary;
 		} finally {
 			delete_option( self::OPTION_LOCK );

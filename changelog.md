@@ -23,6 +23,17 @@ Rebuilds the site as a job search, eligibility check, checklist and application 
 - **`Checklist`:** one ordered list per person or per job, including employer-only steps.
 - **Tests:** `tests/eligibility.php` (fixed cases plus every open posting × every persona).
 
+**Phase 2 — jobs as posts:**
+- **`mt_job` post type** (`/job/{slug}/`) with seven filter taxonomies: role, job type, county,
+  employer, subject, grade level and minimum degree. Meta carries pay (label with unit, and a
+  numeric daily figure only when pay is posted), dates, apply and posting links, source, agency,
+  sector, requirements and a short credential label for job cards.
+- **`Jobs::sync()`** mirrors the open, in-area postings after every refresh (cross-board duplicates
+  folded into one job, as on the dashboard), writing only changed posts by row hash and setting
+  terms with `wp_set_object_terms` so cron runs work. Closed postings keep their post with
+  `_mt_open = 0`. WP-Cron's fallback writes at most 50 per run; `wp mmi-teach sync-jobs
+  [--dry-run] [--limit=<n>]` runs it by hand. First run: 482 jobs in 17 s; a second run writes 0.
+
 ## 1.6.0 — 2026-10-22
 
 The substitute page now runs in the order an applicant acts, remembers their answers, and

@@ -75,7 +75,30 @@ final class Cli {
 		Places::reset();
 		$changed = Store::reclassify_open();
 		Snapshot::rebuild();
+		Jobs::sync();
 		\WP_CLI::success( "{$changed} postings changed." );
+	}
+
+	/**
+	 * Mirrors open postings into job posts (mt_job); only changed posts are written.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--limit=<n>]
+	 * : Most posts to write this run. Default: no cap.
+	 *
+	 * [--dry-run]
+	 * : Count what would change without writing.
+	 *
+	 * @subcommand sync-jobs
+	 *
+	 * @param array $args       Unused.
+	 * @param array $assoc_args Options.
+	 */
+	public function sync_jobs( array $args, array $assoc_args ): void {
+		$dry   = ! empty( $assoc_args['dry-run'] );
+		$stats = Jobs::sync( (int) ( $assoc_args['limit'] ?? 0 ), $dry );
+		\WP_CLI::success( vsprintf( '%s%d open: %d created, %d updated, %d closed, %d reopened, %d unchanged, %d deferred.', array( $dry ? 'Dry run. ' : '', $stats['open'], $stats['created'], $stats['updated'], $stats['closed'], $stats['reopened'], $stats['same'], $stats['deferred'] ) ) );
 	}
 
 	/**
