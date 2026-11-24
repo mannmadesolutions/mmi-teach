@@ -664,8 +664,9 @@ final class Site {
 		$name = 'MannMade Teaching';
 		$menu = wp_get_nav_menu_object( $name );
 		$id   = $menu ? (int) $menu->term_id : (int) wp_create_nav_menu( $name );
-		foreach ( wp_get_nav_menu_items( $id ) ?: array() as $item ) {
-			wp_delete_post( $item->ID, true );
+		// Every item in the menu, including invalid ones wp_get_nav_menu_items() hides (e.g. pointing at a missing page).
+		foreach ( get_objects_in_term( $id, 'nav_menu' ) as $item_id ) {
+			wp_delete_post( (int) $item_id, true );
 		}
 		$items = array(
 			'jobs'      => 'Jobs',

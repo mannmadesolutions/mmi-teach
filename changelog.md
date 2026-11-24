@@ -37,6 +37,47 @@ application's paper trail, and Wisconsin DPI, DHS and statute requirements.
   `_mt_open = 0`. WP-Cron's fallback writes at most 50 per run; `wp mmi-teach sync-jobs
   [--dry-run] [--limit=<n>]` runs it by hand. First run: 482 jobs in 17 s; a second run writes 0.
 
+**Phases 3–5 — the Bricks site (live):**
+- **Theme:** Bricks 2.4.6 with a near-empty child theme (outside this repo). `wp --user=1 mmi-teach
+  build-site` writes everything from `Build\Site`: palette, theme style, 87 global classes in an
+  "MMI Teach" category, header, footer, job and 404 templates, 15 pages and the menu. Settings go
+  first in their own process (`--step=settings`), because Bricks attaches filter hooks only when
+  query filters were already on. Pages edited in the builder are skipped unless `--force`d.
+  `--step=live` makes the home page the front page and drafts the old dashboard and substitute
+  pages; `/vacancies/` and `/substitute/` 301 to `/jobs/` and the substitute guide.
+- **Pages:** home (three steps, role cards, sample people, newest jobs); jobs (native Bricks filters
+  on the job taxonomies and posted pay, fit badges, and a "jobs I can apply to now" switch applied
+  through `bricks/posts/query_vars` and a cookie so filter requests keep it); job template (what
+  this job needs as have/need, your fit, apply); check (six questions, routes by role); checklist
+  (sections and items, each a native `<details>` with why, time, cost, payer, where, proof,
+  validity, warnings and sources, and a form to mark it done with a date and expiry); join, sign
+  in, reset password, my applications, account (delete everything), four guides and a privacy notice.
+- **Bricks integration:** `Bricks\Tags` (`{mt_*}`, `{mt_job_*}`, `{mt_row_<field>}`),
+  `Bricks\Queries` (six loop types scoped to the visitor in PHP), `Bricks\Actions` (six named form
+  actions, listed in the form's Actions dropdown). Visibility uses native Bricks conditions on tags.
+- **Accounts and applications:** `mt_applicant` role (no capabilities, no wp-admin, no admin bar),
+  created by Bricks' registration action; guest answers merge in on sign-up and sign-in.
+  `mt_application` (private, author = applicant) with statuses, a staff list in wp-admin (ID first,
+  every column sorts), a status box with history, and a privacy exporter and eraser. One email to
+  the applicant and one to staff per application via `wp_mail`; mail to `.invalid` addresses is
+  recorded, not sent (`Mail`). Every page sends `no-store` (`Front`).
+
+**Phase 6 — retired:** the old dashboard and substitute page (`Dashboard`, `Pathway`, `Snapshot`,
+their templates, `dashboard.js`, `dashboard.css`, `pathway.js`, `data/pathway.json`, the REST
+snapshot route and the visibility setting), plus helpers only they used. Settings → Teaching
+Vacancies now counts open jobs and lists stale `rules.json` and agency facts. The Jobs list in
+wp-admin has ID-first sortable columns. Aide titles for residential, AODA and attendance roles are
+left out. README and AGENTS.md rewritten.
+
+**Fix (same day):** the header menu showed every link twice. An interrupted build had added four
+menu items pointing at no page; `wp_get_nav_menu_items()` hides such items, so the rebuild's
+cleanup missed them while the menu still printed them. The builder now clears every item in the
+menu (`get_objects_in_term`) before adding the links.
+
+**Tests:** `tests/eligibility.php` (fixed cases plus all 503 open postings × 7 sample people) and
+`tests/e2e/flow.js` (guest → check → jobs → checklist → join → apply → hand-off → status → persona
+→ delete), passing in Chromium at 1440 px and WebKit at 390 px.
+
 ## 1.6.0 — 2026-10-22
 
 The substitute page now runs in the order an applicant acts, remembers their answers, and
