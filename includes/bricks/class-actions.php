@@ -89,7 +89,9 @@ final class Actions {
 			array(
 				'action'     => 'mt_profile',
 				'type'       => 'redirect',
-				'redirectTo' => Pages::url( 'check' ) . '#your-options',
+				// A fresh query string forces a reload: a redirect to the same page plus only a #hash
+				// just scrolls, and "Your options" (drawn server-side) would never appear.
+				'redirectTo' => add_query_arg( 'answers', base_convert( (string) time(), 10, 36 ), Pages::url( 'check' ) ) . '#your-options',
 				'message'    => __( 'Saved.', 'mmi-teach' ),
 			)
 		);

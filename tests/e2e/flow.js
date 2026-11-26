@@ -66,9 +66,17 @@ function check( ok, what ) {
 		await pick( 'mtage0', '20' );
 		await pick( 'mtoutw', 'no' );
 		await submit( form );
-		await page.goto( base + '/check/', { waitUntil: 'load' } );
+		// No manual reload: the form's own redirect must show the results.
 		let body = await text();
-		check( body.includes( 'Your options' ), 'answers saved: "Your options" shows' );
+		check( body.includes( 'Your options' ), 'answers saved: "Your options" shows without a manual reload' );
+		check( await page.locator( `${ form } input[name="form-field-mtedu0[]"][value="associate"]` ).isChecked(), 'answers form keeps the saved answers' );
+		// Saving again from the results URL must reload too.
+		await pick( 'mtedu0', 'bachelor' );
+		await submit( form );
+		check( ( await text() ).includes( 'Based on: Bachelor’s degree' ), 'second save from the results URL updates "Your options"' );
+		await pick( 'mtedu0', 'associate' );
+		await submit( form );
+		body = await text();
 		check( /Substitute teacher[\s\S]{0,80}You can qualify in weeks/.test( body ), 'associate degree, no permit → substitute: can qualify in weeks' );
 		check( /Aide \/ paraprofessional[\s\S]{0,120}(You qualify|You probably qualify)/.test( body ), 'associate degree → aide jobs open now' );
 		check( body.includes( 'Substitute training' ) && body.includes( 'Substitute permit' ), 'substitute route lists training and permit' );

@@ -24,6 +24,11 @@ Clearer Wisconsin license choices and how to get each one, checked against DPI's
 - **Your options cards:** each missing step links to where to start it; the full steps stay on the checklist.
 - **Guide "Licenses and permits"** (was "Teaching licenses", same URL): one "you have → get → lets
   you → cost" table with anchors to each credential's details, plus the license lookup.
+- **Fix: saving the check showed nothing but "Saved."** The form redirected to `/check/#your-options`,
+  the page it was already on, so the browser only jumped to the anchor and never reloaded, and
+  "Your options" (drawn server-side once answers exist) never appeared. The redirect now adds a fresh
+  `?answers=` value, which forces a reload. The e2e test reloaded the page by hand after saving, which
+  hid the bug; it now relies on the form's own redirect and saves twice.
 - **Tests:** out-of-state, lapsed-license and expired-permit cases.
 
 ## 2.0.0 — 2026-11-24
