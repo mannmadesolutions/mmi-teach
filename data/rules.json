@@ -1,6 +1,6 @@
 {
 	"about": "Every requirement between a person and a Wisconsin K-12 job, one entry each. 'kind' is credential (a license or degree; Eligibility adds it when a job needs it and the person lacks it) or step (onboarding everyone in 'roles' goes through). 'blocks' says what waits on it: apply (don't apply before it), first_day (apply now; you can't start until it's done) or none. 'time' is in days, 'cost' in US dollars with who pays. 'collect' is what the checklist stores: done, date, or date+expiry; never a document. 'never' is shown as a warning. 'conflict' marks facts sources disagree on; the site shows it as 'confirm with the employer'. Re-check entries older than 120 days (verified_on); the settings screen lists them. Guidance only, not legal advice.",
-	"verified_on": "2026-11-24",
+	"verified_on": "2026-11-26",
 	"groups": {
 		"credential": "Licenses and degrees",
 		"application": "Applying",
@@ -59,9 +59,7 @@
 			"parallel": true,
 			"time": { "min": 7, "max": 28, "label": "Book an appointment; results add about 2–4 weeks to DPI's processing" },
 			"cost": { "min": 35, "max": 45, "payer": "you", "label": "About $40" },
-			"where": [
-				{ "label": "Fieldprint Wisconsin (code FPWIDPITeach)", "url": "https://dpi.wi.gov/licensing/background-check/fingerprint-requirement/submission" }
-			],
+			"where": [ { "label": "Fieldprint Wisconsin (code FPWIDPITeach)", "url": "https://dpi.wi.gov/licensing/background-check/fingerprint-requirement/submission" } ],
 			"how": [
 				"Book through Fieldprint with code FPWIDPITeach and bring two forms of ID to the appointment.",
 				"Do this before or alongside your DPI application; DPI waits for the prints."
@@ -96,21 +94,23 @@
 				"Attach your official transcript and training certificate (PDF, Word or JPG, 2 MB or less each).",
 				"Answer the 14 Conduct & Competency questions in one sitting (no save; it times out after 30 minutes) and pay by Mastercard, Visa or Discover credit card.",
 				"Apply to employers the same week. Their applications don't wait on the permit; only your first day does.",
+				"Permit expired? Apply again with the same ELO application; DPI lets you reuse the degree and training proof from last time.",
 				"ELO is offline Wednesdays 10 pm to Thursdays 2 am."
 			],
 			"proof": "Permit number from ELO; employers check it on DPI's public license lookup",
-			"valid": { "years": 3, "note": "Any subject and grade, up to 45 consecutive days in one assignment. Renew in ELO." },
+			"valid": { "years": 3, "note": "Any subject and grade, up to 45 consecutive days in one assignment. When it runs out, apply again with the same application" },
 			"collect": "date+expiry",
 			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit",
-			"verified_on": "2026-11-24",
-			"confidence": "high"
+			"verified_on": "2026-11-26",
+			"confidence": "high",
+			"renew_source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-permit/degree-training"
 		},
 		"long_term_license": {
 			"kind": "credential",
 			"group": "credential",
-			"title": "Five-Year Long-Term Substitute License",
-			"short": "Long-term substitute license",
-			"why": "Assignments longer than 45 consecutive days need a license for the assignment. This license is the route for people who finished an educator-preparation program, including retired teachers whose license lapsed (PI 34.033).",
+			"title": "Five-Year Substitute License",
+			"short": "Five-year substitute license",
+			"why": "Assignments longer than 45 consecutive days need a license for the assignment. This license is for people who finished an educator-preparation program and have held, or could hold, a teaching license: retired teachers whose license lapsed, and teachers licensed in another state (PI 34.033).",
 			"roles": [ "substitute" ],
 			"blocks": "first_day",
 			"parallel": false,
@@ -118,19 +118,20 @@
 			"cost": { "min": 135, "max": 190, "payer": "you", "label": "$135; $190 if your license is from another state" },
 			"where": [
 				{ "label": "Educator Licensing Online (ELO)", "url": "https://elo.wieducatorlicensing.org/" },
-				{ "label": "DPI: substitute licenses", "url": "https://dpi.wi.gov/licensing/apply-educator-license/sub-license" }
+				{ "label": "DPI: five-year substitute license", "url": "https://dpi.wi.gov/licensing/apply-educator-license/sub-license" },
+				{ "label": "DPI: out-of-state substitute license", "url": "https://dpi.wi.gov/licensing/apply-educator-license/oos/sub-oos" }
 			],
 			"how": [
-				"Apply in ELO with your transcript and proof you completed an approved educator-preparation program (or your out-of-state license).",
+				"Finished your program in Wisconsin: apply in ELO with your transcript. Licensed in another state: use DPI's out-of-state substitute application with transcripts, your other state's license and a letter saying you want only a substitute license.",
+				"Your preparation program must endorse you; DPI asks it to.",
 				"Answer the Conduct & Competency questions and pay by credit card."
 			],
 			"proof": "License number from ELO",
-			"valid": { "years": 5, "note": "Long-term assignments in your license area; short-term (45 days or less) outside it" },
+			"valid": { "years": 5, "note": "Long-term assignments in your license area; short-term (45 days or less) outside it. Renew with the same application; no coursework" },
 			"collect": "date+expiry",
 			"source": "https://dpi.wi.gov/licensing/apply-educator-license/sub-license",
-			"verified_on": "2026-11-24",
-			"confidence": "medium",
-			"conflict": "Copies of PI 34.033 show both a 2-year and a 5-year term; DPI's page calls it the Five-Year Substitute License."
+			"verified_on": "2026-11-26",
+			"confidence": "high"
 		},
 		"teaching_license": {
 			"kind": "credential",
@@ -142,22 +143,83 @@
 			"blocks": "apply",
 			"parallel": false,
 			"time": { "min": 42, "max": 84, "label": "6–8 weeks once you qualify; an educator-preparation program takes 1–2 years" },
-			"cost": { "min": 135, "max": 190, "payer": "you", "label": "$135; $190 with an out-of-state license" },
+			"cost": { "min": 135, "max": 135, "payer": "you", "label": "$135 license fee, plus the program's tuition" },
 			"where": [
 				{ "label": "Educator Licensing Online (ELO)", "url": "https://elo.wieducatorlicensing.org/" },
-				{ "label": "DPI: what can I teach?", "url": "https://dpi.wi.gov/licensing/general/what-can-i-teach" },
-				{ "label": "Licensed in another state", "url": "https://dpi.wi.gov/licensing/apply-educator-license/oos" }
+				{ "label": "DPI: paths to a teaching license", "url": "https://dpi.wi.gov/licensing/general/teacher-paths" },
+				{ "label": "DPI: what can I teach?", "url": "https://dpi.wi.gov/licensing/general/what-can-i-teach" }
 			],
 			"how": [
-				"Licensed in another state: apply in ELO for the matching Wisconsin license (Tier II) with your license and transcripts.",
-				"Bachelor's degree but no license: a district that wants to hire you can request a One-Year License with Stipulations while you enroll in an educator-preparation program.",
-				"No bachelor's yet: finish one; an education degree includes the license program."
+				"Finish an approved educator-preparation program (an education degree includes one; programs for people who already hold a bachelor's degree run 1–2 years). Your program endorses you and you apply in ELO.",
+				"Bachelor's degree in any subject: American Board (ABCTE) is also accepted as a route to a license.",
+				"Licensed in another state or license expired: see those entries instead."
 			],
 			"proof": "License number from ELO",
 			"valid": { "years": 5, "note": "Tier II license; renew through ELO" },
 			"collect": "date+expiry",
 			"source": "https://dpi.wi.gov/licensing/general/what-can-i-teach",
-			"verified_on": "2026-11-24",
+			"verified_on": "2026-11-26",
+			"confidence": "high"
+		},
+		"oos_license": {
+			"kind": "credential",
+			"group": "credential",
+			"title": "Wisconsin license for a teacher licensed in another state",
+			"short": "Out-of-state license transfer",
+			"why": "Wisconsin doesn't accept another state's license as is; you apply for the matching Wisconsin license and DPI issues the closest one you're eligible for.",
+			"roles": [ "teacher" ],
+			"blocks": "first_day",
+			"parallel": false,
+			"after": [ "fingerprints" ],
+			"time": { "min": 42, "max": 84, "label": "About 8–12 weeks, fingerprints included" },
+			"cost": { "min": 190, "max": 190, "payer": "you", "label": "$190" },
+			"where": [
+				{ "label": "DPI: licensed in another state", "url": "https://dpi.wi.gov/licensing/apply-educator-license/oos" },
+				{ "label": "DPI: license based on reciprocity", "url": "https://dpi.wi.gov/licensing/apply-educator-license/oos/reciprocity" },
+				{ "label": "Educator Licensing Online (ELO)", "url": "https://elo.wieducatorlicensing.org/" }
+			],
+			"how": [
+				"At least one year of teaching on your out-of-state license: apply by reciprocity with a copy of your license (valid, in good standing) and form PI-1613 signed by the school where you taught.",
+				"Less than a year: apply with your transcripts and proof you finished a state-approved educator-preparation program.",
+				"Book DPI fingerprints first; DPI waits for them.",
+				"Apply to districts now. Many interview while DPI processes the application."
+			],
+			"proof": "License number from ELO",
+			"valid": { "years": null, "note": "DPI sets the license and its length from what you hold" },
+			"collect": "date+expiry",
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/oos/reciprocity",
+			"verified_on": "2026-11-26",
+			"confidence": "medium",
+			"conflict": "DPI's pages don't say which tier or length it issues; it decides per applicant."
+		},
+		"license_reissue": {
+			"kind": "credential",
+			"group": "credential",
+			"title": "Reissued three-year provisional license (for an expired Wisconsin license)",
+			"short": "Reissued provisional license",
+			"why": "If your Wisconsin teaching license expired, DPI reissues a three-year provisional license. No coursework is needed, and there's no limit on how many times it can be reissued.",
+			"roles": [ "teacher", "substitute" ],
+			"blocks": "first_day",
+			"parallel": false,
+			"after": [ "fingerprints" ],
+			"time": { "min": 42, "max": 56, "label": "About 6–8 weeks (8–12 with fingerprints)" },
+			"cost": { "min": 125, "max": 125, "payer": "you", "label": "$125" },
+			"where": [
+				{ "label": "DPI: reissue a provisional license", "url": "https://dpi.wi.gov/licensing/apply-educator-license/reissueprv" },
+				{ "label": "Educator Licensing Online (ELO)", "url": "https://elo.wieducatorlicensing.org/" },
+				{ "label": "Look up your old license", "url": "https://dpi.wi.gov/licensing/license-lookup" }
+			],
+			"how": [
+				"Look up your old license on DPI's license lookup to see its subjects and when it expired.",
+				"In ELO request (Re)issuance of Provisional License [3020].",
+				"Answer the 14 Conduct & Competency questions and pay by credit card.",
+				"Covers teaching in your old license's subjects and substitute teaching in any subject."
+			],
+			"proof": "License number from ELO",
+			"valid": { "years": 3, "note": "Six semesters of teaching on it in Wisconsin can lead to a lifetime license" },
+			"collect": "date+expiry",
+			"source": "https://dpi.wi.gov/licensing/apply-educator-license/reissueprv",
+			"verified_on": "2026-11-26",
 			"confidence": "high"
 		},
 		"stipulations": {
@@ -165,25 +227,24 @@
 			"group": "credential",
 			"title": "One-Year License with Stipulations (district requests it)",
 			"short": "License with Stipulations",
-			"why": "Lets a district, charter, private school or CESA that couldn't find a fully licensed teacher hire someone with a bachelor's degree while they complete an educator-preparation program. The employer files the request (form PI-1624-LWS1).",
+			"why": "Lets a district, CESA, charter or private school that can't find a fully licensed teacher hire someone with a bachelor's degree who is enrolled in an educator-preparation program. Only the employer can request it (form PI-1624-LWS1).",
 			"roles": [ "teacher", "substitute" ],
 			"blocks": "first_day",
 			"parallel": false,
 			"time": { "min": 42, "max": 56, "label": "After the district offers the job and requests it; about 6–8 weeks" },
 			"cost": { "min": 140, "max": 140, "payer": "you", "label": "$140, plus enrollment in an educator-preparation program" },
-			"where": [
-				{ "label": "DPI: license with stipulations", "url": "https://dpi.wi.gov/licensing/apply-educator-license/one-year-stip" }
-			],
+			"where": [ { "label": "DPI: license with stipulations", "url": "https://dpi.wi.gov/licensing/apply-educator-license/one-year-stip" } ],
 			"how": [
 				"Ask the district during the interview whether it will request this license for you.",
-				"Enroll in an approved educator-preparation program; the district and the program both sign off in ELO."
+				"Enroll in an approved educator-preparation program; the district and the program both sign off in ELO.",
+				"Finish at least 6 semester credits in the program by August 31 of the year the license expires, or it can't be renewed."
 			],
 			"proof": "License number from ELO",
 			"valid": { "years": 1, "note": "Renewable while you make progress in the program" },
 			"collect": "date+expiry",
 			"source": "https://dpi.wi.gov/licensing/apply-educator-license/one-year-stip",
-			"verified_on": "2026-11-24",
-			"confidence": "medium"
+			"verified_on": "2026-11-26",
+			"confidence": "high"
 		},
 		"sepa_license": {
 			"kind": "credential",
@@ -251,9 +312,7 @@
 			"parallel": false,
 			"time": { "min": 365, "max": 730, "label": "About 2 years full time" },
 			"cost": { "min": 0, "max": 10000, "payer": "you", "label": "Tuition varies; financial aid and employer programs can cover it" },
-			"where": [
-				{ "label": "WTCS Foundations of Teacher Education", "url": "https://www.wtcsystem.edu/" }
-			],
+			"where": [ { "label": "WTCS Foundations of Teacher Education", "url": "https://www.wtcsystem.edu/" } ],
 			"how": [
 				"Wisconsin technical colleges offer an associate degree in Foundations of Teacher Education that also counts toward a bachelor's.",
 				"Meanwhile you can work as an aide: most aide jobs need only a high-school diploma."
@@ -276,10 +335,10 @@
 			"parallel": false,
 			"time": { "min": 730, "max": 1460, "label": "2–4 years" },
 			"cost": { "min": 0, "max": 40000, "payer": "you", "label": "Tuition varies" },
-			"where": [
-				{ "label": "DPI: become a teacher", "url": "https://dpi.wi.gov/licensing/apply-educator-license" }
+			"where": [ { "label": "DPI: become a teacher", "url": "https://dpi.wi.gov/licensing/apply-educator-license" } ],
+			"how": [
+				"An education degree from a Wisconsin educator-preparation program includes the license."
 			],
-			"how": [ "An education degree from a Wisconsin educator-preparation program includes the license." ],
 			"proof": "Official transcript",
 			"valid": { "years": null, "note": "" },
 			"collect": "date",
@@ -299,7 +358,9 @@
 			"time": { "min": 60, "max": 365, "label": "A few months to a year for a GED/HSED" },
 			"cost": { "min": 0, "max": 150, "payer": "you", "label": "Test fees vary" },
 			"where": [ { "label": "Wisconsin GED/HSED (DPI)", "url": "https://dpi.wi.gov/ged" } ],
-			"how": [ "Adult-education centers and technical colleges offer free GED/HSED preparation." ],
+			"how": [
+				"Adult-education centers and technical colleges offer free GED/HSED preparation."
+			],
 			"proof": "Diploma or GED/HSED certificate",
 			"valid": { "years": null, "note": "" },
 			"collect": "date",
@@ -318,7 +379,9 @@
 			"time": { "min": 1, "max": 10, "label": "Electronic transcripts arrive in 1–3 days; paper ones take longer" },
 			"cost": { "min": 0, "max": 20, "payer": "you", "label": "$0–$20 per copy" },
 			"where": [ { "label": "Your college's registrar (most use Parchment or the National Student Clearinghouse)", "url": "https://www.studentclearinghouse.org/" } ],
-			"how": [ "Order an electronic PDF you can attach more than once, if your college offers one." ],
+			"how": [
+				"Order an electronic PDF you can attach more than once, if your college offers one."
+			],
 			"proof": "Transcript PDF, kept on your own device",
 			"valid": { "years": null, "note": "" },
 			"collect": "date",
@@ -434,7 +497,9 @@
 			"time": { "min": 1, "max": 1, "label": "About 1 hour online" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free from DPI" },
 			"where": [ { "label": "DPI required trainings", "url": "https://dpi.wi.gov/sspw/required-trainings" } ],
-			"how": [ "Take DPI's free online course and save the certificate. Already done it for another district? It still counts; keep the certificate." ],
+			"how": [
+				"Take DPI's free online course and save the certificate. Already done it for another district? It still counts; keep the certificate."
+			],
 			"proof": "Completion certificate",
 			"valid": { "years": 5, "note": "Within 6 months of hire, then every 5 years" },
 			"collect": "date+expiry",
@@ -453,7 +518,9 @@
 			"time": { "min": 1, "max": 1, "label": "Under an hour online" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free from DPI" },
 			"where": [ { "label": "DPI required trainings", "url": "https://dpi.wi.gov/sspw/required-trainings" } ],
-			"how": [ "Take it right after the mandated reporter course and save the certificate." ],
+			"how": [
+				"Take it right after the mandated reporter course and save the certificate."
+			],
 			"proof": "Completion certificate",
 			"valid": { "years": 5, "note": "Within 6 months of hire, then every 5 years" },
 			"collect": "date+expiry",
@@ -494,7 +561,9 @@
 			"time": { "min": 1, "max": 1, "label": "Under an hour; the employer assigns it" },
 			"cost": { "min": 0, "max": 0, "payer": "employer", "label": "Free; the employer provides it" },
 			"where": [ { "label": "OSHA standard 1910.1030", "url": "https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.1030" } ],
-			"how": [ "The employer or agency assigns it in its onboarding portal." ],
+			"how": [
+				"The employer or agency assigns it in its onboarding portal."
+			],
 			"proof": "Completion in the employer's system",
 			"valid": { "years": 1, "note": "Yearly" },
 			"collect": "date+expiry",
@@ -513,7 +582,9 @@
 			"time": { "min": 1, "max": 1, "label": "10 minutes at orientation" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free" },
 			"where": [ { "label": "USCIS: acceptable documents", "url": "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents" } ],
-			"how": [ "Choose documents from USCIS's list (for example a passport, or a driver's license plus a Social Security card) and bring the originals." ],
+			"how": [
+				"Choose documents from USCIS's list (for example a passport, or a driver's license plus a Social Security card) and bring the originals."
+			],
 			"proof": "Nothing to keep; the employer files it",
 			"valid": { "years": null, "note": "Once per employer" },
 			"collect": "done",
@@ -533,7 +604,9 @@
 			"time": { "min": 1, "max": 1, "label": "15 minutes in the employer's payroll portal" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free" },
 			"where": [ { "label": "Wisconsin WT-4", "url": "https://www.revenue.wi.gov/DORForms/wt-4.pdf" } ],
-			"how": [ "Fill them in the employer's own payroll system after you're hired." ],
+			"how": [
+				"Fill them in the employer's own payroll system after you're hired."
+			],
 			"proof": "Nothing to keep",
 			"valid": { "years": null, "note": "Update when your situation changes" },
 			"collect": "done",
@@ -553,7 +626,9 @@
 			"time": { "min": 1, "max": 1, "label": "5 minutes" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free" },
 			"where": [],
-			"how": [ "Enter bank details in the employer's payroll portal, or accept the paycard." ],
+			"how": [
+				"Enter bank details in the employer's payroll portal, or accept the paycard."
+			],
 			"proof": "Nothing to keep",
 			"valid": { "years": null, "note": "" },
 			"collect": "done",
@@ -573,7 +648,9 @@
 			"time": { "min": 1, "max": 1, "label": "15 minutes" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free" },
 			"where": [],
-			"how": [ "Use the login the employer sends you, set your schools, grades and days, and turn on notifications." ],
+			"how": [
+				"Use the login the employer sends you, set your schools, grades and days, and turn on notifications."
+			],
 			"proof": "Nothing to keep",
 			"valid": { "years": null, "note": "Keep your availability current" },
 			"collect": "done",
@@ -593,7 +670,9 @@
 			"time": { "min": 1, "max": 1, "label": "2 minutes" },
 			"cost": { "min": 0, "max": 0, "payer": "none", "label": "Free now; renewal fees later" },
 			"where": [ { "label": "Educator Licensing Online (ELO)", "url": "https://elo.wieducatorlicensing.org/" } ],
-			"how": [ "Add a reminder 3 months before the expiry date and renew in ELO." ],
+			"how": [
+				"Add a reminder 3 months before the expiry date and renew in ELO."
+			],
 			"proof": "Nothing to keep",
 			"valid": { "years": null, "note": "" },
 			"collect": "done",
@@ -613,7 +692,9 @@
 			"time": { "min": 1, "max": 7, "label": "One clinic visit; MPS schedules it" },
 			"cost": { "min": 0, "max": 0, "payer": "employer", "label": "Paid by MPS" },
 			"where": [ { "label": "MPS substitute teachers", "url": "https://www.milwaukeepublicschools.org/about/employment/careers/substitute-teachers" } ],
-			"how": [ "Wait for MPS to send the clinic details after your interview." ],
+			"how": [
+				"Wait for MPS to send the clinic details after your interview."
+			],
 			"proof": "Nothing to keep",
 			"valid": { "years": null, "note": "" },
 			"collect": "date",

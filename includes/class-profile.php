@@ -33,15 +33,16 @@ final class Profile {
 		'master'       => 'Master’s degree or higher',
 	);
 
-	/** The DPI credential held now. */
+	/** The DPI credential held now, from the quickest to get to the fullest. */
 	public const CRED = array(
-		'none'       => 'None',
-		'permit'     => 'Wisconsin substitute permit (3-year)',
-		'long_term'  => 'Wisconsin long-term substitute license',
-		'wi_license' => 'Wisconsin teaching license',
-		'expired'    => 'Wisconsin teaching license, now expired',
-		'oos'        => 'Teaching license from another state',
-		'sepa'       => 'Special Education Program Aide license',
+		'none'           => 'None yet',
+		'sepa'           => 'Special Education Program Aide license',
+		'permit'         => 'Wisconsin substitute permit (3-year)',
+		'permit_expired' => 'Wisconsin substitute permit, now expired',
+		'long_term'      => 'Wisconsin five-year substitute license',
+		'wi_license'     => 'Wisconsin teaching license (any tier)',
+		'expired'        => 'Wisconsin teaching license, now expired',
+		'oos'            => 'Teaching license from another state',
 	);
 
 	public const AGES = array(

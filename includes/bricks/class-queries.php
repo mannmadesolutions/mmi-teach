@@ -245,7 +245,13 @@ final class Queries {
 			$steps = array_map(
 				static function ( $id ) {
 					$item = Rules::item( $id );
-					return $item ? '<li><strong>' . esc_html( $item['short'] ?? $item['title'] ) . '</strong> · ' . esc_html( $item['time']['label'] ?? '' ) . ' · ' . esc_html( $item['cost']['label'] ?? '' ) . '</li>' : '';
+					if ( ! $item ) {
+						return '';
+					}
+					// Where to start; the full how-to is on the checklist.
+					$where = $item['where'][0] ?? null;
+					return '<li><strong>' . esc_html( $item['short'] ?? $item['title'] ) . '</strong> · ' . esc_html( $item['time']['label'] ?? '' ) . ' · ' . esc_html( $item['cost']['label'] ?? '' )
+						. ( $where ? '<br>' . esc_html__( 'Start here:', 'mmi-teach' ) . ' <a href="' . esc_url( $where['url'] ) . '" target="_blank" rel="noopener">' . esc_html( $where['label'] ) . '</a>' : '' ) . '</li>';
 				},
 				$path['gaps']
 			);

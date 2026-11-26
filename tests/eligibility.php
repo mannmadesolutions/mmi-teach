@@ -84,7 +84,14 @@ $ok( 'check' === $r['status'], 'bachelor → private school check' );
 $r = $case( array( 'edu' => 'associate' ) + $base, $teach );
 $ok( 'later' === $r['status'] && (bool) preg_grep( '/substitute/i', $r['reasons'] ), 'associate → teacher later, suggests subbing' );
 $r = $case( array( 'edu' => 'bachelor', 'cred' => 'oos', 'areas' => array( 'math' ), 'outside_wi' => 1 ) + $base, $teach );
-$ok( 'steps' === $r['status'] && array( 'teaching_license', 'fingerprints' ) === $r['gaps'], 'out-of-state → license transfer + fingerprints' );
+$ok( 'steps' === $r['status'] && array( 'oos_license', 'fingerprints' ) === $r['gaps'], 'out-of-state → out-of-state application + fingerprints' );
+$r = $case( array( 'edu' => 'bachelor', 'cred' => 'expired', 'areas' => array( 'math' ) ) + $base, $teach );
+$ok( 'steps' === $r['status'] && array( 'license_reissue' ) === $r['gaps'], 'lapsed license → reissued provisional license for teaching' );
+$r = $case( array( 'edu' => 'associate', 'cred' => 'permit_expired' ) + $base, $sub );
+$ok( 'steps' === $r['status'] && array( 'sub_permit' ) === $r['gaps'] && $r['can_apply'], 'expired permit → apply again, no new course' );
+$r = $case( array( 'edu' => 'bachelor', 'cred' => 'permit_expired' ) + $base, array( 'sub_kind' => 'long_term' ) + $sub );
+$ok( ! in_array( 'sub_training', $r['gaps'], true ), 'expired permit → long-term sub needs no new course' );
+$ok( isset( Profile::CRED['permit_expired'] ) && 'permit_expired' === Profile::sanitize( array( 'cred' => 'permit_expired' ) )['cred'], 'expired permit is an answer' );
 
 $aide = array( 'role' => 'aide', 'sub_kind' => '', 'degree' => 'high_school', 'licenses' => array() ) + $sub;
 $r = $case( array( 'edu' => 'none' ) + $base, $aide );

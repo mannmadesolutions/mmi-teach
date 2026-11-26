@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.1.0 — 2026-11-26
+
+Clearer Wisconsin license choices and how to get each one, checked against DPI's pages on 2026-11-26.
+
+- **Check, license question:** options run from the quickest credential to the fullest. "Wisconsin
+  substitute permit, now expired" is new; the long-term license now uses DPI's name ("five-year
+  substitute license"); "any tier" is added to the teaching license. The hint says what to pick if
+  you hold several, and links DPI's public license lookup and the licenses guide. The subjects
+  question now covers expired and out-of-state licenses too.
+- **New `rules.json` items:** `license_reissue` (expired Wisconsin license → reissued three-year
+  provisional license, $125, ELO 3020, no coursework) and `oos_license` (out-of-state application,
+  $190; reciprocity with a year or more of teaching on form PI-1613, otherwise transcripts and a
+  completed program).
+- **Corrected items:** an expired permit is applied for again with the same proof and no new course.
+  The five-year substitute license term is confirmed on DPI's page, so its conflict note is gone, and
+  the out-of-state version is listed. Stipulations list DPI's conditions: the employer couldn't find a
+  licensed teacher, and the holder needs 6 credits by August 31 to renew. The teaching license now
+  lists the in-state routes, including American Board.
+- **Eligibility:** expired permit → `sub_permit` only. Expired license, teaching jobs →
+  `license_reissue`, not "renew"; substitute jobs keep the five-year substitute license and mention the
+  reissue. Out-of-state, teaching jobs → `oos_license`. Fingerprints are added to both new applications.
+- **Your options cards:** each missing step links to where to start it; the full steps stay on the checklist.
+- **Guide "Licenses and permits"** (was "Teaching licenses", same URL): one "you have → get → lets
+  you → cost" table with anchors to each credential's details, plus the license lookup.
+- **Tests:** out-of-state, lapsed-license and expired-permit cases.
+
 ## 2.0.0 — 2026-11-24
 
 Rebuilds the site as a job search, eligibility check, checklist and application flow on Bricks,

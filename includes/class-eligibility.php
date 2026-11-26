@@ -102,7 +102,7 @@ final class Eligibility {
 			$reasons[] = __( 'Your checklist shows the missing steps done.', 'mmi-teach' );
 		}
 		// Fingerprints go with any new DPI application by someone who's lived out of state.
-		if ( $p['outside_wi'] && array_intersect( $gaps, array( 'sub_permit', 'long_term_license', 'teaching_license', 'sepa_license', 'stipulations' ) ) && ! in_array( 'fingerprints', $gaps, true ) && 'done' !== Profile::task( 'fingerprints', $tasks )[0] ) {
+		if ( $p['outside_wi'] && array_intersect( $gaps, array( 'sub_permit', 'long_term_license', 'teaching_license', 'oos_license', 'license_reissue', 'sepa_license', 'stipulations' ) ) && ! in_array( 'fingerprints', $gaps, true ) && 'done' !== Profile::task( 'fingerprints', $tasks )[0] ) {
 			$gaps[] = 'fingerprints';
 		}
 		return self::result( $status, $reasons, $gaps, $maybe );
@@ -135,13 +135,23 @@ final class Eligibility {
 		if ( in_array( $p['cred'], array( 'permit', 'long_term', 'wi_license' ), true ) ) {
 			return array( self::NOW, array( sprintf( __( 'Your %s covers substitute teaching.', 'mmi-teach' ), self::cred_name( $p['cred'] ) ) ), array() );
 		}
+		if ( 'permit_expired' === $p['cred'] ) {
+			return array(
+				self::STEPS,
+				array(
+					__( 'Apply for the permit again with the same ELO application. You can reuse your degree and training proof; no new course.', 'mmi-teach' ),
+					__( 'Apply to employers now; only your first day waits on DPI.', 'mmi-teach' ),
+				),
+				array( 'sub_permit' ),
+			);
+		}
 		if ( in_array( $p['cred'], array( 'expired', 'oos' ), true ) ) {
 			return array(
 				self::STEPS,
 				array(
 					'expired' === $p['cred']
-						? __( 'With a lapsed Wisconsin license, the long-term substitute license is your quickest route; no training course needed.', 'mmi-teach' )
-						: __( 'With a license from another state, the long-term substitute license is your quickest route; no training course needed.', 'mmi-teach' ),
+						? __( 'With a lapsed Wisconsin license, the five-year substitute license is your quickest route; no training course needed. To teach again as well, ask DPI to reissue your license instead ($125); it covers substitute teaching too.', 'mmi-teach' )
+						: __( 'With a license from another state, the five-year substitute license is your quickest route; no training course needed.', 'mmi-teach' ),
 					__( 'Apply to employers now; only your first day waits on DPI.', 'mmi-teach' ),
 				),
 				array( 'long_term_license' ),
@@ -180,7 +190,7 @@ final class Eligibility {
 			);
 		}
 		if ( in_array( $p['cred'], array( 'expired', 'oos' ), true ) ) {
-			return array( self::STEPS, array( __( 'The long-term substitute license covers assignments in your license area; apply for it alongside the job.', 'mmi-teach' ) ), array( 'long_term_license' ) );
+			return array( self::STEPS, array( __( 'The five-year substitute license covers long assignments in your license area; apply for it alongside the job.', 'mmi-teach' ) ), array( 'long_term_license' ) );
 		}
 		if ( self::EDU_RANK[ $p['edu'] ] >= 5 ) {
 			return array(
@@ -188,7 +198,7 @@ final class Eligibility {
 				array(
 					__( 'With a bachelor’s degree, get the substitute permit (up to 45 days in one assignment); for longer, the district can request a license with stipulations.', 'mmi-teach' ),
 				),
-				array( 'sub_training', 'sub_permit' ),
+				'permit_expired' === $p['cred'] ? array( 'sub_permit' ) : array( 'sub_training', 'sub_permit' ),
 				array( 'stipulations' ),
 			);
 		}
@@ -238,21 +248,24 @@ final class Eligibility {
 				array( 'bachelor_degree' ),
 			);
 		}
-		if ( in_array( $p['cred'], array( 'oos', 'expired' ), true ) ) {
+		if ( 'oos' === $p['cred'] ) {
 			return array(
 				self::STEPS,
-				array(
-					'oos' === $p['cred']
-						? __( 'Your out-of-state license transfers: apply in ELO for the matching Wisconsin license. Many districts interview while it’s processed.', 'mmi-teach' )
-						: __( 'Renew your Wisconsin license in ELO; districts can interview you meanwhile.', 'mmi-teach' ),
-				),
-				array( 'teaching_license' ),
+				array( __( 'Apply to DPI as an out-of-state teacher ($190). With a year or more of teaching it goes by reciprocity; DPI issues the closest Wisconsin license. Many districts interview while it’s processed.', 'mmi-teach' ) ),
+				array( 'oos_license' ),
+			);
+		}
+		if ( 'expired' === $p['cred'] ) {
+			return array(
+				self::STEPS,
+				array( __( 'Ask DPI to reissue your license as a three-year provisional license ($125, no coursework). Districts can interview you meanwhile.', 'mmi-teach' ) ),
+				array( 'license_reissue' ),
 			);
 		}
 		return array(
 			self::CHECK,
 			array(
-				__( 'You have the degree but no license. A district that wants to hire you can request a One-Year License with Stipulations while you enroll in a teacher-prep program.', 'mmi-teach' ),
+				__( 'You have the degree but no license. A district that can’t find a licensed teacher can request a One-Year License with Stipulations for you, once you enroll in a teacher-prep program.', 'mmi-teach' ),
 			),
 			array(),
 			array( 'stipulations' ),
@@ -342,7 +355,7 @@ final class Eligibility {
 
 		foreach ( $fit['gaps'] ?? array() as $id ) {
 			$item = Rules::item( $id );
-			if ( ! $item || in_array( $id, array( 'sub_permit', 'teaching_license', 'sepa_license', 'associate_degree', 'bachelor_degree', 'high_school' ), true ) ) {
+			if ( ! $item || in_array( $id, array( 'sub_permit', 'teaching_license', 'oos_license', 'license_reissue', 'sepa_license', 'associate_degree', 'bachelor_degree', 'high_school' ), true ) ) {
 				continue; // Already shown as the degree or license row.
 			}
 			$rows[] = array( 'id' => $id, 'title' => $item['title'], 'state' => 'need', 'note' => $item['time']['label'] ?? '', 'detail' => $item['cost']['label'] ?? '' );
@@ -431,7 +444,7 @@ final class Eligibility {
 	private static function cred_name( string $cred ): string {
 		return array(
 			'permit'     => __( 'substitute permit', 'mmi-teach' ),
-			'long_term'  => __( 'long-term substitute license', 'mmi-teach' ),
+			'long_term'  => __( 'five-year substitute license', 'mmi-teach' ),
 			'wi_license' => __( 'Wisconsin teaching license', 'mmi-teach' ),
 		)[ $cred ] ?? $cred;
 	}

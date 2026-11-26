@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       MMI Teach — School Jobs, Eligibility and Applications
  * Description:       Open K-12 teacher, substitute and aide jobs in Milwaukee, Waukesha and Racine counties (Wisconsin), with an eligibility check, a sourced checklist of Wisconsin requirements and an apply-here-then-hand-off application flow, built on Bricks.
- * Version:           2.0.0
+ * Version:           2.1.0
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Author:            MannMade Solutions
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MMI_TEACH_VERSION', '2.0.0' );
+define( 'MMI_TEACH_VERSION', '2.1.0' );
 define( 'MMI_TEACH_FILE', __FILE__ );
 define( 'MMI_TEACH_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MMI_TEACH_URL', plugin_dir_url( __FILE__ ) );

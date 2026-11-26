@@ -54,7 +54,7 @@ final class Checklist {
 			if ( ! empty( $item['only_employers'] ) && ! ( $job && in_array( $job['employer'], $item['only_employers'], true ) ) ) {
 				continue;
 			}
-			if ( 'has_dpi_credential' === ( $item['if'] ?? '' ) && ! ( $p && ( 'none' !== $p['cred'] || array_intersect( array_keys( $ids ), array( 'sub_permit', 'long_term_license', 'teaching_license', 'sepa_license' ) ) ) ) ) {
+			if ( 'has_dpi_credential' === ( $item['if'] ?? '' ) && ! ( $p && ( 'none' !== $p['cred'] || array_intersect( array_keys( $ids ), array( 'sub_permit', 'long_term_license', 'teaching_license', 'oos_license', 'license_reissue', 'sepa_license' ) ) ) ) ) {
 				continue;
 			}
 			$ids[ $id ] ??= '';
