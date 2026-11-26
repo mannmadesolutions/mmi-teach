@@ -3,6 +3,8 @@ namespace MMI_Teach\Bricks;
 
 use MMI_Teach\Accounts;
 use MMI_Teach\Applications;
+use MMI_Teach\Dpi_Limit;
+use MMI_Teach\Dpi_Lookup;
 use MMI_Teach\Jobs;
 use MMI_Teach\Mail;
 use MMI_Teach\Pages;
@@ -28,6 +30,7 @@ final class Actions {
 		'mt_app_status' => 'MMI Teach: update my application status',
 		'mt_delete_me'  => 'MMI Teach: delete my account and data',
 		'mt_redirect'   => 'MMI Teach: return to the job after joining or signing in',
+		'mt_dpi_search' => 'MMI Teach: find my license in DPI’s lookup',
 	);
 
 	/** Field IDs the builder gives each form (Build\Site uses the same). */
@@ -53,6 +56,9 @@ final class Actions {
 		'password' => 'mtdpwd',
 		'to'       => 'mtrdto',
 		'job'      => 'mtjobi',
+		'last'     => 'mtlast',
+		'first'    => 'mtfrst',
+		'file'     => 'mtfile',
 	);
 
 	public static function register(): void {
@@ -96,6 +102,63 @@ final class Actions {
 			)
 		);
 		unset( $profile );
+		Dpi_Lookup::mark_used();
+	}
+
+	/**
+	 * Searches DPI's public lookup by name or file number. One match (or a file number) goes
+	 * straight to the record; several are listed for the visitor to pick from. The name is used
+	 * for this request only and isn't stored on the server.
+	 */
+	public static function mt_dpi_search( $form ): void {
+		$f     = $form->get_fields();
+		$name  = static function ( string $key ) use ( $f ): string {
+			$v = trim( preg_replace( '/\s+/', ' ', sanitize_text_field( (string) ( $f[ 'form-field-' . self::F[ $key ] ] ?? '' ) ) ) );
+			return preg_match( "/^[\p{L}][\p{L} .'’-]{0,49}$/u", $v ) ? str_replace( '’', "'", $v ) : '';
+		};
+		$last  = $name( 'last' );
+		$first = $name( 'first' );
+		$file  = preg_replace( '/\D/', '', self::one( $f, 'file' ) );
+		$back  = add_query_arg( 'dpi', base_convert( (string) time(), 10, 36 ), Pages::url( 'check' ) ) . '#find-license';
+		if ( '' === $file && '' === $last ) {
+			self::error( $form, 'mt_dpi_search', __( 'Enter your last name (letters only), or your DPI file number.', 'mmi-teach' ) );
+			return;
+		}
+		try {
+			if ( '' !== $file ) {
+				if ( strlen( $file ) > 9 ) {
+					self::error( $form, 'mt_dpi_search', __( 'That file number is too long. It’s up to 9 digits.', 'mmi-teach' ) );
+					return;
+				}
+				Dpi_Lookup::save_record( (int) $file, Dpi_Lookup::interpret( Dpi_Lookup::details( (int) $file ) ) );
+			} else {
+				$matches = Dpi_Lookup::search( $last, $first );
+				if ( ! $matches ) {
+					self::error( $form, 'mt_dpi_search', __( 'DPI has no one by that name. Check the spelling, try only your last name, or use your file number.', 'mmi-teach' ) );
+					return;
+				}
+				if ( 1 === count( $matches ) ) {
+					Dpi_Lookup::save_record( $matches[0][0], Dpi_Lookup::interpret( Dpi_Lookup::details( $matches[0][0] ) ) );
+				} else {
+					Dpi_Lookup::save_matches( trim( $last . ', ' . $first, ', ' ), $matches );
+				}
+			}
+		} catch ( Dpi_Limit $e ) {
+			self::error( $form, 'mt_dpi_search', __( 'That’s a lot of lookups in a short time. Try again in 15 minutes, or search on DPI’s own site.', 'mmi-teach' ) );
+			return;
+		} catch ( \RuntimeException $e ) {
+			error_log( 'mmi-teach DPI lookup: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- no name in the message.
+			self::error( $form, 'mt_dpi_search', __( 'DPI’s lookup isn’t answering right now. Try again in a few minutes, or search on DPI’s own site.', 'mmi-teach' ) );
+			return;
+		}
+		$form->set_result(
+			array(
+				'action'     => 'mt_dpi_search',
+				'type'       => 'redirect',
+				'redirectTo' => $back,
+				'message'    => __( 'Found.', 'mmi-teach' ),
+			)
+		);
 	}
 
 	public static function mt_task( $form ): void {

@@ -234,6 +234,22 @@ final class Profile {
 
 	/* ---------- cookies ---------- */
 
+	/** Another feature's first-party cookie (same encoding and flags), or null. */
+	public static function cookie( string $name ): ?array {
+		return self::read_cookie( $name );
+	}
+
+	/** Writes (or with null, deletes) another feature's cookie for $ttl seconds. */
+	public static function store_cookie( string $name, ?array $data, int $ttl ): void {
+		if ( null === $data ) {
+			self::write_cookie( $name, null );
+			return;
+		}
+		$value = rtrim( strtr( base64_encode( (string) wp_json_encode( $data ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		self::set_cookie( $name, $value, $ttl );
+		$_COOKIE[ $name ] = $value;
+	}
+
 	private static function read_cookie( string $name ): ?array {
 		if ( empty( $_COOKIE[ $name ] ) || ! is_string( $_COOKIE[ $name ] ) || strlen( $_COOKIE[ $name ] ) > 3000 ) {
 			return null;

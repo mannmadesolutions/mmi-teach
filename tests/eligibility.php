@@ -125,6 +125,27 @@ $ok( str_contains( $i9['never'], 'Never email or upload' ), 'I-9 row warns again
 $held = Checklist::rows( Profile::sanitize( array( 'edu' => 'associate', 'cred' => 'permit', 'roles' => array( 'substitute' ) ) + $base ), null, array() );
 $ok( 'held' === ( array_column( $held, 'state', 'id' )['sub_permit'] ?? '' ), 'held permit shows as held' );
 
+/* ---------- DPI lookup parser (anonymized saved pages) ---------- */
+$fx   = static fn( string $name ) => (string) file_get_contents( __DIR__ . '/fixtures/dpi/' . $name . '.html' );
+$dpi  = static fn( string $name ) => \MMI_Teach\Dpi_Lookup::interpret( \MMI_Teach\Dpi_Lookup::parse_details( $fx( $name ) ), '2026-11-26' );
+$list = \MMI_Teach\Dpi_Lookup::parse_matches( $fx( 'results' ) );
+$ok( count( $list ) >= 10 && 900000 === $list[0][0] && str_starts_with( $list[0][1], 'Sample' ), 'DPI results: file numbers and names parsed' );
+$r = $dpi( 'lifetime-valid' );
+$ok( 'wi_license' === $r['cred'] && in_array( 'business_ed', $r['areas'], true ) && 'bachelor' === $r['edu_min'], 'DPI: valid lifetime license → WI license, business ed' );
+$ok( 'valid' === $r['rows'][0]['state'], 'DPI: current license listed first' );
+$r = $dpi( 'sub5-valid' );
+$ok( 'long_term' === $r['cred'] && in_array( 'social_studies', $r['areas'], true ), 'DPI: substitute 5-year stage → five-year substitute license' );
+$r = $dpi( 'permit-expired' );
+$ok( 'permit_expired' === $r['cred'] && ! $r['areas'], 'DPI: expired T910 → expired permit' );
+$r = $dpi( 'invalid-lifetime' );
+$ok( 'expired' === $r['cred'] && in_array( 'social_studies', $r['areas'], true ), 'DPI: invalid lifetime license → expired teaching license' );
+$ok( ! preg_grep( '/Ask DPI/', $r['notes'] ), 'DPI: "License Invalid" is not flagged as a problem' );
+$r = $dpi( 'aide-valid' );
+$ok( 'sepa' === $r['cred'], 'DPI: aide license → program aide' );
+$r = $dpi( 'admin-and-teaching' );
+$ok( 'expired' === $r['cred'] && 'Teaching license' === substr( $r['rows'][0]['title'], 0, 16 ), 'DPI: teaching rows shown before administrator rows' );
+$ok( 'none' === \MMI_Teach\Dpi_Lookup::interpret( array( 'licenses' => array() ) )['cred'], 'DPI: empty record → none' );
+
 /* ---------- every open posting × every persona ---------- */
 $rows   = Store::open_rows( array_keys( Plugin::COUNTIES ) );
 $matrix = array();

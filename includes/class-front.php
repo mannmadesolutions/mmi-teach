@@ -49,6 +49,8 @@ final class Front {
 		}
 		// phpcs:enable
 
+		self::dpi_links();
+
 		if ( get_option( self::OPTION_LIVE ) && is_404() ) {
 			$path = trim( (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH ), '/' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			if ( isset( self::REDIRECTS[ $path ] ) ) {
@@ -112,6 +114,41 @@ final class Front {
 		}
 		set_transient( $key, $ids, HOUR_IN_SECONDS );
 		return $ids;
+	}
+
+	/**
+	 * "This is me" and "Search again" links from the DPI lookup. A picked file number must be
+	 * one of the visitor's own matches; anything else is ignored.
+	 */
+	private static function dpi_links(): void {
+		if ( ! isset( $_GET['mt_dpi_pick'] ) && ! isset( $_GET['mt_dpi_forget'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checked below.
+			return;
+		}
+		$back = Pages::url( 'check' );
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_mtn'] ?? '' ) ), 'mt_dpi' ) ) {
+			wp_safe_redirect( $back . '#find-license', 303 );
+			exit;
+		}
+		if ( isset( $_GET['mt_dpi_forget'] ) ) {
+			Dpi_Lookup::forget();
+			wp_safe_redirect( $back . '#find-license', 303 );
+			exit;
+		}
+		$id      = absint( $_GET['mt_dpi_pick'] );
+		$matches = Dpi_Lookup::matches();
+		$error   = '';
+		if ( $id && $matches && in_array( $id, array_column( $matches['m'], 0 ), true ) ) {
+			try {
+				Dpi_Lookup::save_record( $id, Dpi_Lookup::interpret( Dpi_Lookup::details( $id ) ) );
+			} catch ( Dpi_Limit $e ) {
+				$error = 'limit';
+			} catch ( \RuntimeException $e ) {
+				error_log( 'mmi-teach DPI lookup: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				$error = 'down';
+			}
+		}
+		wp_safe_redirect( ( $error ? add_query_arg( 'dpi_error', $error, $back ) : $back ) . '#find-license', 303 );
+		exit;
 	}
 
 	/** Redirects to the same URL without the given query keys (after a view switch). */

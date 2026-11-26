@@ -1,0 +1,470 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+<script>
+	
+	var skipText = '[[ rsdMenuSkipText ]]';
+	var startFromSummary = false;
+	
+</script>
+
+<html>
+<head><title>DPI fixture</title></head>
+<body id = "wrapperContent" onload="blBodyLoaded='true';">
+
+
+<div id="main" >
+
+<div id="pageTop" width="100%" >
+	<table cellpadding="0" cellspacing="0" border="0" width="100%">
+		<tr>
+			<td colspan="2" height="4" style="background-color:rgb(255,255,255);">
+				
+			</td>		
+		</tr>
+		<tr height="92">
+			<td height="92" class="headerBar">
+				<img height="92" src="/images/elo.png" title="Wisconsin Department of Public Instruction" alt="Wisconsin Department of Public Instruction" border="0"/>
+			</td>
+			<td>
+				<div id="accessibility"><a href="#" class="accessibility"><img src="/images/blank.gif" title="Accessibility" alt="Accessibility" width="0" height="0" border="0" /></a>
+				<a href="#skiptocontent"><img src="/images/blank.gif" class="accessibility" title="Skip to Main Content" alt="Skip to Main Content" width="0" height="0" border="0" /></a></div>
+			</td>			
+		</tr>
+		<tr>
+			<td colspan="2" height="4" style="background-color:rgb(255,255,255);">
+				
+			</td>		
+		</tr>
+	</table>
+</div>
+
+
+
+
+
+
+<div id="applicationBox">
+
+	<p class="applicationLinksFont"></p>
+
+</div>
+
+<div id="container">
+<div id="contentBox0">
+<div id="contentBox1">
+<div id="contentBox2">
+<div id="innerContent">
+<div id="innerContent2">
+
+    <div class="air_rounded_bluebox_top"></div>
+
+
+	<div id="contentBox">
+		
+		<h2>Search by Name Results List</h2>
+		<div class="instructionFont">
+		
+		</div>
+	
+
+
+<script type="text/javascript">
+$(window).load(function () {	
+	//alert($('#results tr:eq(5) td:first').text());
+	$("span > a:eq(0)").focus();
+	//alert($("*:focus").attr("id"));	
+}); 
+
+function runScript(e,count,xentId){	
+	var c = parseInt(count);	
+	if (e.keyCode == 9) {
+		return false;
+	}		
+    if(e.keyCode == 13){       
+       //if (c==1) {           
+       window.location="/datamart/licenseDetails.do?xentId="+xentId;
+       return true;
+       //}
+    }
+    return false;
+}
+
+function runScriptClick(xentId){	
+     window.location="/datamart/licenseDetails.do?xentId="+xentId;
+     return true;
+}
+
+</script>
+	
+	<p class="instructionFont">Click on "Name" to see details.</p>	
+	<p class="instructionFont">Click "Back" to return to the previous page.</p>
+	<p class="instructionFont">Click "New Search" to start new search.</p>
+	
+	
+	
+	<form name="PublicSearchForm" method="post" action="/datamart/searchResults.do;jsessionid=FIXTURE" class="formListing">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" id="results" >
+  				<tr class="listingHeader">
+  					<td class="col" width="30%"><b>Search Criteria</b></td>
+  					<td class="col" width="70%"><b>Search by Name</b></td>
+  				</tr>
+  			<tr> 
+				<td class="labelCell"><span class="labelLeft">Last Name:</span></td>
+				<td class="labelCell">
+					<span class="labelLeft">
+				 		Sample
+			 		</span>
+		 		</td>
+  			</tr>	
+		 	
+				<tr> 
+			 		<td class="labelCell"><span class="labelLeft">First Name:</span></td>
+			  		<td class="labelCell">
+					<span class="labelLeft">
+				 		Person
+			 		</span>
+		 		</td>
+			  	</tr>
+		  			
+
+			<tr>
+				<td colspan="2">
+					<br/>
+				</td>
+			</tr>
+
+			<tr class="listingHeader">
+				<td class="col"><b>Name</b></td>
+				<td class="col"><b>File Number</b></td>
+			</tr>
+			
+				
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link1"  onclick="runScriptClick(900000);" onkeypress="runScript(event,1,900000);" tabindex="2"  >
+								Sample, Person 01</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900000
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link2"  onclick="runScriptClick(900001);" onkeypress="runScript(event,2,900001);" tabindex="3"  >
+								Sample, Person 05</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900001
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link3"  onclick="runScriptClick(900002);" onkeypress="runScript(event,3,900002);" tabindex="4"  >
+								Sample, Person 07</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900002
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link4"  onclick="runScriptClick(900003);" onkeypress="runScript(event,4,900003);" tabindex="5"  >
+								Sample, Person 02</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900003
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link5"  onclick="runScriptClick(900004);" onkeypress="runScript(event,5,900004);" tabindex="6"  >
+								Sample, Person 09</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900004
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link6"  onclick="runScriptClick(900005);" onkeypress="runScript(event,6,900005);" tabindex="7"  >
+								Sample, Person 09</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900005
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link7"  onclick="runScriptClick(900006);" onkeypress="runScript(event,7,900006);" tabindex="8"  >
+								Sample, Person 03</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900006
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link8"  onclick="runScriptClick(900007);" onkeypress="runScript(event,8,900007);" tabindex="9"  >
+								Sample, Person 08</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900007
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link9"  onclick="runScriptClick(900008);" onkeypress="runScript(event,9,900008);" tabindex="10"  >
+								Sample, Person 11</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900008
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link10"  onclick="runScriptClick(900009);" onkeypress="runScript(event,10,900009);" tabindex="11"  >
+								Sample, Person 06</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900009
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link11"  onclick="runScriptClick(900010);" onkeypress="runScript(event,11,900010);" tabindex="12"  >
+								Sample, Person 10</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900010
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link12"  onclick="runScriptClick(900011);" onkeypress="runScript(event,12,900011);" tabindex="13"  >
+								Sample, Person 12</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900011
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRow">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link13"  onclick="runScriptClick(900012);" onkeypress="runScript(event,13,900012);" tabindex="14"  >
+								Sample, Person 13</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900012
+							</span>
+						</td>
+						</tr>
+				
+					<tr class="itemRowAlt">
+						<td class="itemCell">
+							<span class="item">								
+								
+								<a href="javascript:void(0)" id="link14"  onclick="runScriptClick(900013);" onkeypress="runScript(event,14,900013);" tabindex="15"  >
+								Sample, Person 04</a>								
+								
+							</span>
+						</td>
+						<td class="itemCell">
+							<span class="item">
+								900013
+							</span>
+						</td>
+						</tr>
+				
+										
+			
+		</table>
+		<br/>
+		
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+<script>
+	
+	var skipText = '[[ rsdMenuSkipText ]]';
+	var startFromSummary = false;
+	
+</script>
+
+
+
+
+
+
+
+
+
+<script src="js/navigation.js" type="text/javascript"></script>
+
+
+<input type="hidden" id="contextPath" value="/datamart"/>
+<input type="hidden" id="param_applicationId" value='null'/>
+<input type="hidden" id="param_moduleCode" value='null'/>
+<input type="hidden" id="param_rsdIndex" value='null'/>
+
+<input type="hidden" id="param_fakeCode" value='null'/>
+<input type="hidden" id="param_fakeCode2" value='null'/>
+		
+		<table cellpadding="0" cellspacing="0" border="0" width="100%"  >
+			<tr>
+				<td colspan="2">		
+					
+			
+
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	<tr>		
+		<td align="right">
+			<b>
+				
+						
+				
+				
+				
+				
+				<input type="hidden" name="anchor" 
+					value="90db13f.0" />
+			</b>
+		</td>
+		
+		
+		
+		<td align="right" width="7%">
+			<input name="back" type="submit" value="Back" class="buttonMiddle"/>
+		</td>
+		
+		
+			<td align="right" width="10%">
+				<input name="newsearch" type="submit" value="New Search" class="buttonMiddle"/>
+			</td>
+		
+	</tr>
+</table>
+	
+				</td>
+			</tr>
+		</table>	
+	</form> 		
+
+
+	</div>
+
+    <div class="air_rounded_bluebox_btm"></div>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="clear"></div>
+
+
+</div>
+
+</body>
+</html>
+

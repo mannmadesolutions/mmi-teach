@@ -4,6 +4,7 @@ namespace MMI_Teach\Bricks;
 use MMI_Teach\Applications;
 use MMI_Teach\Checklist;
 use MMI_Teach\Classifier;
+use MMI_Teach\Dpi_Lookup;
 use MMI_Teach\Eligibility;
 use MMI_Teach\Front;
 use MMI_Teach\Jobs;
@@ -36,6 +37,16 @@ final class Tags {
 		'mt_profile_outside_wi' => 'Answer: lived outside Wisconsin (yes/no)',
 		'mt_profile_roles'      => 'Answer: roles wanted (keys)',
 		'mt_profile_summary'    => 'Answers in one line',
+		'mt_dpi_state'          => 'DPI lookup: record, matches or empty',
+		'mt_dpi_summary'        => 'DPI lookup: what the record means, in one line',
+		'mt_dpi_notes_html'     => 'DPI lookup: notes (list)',
+		'mt_dpi_more'           => 'DPI lookup: "and N older licenses"',
+		'mt_dpi_url'            => 'DPI lookup: the record on DPI’s site',
+		'mt_dpi_match_note'     => 'DPI lookup: how many people matched',
+		'mt_dpi_forget_url'     => 'DPI lookup: search again',
+		'mt_dpi_error'          => 'DPI lookup: error after picking a match',
+		'mt_dpi_prefill'        => 'DPI lookup: record is filling in the form (1 or empty)',
+		'mt_dpi_lookup_url'     => 'DPI’s own license lookup page',
 		'mt_persona'            => 'Sample person in use (key or empty)',
 		'mt_persona_name'       => 'Sample person in use (name)',
 		'mt_progress'           => 'Checklist progress ("4 of 17 done")',
@@ -158,16 +169,64 @@ final class Tags {
 		if ( ! isset( self::TAGS[ $name ] ) ) {
 			return null;
 		}
-		$p = Profile::current();
+		$p   = Profile::current();
+		$dpi = str_starts_with( $name, 'mt_profile_' ) ? Dpi_Lookup::prefill() : null;
 		switch ( $name ) {
 			case 'mt_has_profile':
 				return $p ? '1' : '';
 			case 'mt_profile_edu':
-				return $p ? $p['edu'] : '';
+				// A teaching license implies a bachelor's degree; never lower an answer already given.
+				$edu = $p ? $p['edu'] : '';
+				if ( $dpi && $dpi['edu_min'] && array_search( $edu, array_keys( Profile::EDU ), true ) < array_search( $dpi['edu_min'], array_keys( Profile::EDU ), true ) ) {
+					$edu = $dpi['edu_min'];
+				}
+				return $edu;
 			case 'mt_profile_cred':
-				return $p ? $p['cred'] : '';
+				return $dpi ? $dpi['cred'] : ( $p ? $p['cred'] : '' );
 			case 'mt_profile_areas':
-				return $p ? implode( ',', $p['areas'] ) : '';
+				return $dpi ? implode( ',', $dpi['areas'] ) : ( $p ? implode( ',', $p['areas'] ) : '' );
+			case 'mt_dpi_state':
+				return Dpi_Lookup::record() ? 'record' : ( Dpi_Lookup::matches() ? 'matches' : '' );
+			case 'mt_dpi_summary':
+				$rec = Dpi_Lookup::record();
+				if ( ! $rec ) {
+					return '';
+				}
+				$areas = array_intersect_key( Profile::areas(), array_flip( $rec['areas'] ) );
+				/* translators: 1: file number, 2: credential answer */
+				$line = sprintf( __( 'File number %1$d. For the check this means: %2$s', 'mmi-teach' ), $rec['id'], 'none' === $rec['cred'] ? __( 'no current teaching license or permit', 'mmi-teach' ) : Profile::CRED[ $rec['cred'] ] );
+				return esc_html( $line . ( $areas ? ' · ' . implode( ', ', $areas ) : '' ) . '.' );
+			case 'mt_dpi_notes_html':
+				$rec = Dpi_Lookup::record();
+				return $rec && $rec['notes'] ? '<ul>' . implode( '', array_map( static fn( $n ) => '<li>' . esc_html( $n ) . '</li>', $rec['notes'] ) ) . '</ul>' : '';
+			case 'mt_dpi_more':
+				$rec = Dpi_Lookup::record();
+				/* translators: %d: number of licenses */
+				return $rec && $rec['more'] ? esc_html( sprintf( _n( 'And %d older license on DPI’s page.', 'And %d older licenses on DPI’s page.', $rec['more'], 'mmi-teach' ), $rec['more'] ) ) : '';
+			case 'mt_dpi_url':
+				$rec = Dpi_Lookup::record();
+				return $rec ? esc_url_raw( Dpi_Lookup::dpi_url( $rec['id'] ) ) : esc_url_raw( Dpi_Lookup::LOOKUP_URL );
+			case 'mt_dpi_match_note':
+				$m = Dpi_Lookup::matches();
+				if ( ! $m ) {
+					return '';
+				}
+				$n = count( $m['m'] );
+				/* translators: 1: number, 2: the name searched */
+				$line = sprintf( _n( '%1$d person matches “%2$s”.', '%1$d people match “%2$s”.', $n, 'mmi-teach' ), $n, $m['q'] );
+				return esc_html( $line . ( $n >= Dpi_Lookup::MAX_MATCHES ? ' ' . __( 'That’s the most DPI shows at once: add your full first name to narrow it.', 'mmi-teach' ) : '' ) );
+			case 'mt_dpi_forget_url':
+				return esc_url_raw( add_query_arg( array( 'mt_dpi_forget' => 1, '_mtn' => wp_create_nonce( 'mt_dpi' ) ), Pages::url( 'check' ) ) );
+			case 'mt_dpi_error':
+				$code = isset( $_GET['dpi_error'] ) ? sanitize_key( wp_unslash( $_GET['dpi_error'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
+				return array(
+					'limit' => esc_html__( 'That’s a lot of lookups in a short time. Try again in 15 minutes, or search on DPI’s own site.', 'mmi-teach' ),
+					'down'  => esc_html__( 'DPI’s lookup isn’t answering right now. Try again in a few minutes, or search on DPI’s own site.', 'mmi-teach' ),
+				)[ $code ] ?? '';
+			case 'mt_dpi_prefill':
+				return Dpi_Lookup::prefill() ? '1' : '';
+			case 'mt_dpi_lookup_url':
+				return esc_url_raw( Dpi_Lookup::LOOKUP_URL );
 			case 'mt_profile_epp':
 				return $p ? ( $p['epp'] ? 'yes' : 'no' ) : '';
 			case 'mt_profile_age':

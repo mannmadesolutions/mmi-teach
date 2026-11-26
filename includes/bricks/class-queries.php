@@ -3,6 +3,7 @@ namespace MMI_Teach\Bricks;
 
 use MMI_Teach\Applications;
 use MMI_Teach\Checklist;
+use MMI_Teach\Dpi_Lookup;
 use MMI_Teach\Eligibility;
 use MMI_Teach\Front;
 use MMI_Teach\Jobs;
@@ -29,6 +30,8 @@ final class Queries {
 		'mt_paths'       => 'MMI Teach: my routes by role',
 		'mt_my_apps'     => 'MMI Teach: my applications',
 		'mt_personas'    => 'MMI Teach: sample people',
+		'mt_dpi_matches' => 'MMI Teach: DPI lookup matches',
+		'mt_dpi_rows'    => 'MMI Teach: DPI lookup licenses',
 	);
 
 	/** The checklist section being rendered by the outer loop (mt_task_groups). */
@@ -70,6 +73,10 @@ final class Queries {
 				return self::my_apps();
 			case 'mt_personas':
 				return self::personas();
+			case 'mt_dpi_matches':
+				return self::dpi_matches();
+			case 'mt_dpi_rows':
+				return self::dpi_rows();
 		}
 		return array();
 	}
@@ -319,6 +326,56 @@ final class Queries {
 				'url'    => add_query_arg( 'mt_persona', $key, Pages::url( 'check' ) ),
 				'active' => $active === $key ? '1' : '',
 				'state'  => $active === $key ? 'active' : '',
+			);
+		}
+		return $rows;
+	}
+
+	/** The visitor's own DPI search matches (from their cookie), each with a pick link. */
+	private static function dpi_matches(): array {
+		$m = Dpi_Lookup::matches();
+		if ( ! $m ) {
+			return array();
+		}
+		$rows = array();
+		foreach ( $m['m'] as [ $id, $name ] ) {
+			$rows[] = array(
+				'_row'     => 'dpi_match',
+				'id'       => (string) $id,
+				'title'    => $name,
+				'pick_url' => add_query_arg( array( 'mt_dpi_pick' => $id, '_mtn' => wp_create_nonce( 'mt_dpi' ) ), Pages::url( 'check' ) ),
+				'dpi_url'  => Dpi_Lookup::dpi_url( $id ),
+			);
+		}
+		return $rows;
+	}
+
+	/** The licenses on the visitor's chosen DPI record, in plain words. */
+	private static function dpi_rows(): array {
+		$rec = Dpi_Lookup::record();
+		if ( ! $rec ) {
+			return array();
+		}
+		$labels = array(
+			'valid'   => __( 'Current', 'mmi-teach' ),
+			'expired' => __( 'Not current', 'mmi-teach' ),
+			'other'   => __( 'Ask DPI', 'mmi-teach' ),
+		);
+		$states = array(
+			'valid'   => 'now',
+			'expired' => 'later',
+			'other'   => 'check',
+		);
+		$rows   = array();
+		foreach ( $rec['rows'] as $i => $r ) {
+			$rows[] = array(
+				'_row'        => 'dpi_license',
+				'id'          => (string) $i,
+				'title'       => $r['title'],
+				'detail'      => implode( ' · ', array_filter( array( $r['subjects'], $r['grades'] ? sprintf( __( 'grades %s', 'mmi-teach' ), $r['grades'] ) : '' ) ) ),
+				'status'      => $r['status'],
+				'state'       => $states[ $r['state'] ],
+				'state_label' => $labels[ $r['state'] ],
 			);
 		}
 		return $rows;

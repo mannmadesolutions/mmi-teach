@@ -1154,7 +1154,7 @@ final class Site {
 		$form  = self::form(
 			array(
 				self::field( 'edu', 'radio', 'What’s the highest level of education you’ve finished?', array( 'options' => self::options( Profile::EDU ), 'valueLabelOptions' => true, 'value' => '{mt_profile_edu}', 'required' => true ) ),
-				self::field( 'cred', 'radio', 'Which license or permit do you hold now?<small>Hold more than one? Pick your teaching license. Not sure? <a href="https://dpi.wi.gov/licensing/license-lookup" target="_blank" rel="noopener">Look yourself up on DPI’s license lookup</a> or <a href="/guides/teaching-license/">compare them</a>.</small>', array( 'options' => self::options( Profile::CRED ), 'valueLabelOptions' => true, 'value' => '{mt_profile_cred}', 'required' => true ) ),
+				self::field( 'cred', 'radio', 'Which license or permit do you hold now?<small>Hold more than one? Pick your teaching license. Not sure? <a href="#find-license">Find yours in DPI’s records</a> or <a href="/guides/teaching-license/">compare them</a>.</small>', array( 'options' => self::options( Profile::CRED ), 'valueLabelOptions' => true, 'value' => '{mt_profile_cred}', 'required' => true ) ),
 				self::field( 'areas', 'checkbox', 'If you hold a teaching license, which subjects does it cover?<small>Current, expired or from another state. Skip this if you don’t have one.</small>', array( 'options' => self::options( $areas ), 'valueLabelOptions' => true, 'value' => '{mt_profile_areas}' ) ),
 				self::field( 'epp', 'radio', 'Are you enrolled in a Wisconsin teacher-preparation program?', array( 'options' => self::options( $yes ), 'valueLabelOptions' => true, 'value' => '{mt_profile_epp}', 'required' => true ) ),
 				self::field( 'age', 'radio', 'How old are you?', array( 'options' => self::options( Profile::AGES ), 'valueLabelOptions' => true, 'value' => '{mt_profile_age}', 'required' => true ) ),
@@ -1207,6 +1207,7 @@ final class Site {
 				),
 				array( 'mt-section' )
 			),
+			$this->find_license(),
 			Kit::el(
 				'section',
 				array( '_cssId' => 'answers' ),
@@ -1224,6 +1225,87 @@ final class Site {
 				),
 				array( 'mt-section' )
 			),
+		);
+	}
+
+	/** "Find my license": DPI's public lookup, read for the visitor (Dpi_Lookup). */
+	private function find_license(): array {
+		$search = self::form(
+			array(
+				self::field( 'last', 'text', 'Last name', array( 'width' => 50, 'autocomplete' => 'family-name' ) ),
+				self::field( 'first', 'text', 'First name (optional)', array( 'width' => 50, 'autocomplete' => 'given-name' ) ),
+				self::field( 'file', 'text', 'Or your DPI file number<small>Also called the entity number. It’s on DPI’s emails and in your ELO account.</small>', array( 'width' => 100, 'inputmode' => 'numeric' ) ),
+			),
+			array(
+				'actions'          => array( 'mt_dpi_search' ),
+				'submitButtonText' => 'Find my license',
+				'successMessage'   => 'Found.',
+			),
+			array( 'mt-form' )
+		);
+		$matches = Kit::el(
+			'block',
+			array(
+				'hasLoop' => true,
+				'query'   => array( 'objectType' => 'mt_dpi_matches' ),
+			),
+			array(
+				self::span( '{mt_row_title}', 'mt-strong' ),
+				self::div( array( self::link( 'View on DPI', '{mt_row_dpi_url}', array( 'mt-link' ), true ), self::btn( 'This is me', '{mt_row_pick_url}', array( 'mt-btn', 'mt-btn--small' ) ) ), 'mt-row' ),
+			),
+			array( 'mt-card', 'mt-row', 'mt-row--between' )
+		);
+		$licenses = Kit::el(
+			'block',
+			array(
+				'hasLoop' => true,
+				'query'   => array( 'objectType' => 'mt_dpi_rows' ),
+			),
+			array(
+				self::div( array( self::p( '{mt_row_title}', 'mt-strong' ), self::badge( '{mt_row_state_label}', '{mt_row_state}' ) ), 'mt-row', 'mt-row--between' ),
+				self::p( '{mt_row_detail}', 'mt-small' ),
+				self::p( '{mt_row_status}', 'mt-small' ),
+			),
+			array( 'mt-card' )
+		);
+		return Kit::el(
+			'section',
+			array( '_cssId' => 'find-license' ),
+			array(
+				Kit::el(
+					'container',
+					array(),
+					array(
+						self::h( 'Find your license in DPI’s records' ),
+						self::p( 'Optional. We search DPI’s public license lookup for you, explain what you hold, and fill in your license answers. Your name is used only for this search and isn’t stored.', 'mt-muted' ),
+						self::only( array( self::span( '{mt_dpi_error}' ) ), array( array( '{mt_dpi_error}', 'empty_not' ) ), 'mt-notice', 'mt-notice--warn' ),
+						self::only( array( $search ), array( array( '{mt_dpi_state}', 'empty' ) ) ),
+						self::only(
+							array(
+								self::p( '{mt_dpi_match_note} DPI lists names only, so pick yours, or open each on DPI’s site to check.', 'mt-strong' ),
+								self::div( array( $matches ), 'mt-stack', 'mt-stack--tight' ),
+								self::link( 'None of these: search again', '{mt_dpi_forget_url}' ),
+							),
+							array( array( '{mt_dpi_state}', 'matches' ) ),
+							'mt-stack'
+						),
+						self::only(
+							array(
+								self::p( '{mt_dpi_summary}', 'mt-strong' ),
+								self::div( array( $licenses ), 'mt-stack' ),
+								self::only( array( self::p( '{mt_dpi_more}', 'mt-small' ) ), array( array( '{mt_dpi_more}', 'empty_not' ) ) ),
+								self::only( array( self::rich( '{mt_dpi_notes_html}' ) ), array( array( '{mt_dpi_notes_html}', 'empty_not' ) ) ),
+								self::only( array( self::span( 'Your license answers below are filled in from this record. Answer the rest, then Show my options.' ) ), array( array( '{mt_dpi_prefill}', 'empty_not' ) ), 'mt-notice' ),
+								self::div( array( self::link( 'See it on DPI’s site', '{mt_dpi_url}', array( 'mt-link' ), true ), self::link( 'Not me: search again', '{mt_dpi_forget_url}' ) ), 'mt-row' ),
+							),
+							array( array( '{mt_dpi_state}', 'record' ) ),
+							'mt-stack'
+						),
+					),
+					array( 'mt-inner', 'mt-inner--narrow' )
+				),
+			),
+			array( 'mt-section', 'mt-section--tight' )
 		);
 	}
 
@@ -1706,7 +1788,7 @@ final class Site {
 				array(
 					self::rich(
 						'<h2>Without an account</h2><p>Your answers to the six questions and your checklist ticks are kept in cookies in your own browser for up to 180 days. They aren’t sent anywhere else, and clearing your cookies removes them.</p>'
-						. '<h2>With an account</h2><p>We store your first name, email address, password (encrypted), your answers, your checklist ticks with their dates, and the applications you save: which job, its status, your availability and start date. We email you when you save an application, and the site owner receives a short notice.</p>'
+						. '<h2>Finding your license</h2><p>If you use “Find your license in DPI’s records”, the name or file number you type is sent to DPI’s public license lookup for that search only. We don’t store or log it. The names DPI lists are kept in a cookie in your browser for 30 minutes so you can pick yours, and the record you pick (your file number and licenses, without your name) for one day. To limit lookups, we count them against a scrambled form of your IP address for 15 minutes.</p><h2>With an account</h2><p>We store your first name, email address, password (encrypted), your answers, your checklist ticks with their dates, and the applications you save: which job, its status, your availability and start date. We email you when you save an application, and the site owner receives a short notice.</p>'
 						. '<h2>What we never ask for</h2><ul><li>Social Security numbers, ID or immigration documents (Form I-9)</li><li>Bank or tax details</li><li>Medical or TB results</li><li>Arrests, convictions or any criminal history</li><li>Uploaded files of any kind</li></ul><p>Employers collect those themselves, in their own secure systems or in person.</p>'
 						. '<h2>Employers</h2><p>This is a demo. Applications you save here are not sent to any employer; you finish each one on the employer’s own site.</p>'
 						. '<h2>Deleting your data</h2><p>Signed in, go to <a href="/account/">My account</a> and choose Delete my account: everything above is removed at once. Questions: use the contact details on <a href="https://mannmade.us/">mannmade.us</a>.</p>'

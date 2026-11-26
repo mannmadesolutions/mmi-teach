@@ -29,7 +29,26 @@ Clearer Wisconsin license choices and how to get each one, checked against DPI's
   "Your options" (drawn server-side once answers exist) never appeared. The redirect now adds a fresh
   `?answers=` value, which forces a reload. The e2e test reloaded the page by hand after saving, which
   hid the bug; it now relies on the form's own redirect and saves twice.
-- **Tests:** out-of-state, lapsed-license and expired-permit cases.
+- **Find your license in DPI's records** (check page, above the answers; `Dpi_Lookup`). You search by
+  last name (first name optional) or DPI file number, and the site reads DPI's public ELO lookup for
+  you: the form page, which carries the session in `;jsessionid=`, then the POST, then the results
+  page. One match goes straight to the record. Several are listed with "This is me" and "View on
+  DPI"; a pick must be one of the visitor's own matches (nonce plus cookie check). The record is
+  shown in plain words: license kind and stage, subjects, grades, and current or expired with the
+  date. Notes cover renewal in progress; revoked, suspended, denied or surrendered (ask DPI); and
+  DPI's warning about licenses expiring this year. The record pre-fills the license answer, the
+  subjects (DPI codes mapped through `licenses.json`) and at least a bachelor's for a teaching
+  license, until the visitor saves their answers.
+  - Mapping: T910 → permit; a "Substitute" stage → five-year substitute license; Aide → program
+    aide; other T codes → teaching license; P/A (pupil services, administrator) aren't teaching
+    licenses. "License Invalid" counts as not current, not as a problem.
+  - Privacy: the name is never stored or logged. Matches sit in a 30-minute cookie, the picked
+    record (file number and licenses, no name) in a one-day cookie. Limits: 20 DPI requests per
+    visitor per 15 minutes (salted IP hash) and 300 per hour site-wide. The privacy page says so.
+  - The license question's hint now points to this box.
+- **Tests:** out-of-state, lapsed-license and expired-permit cases. DPI parser and mapping tests run
+  on anonymized saved pages (`tests/fixtures/dpi/`: fictional names, file and license numbers). The
+  e2e test runs a name search, a pick, the pre-fill and search-again.
 
 ## 2.0.0 — 2026-11-24
 

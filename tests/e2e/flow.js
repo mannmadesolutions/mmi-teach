@@ -102,6 +102,26 @@ function check( ok, what ) {
 		check( /You need this|You have this/.test( body ), 'job page: have/need per requirement' );
 		check( body.includes( 'Create an account to apply' ), 'job page: guest sees create-account to apply' );
 
+		/* 3b. Find my license: DPI's public lookup, read for the visitor (a very common name). */
+		await go( '/check/' );
+		const find = '#find-license form';
+		await page.fill( `${ find } input[name="form-field-mtlast"]`, 'Smith' );
+		await page.fill( `${ find } input[name="form-field-mtfrst"]`, 'John' );
+		await submit( find );
+		body = await text();
+		check( /\d+ people match/.test( body ), 'DPI lookup: name search lists matches' );
+		await Promise.all( [ page.waitForLoadState( 'load' ), page.locator( '#find-license a', { hasText: 'This is me' } ).first().click() ] );
+		await page.waitForTimeout( 1000 );
+		body = await text();
+		check( body.includes( 'For the check this means' ), 'DPI lookup: picked record explained' );
+		check( /Current|Not current/.test( body ), 'DPI lookup: licenses listed with their state' );
+		check( body.includes( 'filled in from this record' ), 'DPI lookup: form pre-filled notice' );
+		const prefilled = await page.locator( '#answers input[name="form-field-mtcred[]"]:checked' ).getAttribute( 'value' ).catch( () => '' );
+		check( !! prefilled && 'none' !== prefilled, `DPI lookup: license answer pre-filled (${ prefilled })` );
+		await Promise.all( [ page.waitForLoadState( 'load' ), page.locator( '#find-license a', { hasText: 'search again' } ).first().click() ] );
+		await page.waitForTimeout( 1000 );
+		check( ( await page.locator( '#find-license button[type=submit]' ).count() ) > 0, 'DPI lookup: search again clears it' );
+
 		/* 4. Checklist: mark one item done with a date. */
 		await go( '/checklist/' );
 		body = await text();
