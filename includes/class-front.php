@@ -16,6 +16,9 @@ final class Front {
 
 	public const COOKIE_FIT = 'mt_fit';
 
+	/** Meta key the jobs page's pay sort orders by (daily equivalent, set only when a job posts pay). */
+	public const PAY_KEY = '_mt_pay_day';
+
 	/** Once the Bricks site is live, these old URLs redirect (Build\Site sets the switch). */
 	public const OPTION_LIVE = 'mmi_teach_bricks_live';
 	private const REDIRECTS  = array(
@@ -26,6 +29,8 @@ final class Front {
 	public static function register(): void {
 		add_action( 'template_redirect', array( self::class, 'early' ), 1 );
 		add_filter( 'bricks/posts/query_vars', array( self::class, 'fit_query' ), 10, 3 );
+		add_filter( 'bricks/posts/query_vars', array( self::class, 'jobs_order' ), 1000, 3 );
+		add_filter( 'posts_clauses', array( self::class, 'sort_clauses' ), 10, 2 );
 	}
 
 	public static function early(): void {
@@ -91,6 +96,44 @@ final class Front {
 		$ids              = self::applicable_ids();
 		$vars['post__in'] = $ids ?: array( 0 );
 		return $vars;
+	}
+
+	/**
+	 * The jobs page's order. Pay sort: Bricks sorts by meta_key, which drops every job without
+	 * posted pay; this swaps it for a flag that sort_clauses() turns into a LEFT JOIN, so those jobs
+	 * stay in the list, after the paid ones. Every order ends newest first, then by ID: postings
+	 * from the same day share one post_date, and without a tiebreak pages repeat or skip jobs.
+	 * Runs after Bricks merges its filter vars (priority 999).
+	 */
+	public static function jobs_order( $vars, $settings, $element_id ) {
+		if ( ! in_array( (string) $element_id, self::FIT_LOOPS, true ) ) {
+			return $vars;
+		}
+		if ( self::PAY_KEY === ( $vars['meta_key'] ?? '' ) ) {
+			$vars['mt_pay_sort'] = 'ASC' === strtoupper( (string) ( $vars['orderby']['meta_value_num'] ?? '' ) ) ? 'ASC' : 'DESC';
+			unset( $vars['meta_key'], $vars['meta_type'] );
+			$vars['orderby'] = 'date';
+		}
+		if ( 'date' === ( $vars['orderby'] ?? '' ) ) {
+			$vars['order']         = 'DESC';
+			$vars['mt_jobs_order'] = true;
+		}
+		return $vars;
+	}
+
+	public static function sort_clauses( array $clauses, \WP_Query $q ): array {
+		if ( ! $q->get( 'mt_jobs_order' ) ) {
+			return $clauses;
+		}
+		global $wpdb;
+		$order = $q->get( 'mt_pay_sort' );
+		$by    = "{$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
+		if ( 'ASC' === $order || 'DESC' === $order ) {
+			$clauses['join'] .= $wpdb->prepare( " LEFT JOIN {$wpdb->postmeta} mt_pay ON ( mt_pay.post_id = {$wpdb->posts}.ID AND mt_pay.meta_key = %s )", self::PAY_KEY );
+			$by               = "mt_pay.meta_value IS NULL, CAST(mt_pay.meta_value AS DECIMAL(10,2)) $order, $by";
+		}
+		$clauses['orderby'] = $by;
+		return $clauses;
 	}
 
 	/** Open jobs the current profile can apply to now; cached per profile and sync. */

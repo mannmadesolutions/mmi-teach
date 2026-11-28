@@ -50,6 +50,9 @@ final class Site {
 	/** Bricks element ID of the jobs loop (filters and pagination point at it). */
 	public const JOBS_LOOP = 'mtjobs';
 
+	/** Bricks element ID of the jobs sort select (left out of the active-filter chips; it shows its own value). */
+	public const JOBS_SORT = 'mtsort';
+
 	private bool $force_all;
 	private array $force;
 
@@ -130,7 +133,12 @@ final class Site {
 		update_option( 'bricks_theme_styles', $styles );
 
 		if ( class_exists( '\Bricks\Query_Filters' ) ) {
-			\Bricks\Query_Filters::get_instance()->maybe_create_tables();
+			// tables_check() creates the tables AND stamps their versions; Bricks reads URL filters
+			// (?role=, ?sort=) only once the element table's version is 1.1. Bricks runs it on
+			// admin_init for admins, but a logged-out admin-ajax call sets its 8-hour "checked"
+			// transient without doing anything, so the stamp may never happen on its own.
+			delete_transient( \Bricks\Query_Filters::DB_CHECK_TRANSIENT );
+			\Bricks\Query_Filters::get_instance()->tables_check();
 		}
 		Kit::$log[] = 'settings: query filters on, palette, theme style, global settings';
 	}
@@ -376,6 +384,7 @@ final class Site {
 		$c( 'mt-jobs', array( '_display' => 'grid', '_gridTemplateColumns' => '17em minmax(0, 1fr)', '_gridGap' => '2em', '_alignItems' => 'start', '_width' => '100%', '_gridTemplateColumns:tablet_portrait' => 'minmax(0, 1fr)' ) );
 		$c( 'mt-filters', array( '_display' => 'flex', '_direction' => 'column', '_rowGap' => '1.1em', '_width' => '100%', '_cssCustom' => "%root% .brxe-filter-checkbox li, %root% .brxe-filter-radio li { font-size: .92em; }\n%root% select, %root% input[type=search], %root% input[type=number] { width: 100%; border: 1px solid #9aa0b4; border-radius: 8px; padding: .45em .6em; background: #fff; color: var(--mt-ink); }\n%root% .brx-option-text { color: var(--mt-ink); }" ) );
 		$c( 'mt-filter-label', array( '_margin' => array( 'top' => '0', 'bottom' => '.3em', 'left' => '0', 'right' => '0' ) ) + $t( array( 'font-size' => '.8em', 'font-weight' => '700', 'letter-spacing' => '.06em', 'text-transform' => 'uppercase', 'color' => $col( 'slate' ) ) ) );
+		$c( 'mt-sort', array( '_display' => 'flex', '_direction' => 'row', '_alignItems' => 'center', '_columnGap' => '.6em', '_cssCustom' => "%root% .mt-filter-label { margin: 0; }\n%root% select { border: 1px solid #9aa0b4; border-radius: 8px; padding: .45em .6em; background: #fff; color: var(--mt-ink); }" ) );
 		$c( 'mt-results', array( '_display' => 'flex', '_direction' => 'column', '_rowGap' => '.9em', '_width' => '100%' ) );
 		$c( 'mt-notice', array( '_display' => 'flex', '_direction' => 'row', '_flexWrap' => 'wrap', '_alignItems' => 'center', '_columnGap' => '1em', '_rowGap' => '.5em', '_width' => '100%', '_padding' => self::box( '.9em', '1.1em' ), '_background' => array( 'color' => $col( 'indigo-soft' ) ), '_border' => self::radius( '10px' ) ) );
 		$c( 'mt-notice--warn', array( '_background' => array( 'color' => $col( 'amber-soft' ) ), '_typography' => array( 'color' => $col( 'amber' ) ) ) );
@@ -610,6 +619,38 @@ final class Site {
 			),
 			array(),
 			$classes
+		);
+	}
+
+	/**
+	 * Sort select for the jobs loop. Empty = the loop's own order (newest first); the pay options
+	 * sort by _mt_pay_day, and Front::jobs_order() keeps jobs without posted pay in the list, last.
+	 */
+	private static function jobs_sort(): array {
+		$pay = static fn( string $id, string $label, string $order ) => array(
+			'id'            => $id,
+			'optionLabel'   => $label,
+			'optionSource'  => 'meta_value_num',
+			'optionMetaKey' => \MMI_Teach\Front::PAY_KEY,
+			'optionOrder'   => $order,
+		);
+		return Kit::el(
+			'filter-select',
+			array(
+				'_id'            => self::JOBS_SORT,
+				'filterQueryId'  => self::JOBS_LOOP,
+				'filterAction'   => 'sort',
+				'filterNiceName' => 'sort',
+				'placeholder'    => 'Most recent',
+				'sortOptions'    => array( $pay( 'mtpayhi', 'Highest pay', 'DESC' ), $pay( 'mtpaylo', 'Lowest pay', 'ASC' ) ),
+				'_attributes'    => array(
+					array(
+						'id'    => 'mtsortlbl',
+						'name'  => 'aria-label',
+						'value' => 'Sort jobs',
+					),
+				),
+			)
 		);
 	}
 
@@ -1119,8 +1160,14 @@ final class Site {
 								array(
 									self::div(
 										array(
-											Kit::el( 'query-results-summary', array( 'queryId' => $q, 'statsFormat' => '%start%–%end% of %total% jobs', 'oneResultText' => '1 job', 'noResultsText' => 'No jobs' ), array(), array( 'mt-muted' ) ),
-											Kit::el( 'filter-active-filters', array( 'filterQueryId' => $q ) ),
+											self::div(
+												array(
+													Kit::el( 'query-results-summary', array( 'queryId' => $q, 'statsFormat' => '%start%–%end% of %total% jobs', 'oneResultText' => '1 job', 'noResultsText' => 'No jobs' ), array(), array( 'mt-muted' ) ),
+													Kit::el( 'filter-active-filters', array( 'filterQueryId' => $q, 'excludeIds' => self::JOBS_SORT ) ),
+												),
+												'mt-row'
+											),
+											self::div( array( self::span( 'Sort', 'mt-filter-label' ), self::jobs_sort() ), 'mt-sort' ),
 										),
 										'mt-row',
 										'mt-row--between'

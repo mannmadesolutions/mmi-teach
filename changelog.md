@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.2.0 — 2026-11-28
+
+Sort the jobs list by pay or most recent.
+
+- **Jobs page, Sort:** a Bricks sort select above the results: Most recent (default), Highest pay,
+  Lowest pay. Pay sorts use the daily equivalent (`_mt_pay_day`: hourly ×7, yearly ÷180). Bricks'
+  own meta sort would drop the jobs that don't post pay, 276 of 483 today; `Front::jobs_order()`
+  swaps it for a LEFT JOIN so they stay, after the paid jobs. The choice is in the URL
+  (`?sort=_mt_pay_day_DESC`) and combines with every filter; it's left out of the active-filter chips.
+- **Fix: jobs repeated or skipped between pages.** Postings from the same day share one `post_date`,
+  so "newest first" had no stable order and pages could overlap. Every order now ends with post
+  date then ID.
+- **Fix: filters in the URL did nothing** (`/jobs/?role=substitute-teacher` showed every job, and so
+  did the footer's links). Bricks reads URL filters only once its element table is stamped version
+  1.1. It stamps it on `admin_init` for an admin, but a logged-out admin-ajax request also fires
+  `admin_init` and sets Bricks' 8-hour "checked" transient without doing anything, so the stamp
+  never happened. `build-site --step=settings` now runs Bricks' table check as the admin.
+- **Tests:** the e2e flow checks the sort options, both pay sorts (URL, paid job first, nothing
+  dropped), sort by URL on load, and that the role filter by URL narrows the list.
+
 ## 2.1.0 — 2026-11-26
 
 Clearer Wisconsin license choices and how to get each one, checked against DPI's pages on 2026-11-26.

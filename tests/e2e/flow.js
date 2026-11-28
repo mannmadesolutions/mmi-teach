@@ -91,8 +91,27 @@ function check( ok, what ) {
 		check( ! /Not this one yet/.test( body ), 'no "not this one yet" jobs in the apply-now list' );
 		await go( '/jobs/?fit=all' );
 
+		/* 2b. Sort by pay: every job stays listed, paid jobs first, then newest-first again. */
+		const total = async () => +( ( await page.locator( '.brxe-query-results-summary' ).innerText() ).match( /of ([\d,]+)/ ) || [ 0, '0' ] )[ 1 ].replace( /,/g, '' );
+		const firstPay = async () => ( await page.locator( '.mt-job__pay' ).first().innerText() ).trim();
+		await go( '/jobs/' );
+		const all = await total();
+		const sort = page.locator( '.mt-sort select' );
+		check( ( await sort.locator( 'option' ).allInnerTexts() ).join( '|' ) === 'Most recent|Highest pay|Lowest pay', 'sort: options' );
+		for ( const [ value, name ] of [ [ '_mt_pay_day_DESC', 'highest pay' ], [ '_mt_pay_day_ASC', 'lowest pay' ] ] ) {
+			await Promise.all( [ page.waitForResponse( ( r ) => r.url().includes( '/wp-json/bricks' ), { timeout: 30000 } ).catch( () => null ), sort.selectOption( value ) ] );
+			await page.waitForTimeout( 1500 );
+			check( page.url().includes( 'sort=' + value ), `sort ${ name }: in the URL` );
+			check( ( await total() ) === all, `sort ${ name }: keeps jobs without posted pay (${ await total() } of ${ all })` );
+			check( /^\$/.test( await firstPay() ), `sort ${ name }: a paid job first (${ await firstPay() })` );
+		}
+		await go( '/jobs/?sort=_mt_pay_day_DESC' );
+		check( ( await sort.inputValue() ) === '_mt_pay_day_DESC' && /^\$/.test( await firstPay() ), 'sort by URL applies on load' );
+
 		/* 3. A substitute job: what it needs, for this person. */
 		await go( '/jobs/?role=substitute-teacher' );
+		const subs = await total();
+		check( subs > 0 && subs < all, `role filter by URL narrows the list (${ subs } of ${ all })` );
 		const href = await page.locator( '.mt-job h3 a' ).first().getAttribute( 'href' );
 		check( !! href, 'role filter by URL lists substitute jobs' );
 		const jobPath = new URL( href, base ).pathname;
