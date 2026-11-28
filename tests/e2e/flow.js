@@ -105,6 +105,17 @@ function check( ok, what ) {
 			check( ( await total() ) === all, `sort ${ name }: keeps jobs without posted pay (${ await total() } of ${ all })` );
 			check( /^\$/.test( await firstPay() ), `sort ${ name }: a paid job first (${ await firstPay() })` );
 		}
+		/* 2c. Employer list: "School District of X" filed under X, and the search box finds it. */
+		const employers = ( await page.locator( 'select option' ).allInnerTexts() ).map( ( t ) => t.replace( /[⁨⁩]/g, '' ) );
+		check( ! employers.some( ( t ) => /^School District of /.test( t ) ) && employers.some( ( t ) => /, School District of/.test( t ) ), 'employer list: "School District of X" listed as "X, School District of"' );
+		const empBox = page.locator( '.bricks-choices' ).filter( { hasText: 'Any employer' } ).first();
+		await empBox.click();
+		await page.keyboard.type( 'Waukesha' );
+		await page.waitForTimeout( 600 );
+		const found = await empBox.locator( '.bricks-choices__list--dropdown .bricks-choices__item--choice:visible' ).allInnerTexts();
+		check( found.length > 0 && found.every( ( t ) => /waukesha/i.test( t ) ), `employer search: only matching names (${ found.length })` );
+		await page.keyboard.press( 'Escape' );
+
 		await go( '/jobs/?sort=_mt_pay_day_DESC' );
 		check( ( await sort.inputValue() ) === '_mt_pay_day_DESC' && /^\$/.test( await firstPay() ), 'sort by URL applies on load' );
 

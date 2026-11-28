@@ -31,6 +31,8 @@ final class Front {
 		add_filter( 'bricks/posts/query_vars', array( self::class, 'fit_query' ), 10, 3 );
 		add_filter( 'bricks/posts/query_vars', array( self::class, 'jobs_order' ), 1000, 3 );
 		add_filter( 'posts_clauses', array( self::class, 'sort_clauses' ), 10, 2 );
+		add_filter( 'bricks/filter_element/populated_options', array( self::class, 'employer_options' ), 10, 2 );
+		add_filter( 'bricks/element/render_attributes', array( self::class, 'employer_search' ), 10, 3 );
 	}
 
 	public static function early(): void {
@@ -134,6 +136,58 @@ final class Front {
 		}
 		$clauses['orderby'] = $by;
 		return $clauses;
+	}
+
+	/**
+	 * Employer filter: "School District of New Berlin" is listed as "New Berlin, School District
+	 * of" (and "The Prairie School" as "Prairie School, The"), sorted by that, so every employer
+	 * sits under its place name. Only the label changes; the value is still the term slug.
+	 */
+	public static function employer_options( $options, $element ) {
+		if ( ! is_array( $options ) || 'mt_employer' !== ( $element->settings['filterTaxonomy'] ?? '' ) ) {
+			return $options;
+		}
+		$top  = array();
+		$rest = array();
+		foreach ( $options as $o ) {
+			if ( ! empty( $o['is_placeholder'] ) || ! empty( $o['is_all'] ) || '' === (string) ( $o['value'] ?? '' ) ) {
+				$top[] = $o;
+				continue;
+			}
+			$o['text'] = self::employer_label( (string) ( $o['text'] ?? '' ) );
+			$rest[]    = $o;
+		}
+		usort( $rest, static fn( $a, $b ) => strnatcasecmp( $a['text'], $b['text'] ) );
+		return array_merge( $top, $rest );
+	}
+
+	/**
+	 * Employer search box: Choices.js matches fuzzily by default ("Berlin" also listed Burlington
+	 * and Destiny). Bricks passes data-brx-choices-options straight to Choices.js, so a strict Fuse
+	 * threshold, matched anywhere in the name, is added here.
+	 */
+	public static function employer_search( $attributes, $key, $element ) {
+		if ( ! is_array( $attributes ) || 'filter-select' !== ( $element->name ?? '' ) || 'mt_employer' !== ( $element->settings['filterTaxonomy'] ?? '' ) ) {
+			return $attributes;
+		}
+		$raw = $attributes[ $key ]['data-brx-choices-options'] ?? null;
+		if ( null === $raw ) {
+			return $attributes;
+		}
+		$opts = json_decode( is_array( $raw ) ? (string) end( $raw ) : (string) $raw, true );
+		if ( is_array( $opts ) ) {
+			$opts['fuseOptions'] = array(
+				'threshold'      => 0.1,
+				'ignoreLocation' => true,
+			);
+			$attributes[ $key ]['data-brx-choices-options'] = array( wp_json_encode( $opts ) );
+		}
+		return $attributes;
+	}
+
+	/** "School District of X" → "X, School District of"; "The X" → "X, The". */
+	public static function employer_label( string $name ): string {
+		return (string) preg_replace( '/^(School District of|The)\s+(.+)$/i', '$2, $1', trim( $name ) );
 	}
 
 	/** Open jobs the current profile can apply to now; cached per profile and sync. */

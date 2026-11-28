@@ -17,7 +17,13 @@ Sort the jobs list by pay or most recent.
   1.1. It stamps it on `admin_init` for an admin, but a logged-out admin-ajax request also fires
   `admin_init` and sets Bricks' 8-hour "checked" transient without doing anything, so the stamp
   never happened. `build-site --step=settings` now runs Bricks' table check as the admin.
-- **Tests:** the e2e flow checks the sort options, both pay sorts (URL, paid job first, nothing
+- **Employer filter, found by place name:** "School District of New Berlin" sat under S, so the
+  owner looked under N and didn't find it. The list now shows "New Berlin, School District of" (and
+  "Prairie School, The"), sorted by that (`Front::employer_options()`, label only, the value is
+  still the term slug). The select gets Bricks' Choices.js search; Choices' fuzzy match listed
+  Burlington and Destiny for "Berlin", so `Front::employer_search()` adds a strict Fuse threshold.
+  The box is styled like the other selects.
+- **Tests:** the e2e flow checks the employer labels and search, the sort options, both pay sorts (URL, paid job first, nothing
   dropped), sort by URL on load, and that the role filter by URL narrows the list.
 
 ## 2.1.0 — 2026-11-26
